@@ -1,25 +1,45 @@
 {
-    "name": "bravedave/mvp",
-    "description": "Minimum Viable Product",
-    "minimum-stability": "dev",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Dave Bray",
-            "email": "david@brayworth.com.au"
-        }
-    ],
-    "repositories": [
-        { "type": "git", "url": "https://github.com/bravedave/dvc" }
-    ],
-    "require": {
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "": "src/app/"
-
-        }
+  "name": "bravedave/forum",
+  "description": "FORUM module for bravedave/DVC",
+  "keywords": [
+    "Forum"
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dave Bray",
+      "email": "david@brayworth.com.au"
+    }
+  ],
+  "repositories": [
+    { "type": "git", "url": "https://github.com/bravedave/dvc" }
+  ],
+  "require": {
+    "bravedave/dvc": "*",
+    "bravedave/green": "^21.02"
+  },
+  "autoload": {
+    "psr-4": {
+      "dvc\\forum\\": "src/forum/"
 
     }
+
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "": "src/app/"
+
+    }
+
+  },
+  "scripts": {
+    "post-update-cmd": [
+      "dvc\\forum\\postUpdate::upgrade"
+
+    ]
+
+  }
 
 }

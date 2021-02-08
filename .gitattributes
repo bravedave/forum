@@ -5,5 +5,8 @@
 *.json text eol=lf
 *.js text eol=lf
 
+src/dvc/bootstrap-icons/* linguist-vendored
 src/dvc/bootstrap4/* linguist-vendored
 src/dvc/public/* linguist-vendored
+*.cmd linguist-detectable=false
+*.sh linguist-detectable=false
