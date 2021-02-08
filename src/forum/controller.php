@@ -52,7 +52,11 @@ class controller extends \Controller {
 		else {
 			$this->render([
 				'title' => $this->title = sprintf( 'forum - %s', $about),
-				'content' => 'blank'
+				'content' => 'blank',
+				'data' => [
+					'pageUrl' => strings::url($this->route)
+
+				]
 
 			]);
 
@@ -578,7 +582,13 @@ class controller extends \Controller {
 				$this->render([
 					'title' => sprintf( 'forum :: %s', $dto->description),
 					'primary' => 'view',
-					'secondary' => 'view-options']);
+					'secondary' => 'view-options',
+					'data' => [
+						'pageUrl' => strings::url($this->route . '/view/' . $id)
+
+					]
+
+				]);
 
 			}
 			else { throw new Exceptions\ForumTopicNotFound; }
