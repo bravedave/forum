@@ -30,12 +30,12 @@ class forum extends _dao {
 		if ( $hidedead )
 			$condition[] = sprintf( '(
 				CASE
-				WHEN u.user_id = NULL THEN f.user_id <> %d
+				WHEN u.user_id IS NULL THEN f.user_id <> %d
 				ELSE u.user_id <> %d
 				END
 			OR
 				CASE
-				WHEN u.updated = NULL THEN f.updated > "%s"
+				WHEN u.updated IS NULL THEN f.updated > "%s"
 				ELSE u.updated > "%s"
 			END)', \currentUser::id(), \currentUser::id(), date( 'Y-m-d', strtotime('-3 days')), date( 'Y-m-d', strtotime('-3 days')));
 
@@ -54,11 +54,11 @@ class forum extends _dao {
 				f.user_id reporter,
 				reporter.name reporter_name,
 				CASE
-					WHEN u.updated = NULL THEN f.updated
+					WHEN u.updated IS NULL THEN f.updated
 					ELSE u.updated
 				END last_updated,
 				CASE
-					WHEN u.user_id = NULL THEN f.user_id
+					WHEN u.user_id IS NULL THEN f.user_id
 					ELSE u.user_id
 				END user_id,
 				properties.address_street address,
@@ -87,7 +87,7 @@ class forum extends _dao {
 					LEFT JOIN
 						users ON
 							CASE
-								WHEN u.user_id = NULL THEN users.id = f.user_id
+								WHEN u.user_id IS NULL THEN users.id = f.user_id
 								ELSE users.id = u.user_id
 							END
 					LEFT JOIN
