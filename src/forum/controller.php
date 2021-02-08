@@ -44,11 +44,11 @@ class controller extends \Controller {
 				'title' => $this->title = sprintf( 'forum - %s', $about),
 				'content' => [
 					'parameters',
-					'report',
-					'data' => [
-						'pageUrl' => strings::url($this->route)
+					'report'
 
-					]
+				],
+				'data' => [
+					'pageUrl' => strings::url($this->route)
 
 				]
 
