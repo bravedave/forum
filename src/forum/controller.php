@@ -15,6 +15,8 @@ use dvc\Response;
 use dvc\Exceptions\GeneralException;
 use Json;
 
+use strings;
+
 class controller extends \Controller {
 	var $ItemsPerPage = 20;
 	protected $viewPath = __DIR__ . '/views/';
