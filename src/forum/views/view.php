@@ -16,7 +16,7 @@ use strings;
 use sys;
 
 	if ( $this->comments )
-		printf( '<form method="post" action="%s">', strings::url('forum/'));
+		printf( '<form method="post" action="%s">', strings::url($this->route));
 
 	?>
 <div data-role="controls" class="row mb-2">

@@ -218,13 +218,13 @@ class controller extends \Controller {
 			$dto->comment = $this->getPost( 'comment' );
 			$dto->description = $this->getPost( 'description' );
 			if ( empty( $dto->description) || empty( $dto->comment)) {
-				Response::redirect( self::$url, 'not adding topic with empty description or comment' );
+				Response::redirect( $this->route, 'not adding topic with empty description or comment' );
 
 			}
 			else {
 				$dao = new dao\forum;
 				if ( $dao->InsertDTO( $dto )) {
-					Response::redirect( self::$url, 'added new topic' );
+					Response::redirect( $this->route, 'added new topic' );
 
 				}
 				else { throw new GeneralException( 'failed to add new topic' ); }
@@ -333,7 +333,7 @@ class controller extends \Controller {
 						$dto = new dao\dto\forum;
 						$dto->comment = $this->getPost( 'comment' );
 						if ( empty( $dto->comment)) {
-							Response::redirect( self::$url . 'view/' . $dtoP->id, 'not adding post with empty comment' );
+							Response::redirect( $this->route . '/view/' . $dtoP->id, 'not adding post with empty comment' );
 
 						}
 						else {
@@ -342,7 +342,7 @@ class controller extends \Controller {
 							$dto->thread = $this->getPost( 'thread' );
 							$dto->notify = $dtoP->notify;
 							if ( $dao->InsertDTO( $dto )) {
-								Response::redirect( self::$url . 'view/' . $dtoP->id, 'added comment' );
+								Response::redirect( $this->route . '/view/' . $dtoP->id, 'added comment' );
 
 							} else { throw new GeneralException( 'failed to add comment' ); }
 
@@ -435,14 +435,14 @@ class controller extends \Controller {
 			if ( $id > 0 ) {
 				$dao = new dao\forum;
 				if ( $dto = $dao->closeTopic( $id )) {
-					Response::redirect( self::$url, 'topic closed' );
+					Response::redirect( $this->route, 'topic closed' );
 
 				}
-				Response::redirect( self::$url, 'could not close topic' );
+				Response::redirect( $this->route, 'could not close topic' );
 
 			}
 
-			Response::redirect( self::$url );
+			Response::redirect( $this->route );
 
 		}
 
@@ -471,14 +471,14 @@ class controller extends \Controller {
 			if ( $id > 0 ) {
 				$dao = new dao\forum;
 				if ( $dto = $dao->reopenTopic( $id ))
-					Response::redirect( self::$url . 'view/' . $id, 'topic re-opened' );
+					Response::redirect( $this->route . '/view/' . $id, 'topic re-opened' );
 
 				else
-					Response::redirect( self::$url . 'view/' . $id, 'could not re-open topic' );
+					Response::redirect( $this->route . '/view/' . $id, 'could not re-open topic' );
 
 			}
 
-			Response::redirect( self::$url );
+			Response::redirect( $this->route );
 
 		}
 
@@ -508,24 +508,24 @@ class controller extends \Controller {
 			if ( $dto = $dao->getById( $id )) {
 				if ( (int)$property > 0 ) {
 					$dao->UpdateByID( [ 'property_id' => (int)$property], $id);
-					Response::redirect( self::$url . 'view/' . $id, 'tagged property for forum topic');
+					Response::redirect( $this->route . '/view/' . $id, 'tagged property for forum topic');
 
 				}
 				else {
 					$dao->UpdateByID( [ 'property_id' => 0], $id);
-					Response::redirect( self::$url . 'view/' . $id, 'untagged property for forum topic');
+					Response::redirect( $this->route . '/view/' . $id, 'untagged property for forum topic');
 
 				}
 
 			}
 			else {
-				Response::redirect( self::$url, 'could not find forum topic');
+				Response::redirect( $this->route, 'could not find forum topic');
 
 			}
 
 		}
 
-		Response::redirect( self::$url);
+		Response::redirect( $this->route);
 
   }
 
