@@ -92,7 +92,7 @@ $(document).ready( function() {
 	}	// if ( $this->comments ) {	?>
 
 <script>
-$(document).ready( function() {
+( _ => $(document).ready( () => {
 	$('#associated_property_search').autofill({
 		source: _cms_.search.property,
 		select: function(event, ui) {
@@ -118,8 +118,9 @@ $(document).ready( function() {
 	})
 	.on( 'change', function() {
 		_.post({
-			url : _.url( '<?=  $this->route ?>/updateSubject'),
+			url : _.url( '<?=  $this->route ?>'),
 			data : {
+				action : 'update-subject',
 				id : <?= (int)$this->data->dto->id ?>,
 				subject : $(this).val()
 			}
@@ -136,5 +137,5 @@ $(document).ready( function() {
 
 <?php	}	// if ( currentUser::isAdmin()) 	?>
 
-});
+}))( _brayworth_);
 </script>

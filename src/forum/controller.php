@@ -324,6 +324,23 @@ class controller extends \Controller {
       Json::ack( $action);
 
     }
+		elseif ( 'update-subject' == $action) {
+			$id = (int)$this->getPost( 'id' );
+			if ( $id > 0 ) {
+				$dao = new dao\forum;
+				if ( $dto = $dao->getById( $id )) {
+					if ( $subject = $this->getPost( 'subject' )) {
+
+						$dao->UpdateByID( ['description' => $subject], $id);
+						Json::ack( $action);
+
+					} else { Json::nak( $action); }
+
+				} else { Json::nak( $action); }
+
+			} else { Json::nak(  $action); }
+
+		}
 		else {
 			$action =$this->getPost('form_action');
 			if ( $action == 'post comment' ) {
@@ -600,29 +617,6 @@ class controller extends \Controller {
 			else { throw new Exceptions\ForumTopicNotFound; }
 
 		} else { $this->_index(); }
-
-	}
-
-	public function updateSubject() {
-		if ( $this->isPost()) {
-			$id = (int)$this->getPost( 'id' );
-			if ( $id > 0 ) {
-				$dao = new dao\forum;
-				if ( $dto = $dao->getById( $id )) {
-					$subject = $this->getPost( 'subject' );
-					if ( $subject) {
-						$a = array(
-							'description' => $subject);
-						$dao->UpdateByID( $a, $id);
-						Json::ack( 'updated subject');
-
-					} else { Json::nak( 'not updating empty subject'); }
-
-				} else { Json::nak( 'did not find forum topic'); }
-
-			} else { Json::nak( 'invalid id'); }
-
-		} else { Json::nak( ''); }
 
 	}
 
