@@ -18,7 +18,7 @@
   ],
   "require": {
     "bravedave/dvc": "*",
-    "bravedave/green": "dev-master"
+    "bravedave/green": "*"
   },
   "require-dev": {
     "matthiasmullie/scrapbook": "*"
