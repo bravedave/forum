@@ -8,9 +8,7 @@
  *
 */
 
-namespace dvc\forum;
-
-use strings;  ?>
+namespace dvc\forum;  ?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="link">
@@ -88,7 +86,7 @@ use strings;  ?>
 
           <div class="form-row mb-2">
             <div class="col">
-              <textarea class="form-control" name="comment" rows="14"></textarea>
+              <textarea class="form-control" name="comment" rows="14" id="<?= $_uidComment = strings::rand() ?>"></textarea>
 
             </div>
 
@@ -106,33 +104,47 @@ use strings;  ?>
                 </select>
                 <script>
                 ( _ => {
-                  _cms_.getActiveUsers().then( d => {
-                    $.each( d, (i,u) => {
-                      $('#<?= $_uid ?>').append(  $('<option></option>').val( u.email).html( u.email));
+                  _.post({
+                    url : _.url('<?= $this->route ?>'),
+                    data : {
+                      action : 'get-active-users'
 
-                    });
+                    },
 
-                    $('#<?= $_uid ?>').on( 'change', function( e) {
-                      if ( this.selectedIndex > 0) {
+                  }).then( d => {
+                    if ( 'ack' == d.response) {
+                      $.each( d, (i,u) => {
+                        $('#<?= $_uid ?>').append(  $('<option></option>').val( u.email).html( u.email));
 
-                        let _me = $(this);
+                      });
 
-                        let col = $('<div class="col"></div>').prependTo( _me.closest('.form-row'));
-                        $('<input type="hidden" name="notify[]" />').val( $(this).val()).appendTo( col);
+                      $('#<?= $_uid ?>').on( 'change', function( e) {
+                        if ( this.selectedIndex > 0) {
 
-                        let ig = $( '<div class="input-group"></div>').appendTo( col);
-                        $('<input type="text" class="form-control">').val( $(this).val()).appendTo( ig);
-                        $('<div class="input-group-append pointer"><button type="button" class="btn input-group-text">&times;</button></div>')
-                        .appendTo( ig)
-                        .on( 'click', e => {
-                          e.stopPropagation();;
-                          col.remove();
+                          let _me = $(this);
 
-                        });
+                          let col = $('<div class="col"></div>').prependTo( _me.closest('.form-row'));
+                          $('<input type="hidden" name="notify[]">').val( $(this).val()).appendTo( col);
 
-                      }
+                          let ig = $( '<div class="input-group"></div>').appendTo( col);
+                          $('<input type="text" class="form-control">').val( $(this).val()).appendTo( ig);
+                          $('<div class="input-group-append pointer"><button type="button" class="btn input-group-text">&times;</button></div>')
+                          .appendTo( ig)
+                          .on( 'click', e => {
+                            e.stopPropagation();;
+                            col.remove();
 
-                    })
+                          });
+
+                        }
+
+                      });
+
+                    }
+                    else {
+                      _.growl( d);
+
+                    }
 
                   });
 
@@ -161,22 +173,78 @@ use strings;  ?>
 
   <script>
   ( _ => $(document).ready( () => {
-    $('#<?= $_modal ?>').on( 'shown.bs.modal', e => {
-      _cms_.editor.init( $('textarea[name="comment"]', '#<?= $_form ?>'), {
+    $('#<?= $_modal ?>')
+    .on( 'init-tinymce', e => {
+      // inline: true,
+      let options = {
+        browser_spellcheck : true,
+        font_formats: "Andale Mono=andale mono,times;"+
+          "Arial=arial,helvetica,sans-serif;"+
+          "Arial Black=arial black,avant garde;"+
+          "Century Gothic=century gothic,arial,helvetica,sans-serif;"+
+          "Comic Sans MS=comic sans ms,sans-serif;"+
+          "Courier New=courier new,courier;"+
+          "Helvetica=helvetica;"+
+          "Impact=impact,chicago;"+
+          "Symbol=symbol;"+
+          "Tahoma=tahoma,arial,helvetica,sans-serif;"+
+          "Terminal=terminal,monaco;"+
+          "Times New Roman=times new roman,times;"+
+          "Trebuchet MS=trebuchet ms,geneva;"+
+          "Verdana=verdana,geneva;"+
+          "Webdings=webdings;"+
+          "Wingdings=wingdings,zapf dingbats",
+        branding: false,
+        document_base_url : _.url('',true),
+        menubar : false,
+        selector: '#<?= $_uidComment ?>',
+        paste_data_images: true,
+        relative_urls : false,
+        remove_script_host : false,
+        setup : ed => {
+          ed.on( 'keydown', e => {
+            if (e.keyCode == 9) { // tab pressed
+              if (e.shiftKey)
+                ed.execCommand('Outdent');
+              else
+                ed.execCommand('Indent');
+
+              e.preventDefault();
+              return false;
+
+            }
+
+          });
+
+          ed.on( 'init', e => _.hourglass.off());
+          ed.on( 'blur', e => tinyMCE.triggerSave());
+
+        }
+
+      };
+
+      options = _.extend( options, {
+        plugins: [
+          'paste',
+          'imagetools',
+          'table',
+          'autolink',
+          'lists',
+          'link',
+
+        ],
         statusbar : false,
-
-      })
-      .then( () => {
-        if ( '' == $('input[name="description"]', '#<?= $_modal ?>').val()) {
-          $('input[name="description"]', '#<?= $_modal ?>').focus();
-
-        }
-        else {
-          tinyMCE.execCommand('mceFocus', false, $('textarea[name="comment"]', '#<?= $_modal ?>').prop('id'));
-
-        }
+        toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote table link mybutton | styleselect fontselect fontsizeselect | forecolor backcolor',
+        contextmenu: 'paste | inserttable | cell row column deletetable',
 
       });
+
+      tinymce.init(options);
+
+    })
+    .on( 'shown.bs.modal', e => {
+      _.hourglass.on();
+      _.tiny().then( () => $('#<?= $_modal ?>').trigger('init-tinymce'));
 
     });
 

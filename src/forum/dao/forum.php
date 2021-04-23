@@ -17,7 +17,14 @@ class forum extends _dao {
 
 	public $debug = false;
 
-	public function getTopLevel( $closed = false, $complete = false, $hidedead = false, $showOnlyMine = false, $offset = 0, $limit = 20 ) {
+	public function getTopLevel(
+		$closed = false,
+		$complete = false,
+		$hidedead = false,
+		$showOnlyMine = false,
+		$offset = 0,
+		$limit = 20 ) {
+
 		$debug = false;
 		// $debug = true;
 
@@ -255,7 +262,7 @@ class forum extends _dao {
 		if ( $dto = $this->getByID( $id )) {
 			$this->UpdateByID([
 				'closed' => 1,
-				'closed_date' => \dvc\db::dbTimeStamp()
+				'closed_date' => \db::dbTimeStamp()
 			], $dto->id );
 			return true;
 
@@ -265,11 +272,35 @@ class forum extends _dao {
 
 	}
 
+	public function getFlagged() {
+		$sql = 'SELECT
+			f.id,
+			f.tag,
+			f.description,
+			f.updated created,
+			f.user_id,
+			users.name user_name
+		FROM
+			forum f
+			LEFT JOIN
+				users ON f.user_id = users.id
+			WHERE
+				f.flag = 1';
+
+		if ( $res = $this->Result( $sql)) {
+			return $res;
+
+		}
+
+		return null;
+
+	}
+
 	public function markComplete( $id ) {
 		if ( $dto = $this->getByID( $id )) {
 			$this->UpdateByID([
 				'complete' => 1,
-				'complete_date' => \dvc\db::dbTimeStamp()
+				'complete_date' => \db::dbTimeStamp()
 			], $dto->id);
 
 			return true;
@@ -481,7 +512,7 @@ PRELUDE;
 			'priority' => $dto->priority,
 			'by_email' => $dto->by_email,
 			'tag' => $dto->tag,
-			'updated' => $this->db->dbTimeStamp(),
+			'updated' => \db::dbTimeStamp(),
 			'user_id' => \currentUser::id()];
 
 		//~ \sys::logger( sprintf( 'message length: %s (%s)', strlen( $a['comment'] ), strlen( $dto->comment )));

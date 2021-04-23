@@ -50,6 +50,8 @@
   </div>
 
   <div class="col text-right pt-2">
+    [<a href="<?= strings::url( $this->route . '/flagged') ?>">Flagged</a>]
+
     <div class="form-check-inline d-none d-lg-inline">
       <input type="checkbox" class="form-check-input" name="chk-show-only-mine" id="chk-show-only-mine" <?php if ( $this->showOnlyMine) print 'checked'; ?> />
       <label class="form-check-label" for="chk-show-only-mine">
@@ -89,7 +91,7 @@
   </div>
 
   <div class="col-auto">
-    <button type="button" class="btn btn-outline-primary rounded-circle" data-role="new-forum-item"><i class="bi bi-2x bi-plus"></i></button>
+    <button type="button" class="btn btn-outline-primary rounded-circle" data-role="new-forum-item"><i class="bi bi-plus"></i></button>
 
   </div>
 

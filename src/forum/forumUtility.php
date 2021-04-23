@@ -11,7 +11,6 @@
 namespace dvc\forum;
 
 use html;
-use strings;
 
 abstract class forumUtility {
 	static function referLinks( $text) {

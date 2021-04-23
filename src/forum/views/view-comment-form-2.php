@@ -51,7 +51,7 @@
 
 </div>
 <script>
-$(document).ready( function() {
+( _ => $(document).ready( () => {
 	let editorDone = false;
 
 	$('#show-comment-box').parent().addClass('pointer').on( 'click', function( e) {
@@ -73,9 +73,15 @@ $(document).ready( function() {
 			if ( !editorDone) {
 				editorDone = true;
 
-				_cms_.editor.init( $('#<?= $uid ?>'), {
-					statusbar : false,
-					toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+				_.tiny().then( () => {
+					tinymce.init({
+						document_base_url : _.url('',true),
+						menubar : false,
+						selector: '#<?= $uid ?>',
+						statusbar : false,
+						toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+
+					});
 
 				});
 
@@ -94,5 +100,5 @@ $(document).ready( function() {
 
 	});
 
-});
+}))( _brayworth_);
 </script>

@@ -18,7 +18,10 @@
   ],
   "require": {
     "bravedave/dvc": "*",
-    "bravedave/green": "^21.02"
+    "bravedave/green": "dev-master"
+  },
+  "require-dev": {
+    "matthiasmullie/scrapbook": "*"
   },
   "autoload": {
     "psr-4": {

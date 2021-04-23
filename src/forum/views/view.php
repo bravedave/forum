@@ -12,7 +12,6 @@ namespace dvc\forum;
 
 use currentUser;
 use html;
-use strings;
 use sys;
 
 	if ( $this->comments )
@@ -23,14 +22,6 @@ use sys;
 	<div class="col">
 		<div id="forum-subject" class="h4"><?= $this->data->dto->description ?></div>
 
-		<input type="text" class="d-none" name="property_search" id="associated_property_search"
-			placeholder="assign a property" value="<?= $this->data->dto->address ?>" />
-
-		<div style="position: relative;">
-			<div id="associated_property_searchResults"
-				style="position: absolute; top: 0; left: 5px; background-color: white; z-index: 99; width: 280px;"></div>
-
-		</div>
 		<?php if ( !$this->data->dto->closed ) $this->load('view-comment-form-2'); ?>
 
 	</div>
@@ -55,7 +46,7 @@ use sys;
 			strings::asShortDate( $this->data->dto->updated, true ));
 
 	printf( '<div class="col-lg-11 col-md-10 border-left" id="initial-forum-comment">%s</div>',
-		sys::AutoTextAsHTML( $this->data->dto->comment ));
+		strings::AutoTextAsHTML( $this->data->dto->comment ));
 	?>
 
 </div>
@@ -93,18 +84,6 @@ $(document).ready( function() {
 
 <script>
 ( _ => $(document).ready( () => {
-	$('#associated_property_search').autofill({
-		source: _cms_.search.property,
-		select: function(event, ui) {
-			if ( /string/.test( typeof( ui.item.id )))
-				window.location.href = _.url( '<?=  $this->route ?>/tagProperty/<?= $this->data->dto->id ?>/' + ui.item.id);
-
-			else
-				console.log( typeof( ui.item.id ));
-
-		},
-		appendTo : '#associated_property_searchResults'
-	});
 
 <?php	if ( currentUser::isAdmin()) {	?>
 

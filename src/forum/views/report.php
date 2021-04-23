@@ -11,8 +11,7 @@
 namespace dvc\forum;
 
 use currentUser;
-use html;
-use strings;  ?>
+use html; ?>
 
 <style>
 @media print{@page {size: landscape; margin: 40px 20px 20px 20px}}

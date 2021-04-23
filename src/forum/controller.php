@@ -13,9 +13,8 @@ namespace dvc\forum;
 use currentUser;
 use dvc\Response;
 use dvc\Exceptions\GeneralException;
+use green;
 use Json;
-
-use strings;
 
 class controller extends \Controller {
 	var $ItemsPerPage = 20;
@@ -133,6 +132,12 @@ class controller extends \Controller {
 				} else { Json::nak( $action); }
 
 			} else { Json::nak( $action); }
+
+		}
+		elseif ( 'get-active-users' == $action) {
+			$dao = new green\users\dao\users;
+			Json::ack( $action)
+				->add( 'data', $dao->getActive());
 
 		}
 		elseif ( 'mark-complete' == $action || 'mark-incomplete' == $action) {
@@ -324,6 +329,19 @@ class controller extends \Controller {
       Json::ack( $action);
 
     }
+		elseif ( 'set-flag' == $action) {
+			if ( $id = (int)$this->getPost('id')) {
+				$dao = new dao\forum;
+				$dao->UpdateByID( ['flag' => (int)$this->getPost('val')], $id);
+				Json::ack( $action);
+
+			}
+			else {
+				Json::nak( $action);
+
+			}
+
+		}
 		elseif ( 'update-subject' == $action) {
 			$id = (int)$this->getPost( 'id' );
 			if ( $id > 0 ) {
@@ -405,6 +423,26 @@ class controller extends \Controller {
 			currentUser::option( 'forum-complete', '');
 
 		$this->_index();
+
+	}
+
+	public function flagged() {
+		$dao = new dao\forum;
+		$this->data = (object)[
+			'res' => $dao->getFlagged()
+
+		];
+
+		$this->render([
+			'title' => $this->title = 'forum - flagged',
+			'primary' => 'flagged',
+			'secondary' => 'index',
+			'data' => [
+				'pageUrl' => strings::url($this->route)
+
+			]
+
+		]);
 
 	}
 

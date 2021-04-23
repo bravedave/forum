@@ -9,37 +9,34 @@
 */
 
 namespace dvc\forum;
+
 use currentUser;
-use strings;
+use green;	?>
 
-?>
-
-<ul class="list-unstyled">
-	<li><a href="<?= strings::url( 'forum') ?>">forums</a></li>
-	<li><a href="#" id="new-topic">new</a></li>
-	<li><a href="#" id="clone-topic">clone</a></li>
+<ul class="nav flex-column">
+	<li class="nav-item"><a class="h5" href="<?= strings::url( $this->route) ?>">forums</a></li>
+	<li class="nav-item"><a class="nav-link" href="<?= strings::url( $this->route . '/flagged') ?>">flagged</a></li>
+	<li class="nav-item"><a class="nav-link" href="#" id="new-topic">new</a></li>
+	<li class="nav-item"><a class="nav-link" href="#" id="clone-topic">clone</a></li>
 	<?php
 	if ( currentUser::isAdmin()) {
 		if ( $this->data->dto->closed ) {
-			printf( '<li><a href="%s">re-open</a></li>', strings::url('forum/reopenTopic/' . $this->data->dto->id));
+			printf( '<li class="nav-item"><a class="nav-link" href="%s">re-open</a></li>', strings::url('forum/reopenTopic/' . $this->data->dto->id));
 
 		}
 		else {
-			printf( '<li><a href="%s">close</a></li>', strings::url('forum/closeTopic/' . $this->data->dto->id));
+			printf( '<li class="nav-item"><a class="nav-link" href="%s">close topic</a></li>', strings::url('forum/closeTopic/' . $this->data->dto->id));
 
 		}
 
 	}	?>
 
+	<li class="nav-item mt-2">
+		<a class="h6" href="<?= strings::url('forum/view/' . $this->data->dto->id) ?>"><?= printf( 'topic : #%s', $this->data->dto->id) ?></a>
+
+	</li>
+
 </ul>
-
-<h5>
-	<a href="<?= strings::url('forum/view/' . $this->data->dto->id) ?>">
-		<?php printf( 'topic : #%s', $this->data->dto->id) ?>
-
-	</a>
-
-</h5>
 
 <div class="form-group row">
 	<div class="col">
@@ -54,15 +51,9 @@ use strings;
 
 		</div>
 
-	</div>
-
-</div>
-
-<div class="form-group row">
-	<div class="col">
 		<div class="form-check">
 			<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic"
-				<?php print ( $this->data->dto->subscribed( currentUser::email()) ? 'checked=checked' : '' ) ?> />
+				<?= ( $this->data->dto->subscribed( currentUser::email()) ? 'checked=checked' : '' ) ?>>
 			<label class="form-check-label" for="watch">
 				watch
 
@@ -70,27 +61,53 @@ use strings;
 
 		</div>
 
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>"
+				<?= $this->data->dto->flag ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">
+				flag
+
+			</label>
+
+		</div>
+		<script>
+		( _ => {
+			$('#<?= $_uid ?>').on( 'change', function( e) {
+				let _me = $(this);
+				_.post({
+					url : _.url('<?= $this->route ?>'),
+					data : {
+						action : 'set-flag',
+						id : <?= (int)$this->data->dto->id ?>,
+						val : _me.prop('checked') ? 1 : 0
+
+					},
+
+				}).then( d => _.growl( d));
+
+			});
+
+		}) (_brayworth_);
+		</script>
+
 	</div>
 
 </div>
 
 <?php
-	$uDao = new \dao\users;
+	$uDao = new green\users\dao\users;
 	foreach ( $this->data->dto->subscribers() as $s) {
 		if ( $s == currentUser::email()) continue;	?>
 
 <div class="form-group row">
 	<div class="col">
 <?php
-		$uid = uniqid('cms');
+		$uid = strings::rand();
 		if ( $u = $uDao->getUserByEmail( $s)) {
 			printf( '<div class="form-check">
 				<input class="form-check-input" type="checkbox" name="watch" id="%s"
-					value="yes" data-role="other-watch-topic" data-email="%s" checked %s />
-				<label class="form-check-label" for="%s">
-					%s
-
-				</label>
+					value="yes" data-role="other-watch-topic" data-email="%s" checked %s>
+				<label class="form-check-label" for="%s">%s</label>
 
 			</div>',
 				$uid,
@@ -103,7 +120,7 @@ use strings;
 		else {
 			printf( '<div class="form-check">
 				<input class="form-check-input" type="checkbox" name="watch" id="%s"
-					value="yes" data-role="other-watch-topic" data-email="%s" checked %s />
+					value="yes" data-role="other-watch-topic" data-email="%s" checked %s>
 				<label class="form-check-label" for="%s">
 					%s
 
@@ -298,29 +315,32 @@ use strings;
 
 	});
 
-	$('#forum-link').autofill({
-		source : _cms_.search.forum,
-		select : function( event, ui) {
-			_.post({
-				url : _.url('<?=  $this->route ?>'),
-				data : {
-					action : 'add-link',
-					id : <?= $this->data->dto->id ?>,
-					link : ui.item.id,
+	if ( !!window._cms_) {
+		$('#forum-link').autofill({
+			source : _cms_.search.forum,
+			select : function( event, ui) {
+				_.post({
+					url : _.url('<?=  $this->route ?>'),
+					data : {
+						action : 'add-link',
+						id : <?= $this->data->dto->id ?>,
+						link : ui.item.id,
 
-				}
+					}
 
-			})
-			.then( function( d) {
-				_.growl( d);
-				$('#forum-link').val('');
-				showLinks(<?= $this->data->dto->id ?>);
+				})
+				.then( d => {
+					_.growl( d);
+					$('#forum-link').val('');
+					showLinks(<?= $this->data->dto->id ?>);
 
-			});
+				});
 
-		}
+			}
 
-	});
+		});
+
+	}
 
 	let showLinks = function( id) {
 		_.post({
