@@ -146,12 +146,13 @@ use green;	?>
 	if ( currentUser::isAdmin()) {
 		if ( $users = $uDao->getActive()) {
 			$subs = array('<option>Subscribe a User</option>');
-			while ( $u = $users->fetch_object()) {
-				if ( !$this->data->dto->subscribed( $u->email))
+			foreach ($users as $u) {
+				if ( !$this->data->dto->subscribed( $u->email)) {
 					$subs[] = sprintf( '<option value="%s">%s</option>', $u->email, $u->name );
 
-			}
+				}
 
+			}
 			printf( '<div class="form-group"><select data-role="add-subscriber" class="form-control">%s</select></div>', implode( '', $subs ));
 
 		}
