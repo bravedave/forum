@@ -75,6 +75,7 @@
 
 				_.tiny().then( () => {
 					tinymce.init({
+						browser_spellcheck : true,
 						document_base_url : _.url('',true),
 						menubar : false,
 						plugins: 'paste imagetools table autolink lists link',
