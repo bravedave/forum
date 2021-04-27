@@ -32,7 +32,7 @@ use green;	?>
 	}	?>
 
 	<li class="nav-item mt-2">
-		<a class="h6" href="<?= strings::url('forum/view/' . $this->data->dto->id) ?>"><?= printf( 'topic : #%s', $this->data->dto->id) ?></a>
+		<a class="h6" href="<?= strings::url('forum/view/' . $this->data->dto->id) ?>"><?= sprintf( 'topic : #%s', $this->data->dto->id) ?></a>
 
 	</li>
 
