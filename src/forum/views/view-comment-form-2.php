@@ -77,9 +77,10 @@
 					tinymce.init({
 						document_base_url : _.url('',true),
 						menubar : false,
+						plugins: 'paste imagetools table autolink lists link',
 						selector: '#<?= $uid ?>',
 						statusbar : false,
-						toolbar: 'undo redo | bold italic | bullist numlist outdent indent',
+						toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote',
 
 					});
 
