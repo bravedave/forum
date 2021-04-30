@@ -192,14 +192,12 @@ class controller extends \Controller {
 		elseif ( 'notify' == $action) {
 			/*
 				this isn't used, it just to test the mailer
-				_brayworth_.post({
-					url : _brayworth_.url('forum'),
-					data : { id : 4438, action : 'notify' },
+				( _ => _.post({
+					url : _.url('forum'),
+					data : { id : 7511, action : 'notify' },
 
-				}).then( function( d) {
-					_brayworth_.growl( d);
-
-				});
+				}).then( d => _.growl( d)))
+				( _brayworth_ )
 
 			*/
 			if ( $id = (int)$this->getPost('id')) {
