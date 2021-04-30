@@ -9,7 +9,9 @@
 */
 
 namespace dvc\forum\dao;
+
 use dvc\forum\forumUtility;
+use dvc\forum\strings;
 use dao\_dao;
 
 class forum extends _dao {
@@ -406,25 +408,21 @@ class forum extends _dao {
 
 	}
 
-	public function notify( $subject, $message, $email, $forumTop ) {
+	public function notify( $subject, $message, $email, $forumTop) {
 		if ( $this->debug) \sys::logger( sprintf( 'add forum email ::%s:', $email));
 
-		$url = \url::$FULLURL . 'forum/view/' . $forumTop;
+		$url = strings::url( 'forum/view/' . $forumTop, $protocol = true);
 
-		$prelude = <<<PRELUDE
-<html>
-	<body>
-		<div>
-			This forum topic can be viewed at: <a href="$url">$url</a>
+		$prelude = sprintf(
+			'<html><body><div>
+			This forum topic can be viewed at: <a href="%s">%s</a>
 			<p>&nbsp;</p>
 
-		</div>
+			</div></body></html>',
+			$url,
+			$url
 
-	</body>
-
-</html>
-
-PRELUDE;
+		);
 
 		$DOM = new \DOMDocument;
 		$DOM->loadHTML( $prelude);
@@ -433,9 +431,6 @@ PRELUDE;
 		if ( $body && 0<$body->length ) {
 			$body = $body->item(0);
 
-			//~ \html::appendHTML( $body, \sys::AutoTextAsHTML( $message ));
-
-			//~ if ( FALSE) {
 			if ( $dto = $this->getById( $forumTop)) {
 				$ftext = array('<table class="table table-striped"><tbody>');
 
@@ -455,10 +450,10 @@ PRELUDE;
 						<td style="width: 60px;">%s<br />%s</td>
 						<td style="width: 60px;">%s</td>
 					</tr>',
-					\sys::AutoTextAsHTML( $dto->comment),
+					strings::AutoTextAsHTML( $dto->comment),
 					date( 'd/m/Y', strtotime( $dto->updated )),
 					date( 'h:ia', strtotime( $dto->updated )),
-					\strings::initials( $dto->name));
+					strings::initials( $dto->name));
 
 				$ftext[] = '</tbody></table>';
 

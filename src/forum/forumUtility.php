@@ -45,7 +45,7 @@ abstract class forumUtility {
 
 		}
 		else {
-			$text = \sys::AutoTextAsHTML( htmlentities( $dto->comment));
+			$text = strings::AutoTextAsHTML( htmlentities( $dto->comment));
 
 		}
 
