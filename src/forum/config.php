@@ -13,7 +13,7 @@ namespace dvc\forum;
 use Json;
 
 abstract class config extends \config {
-	const forum_db_version = 0.02;
+	const forum_db_version = 0.3;
 
   const forum_filterKey = 'forum-filter';
   const forum_filterWho = 'forum-filter-who';

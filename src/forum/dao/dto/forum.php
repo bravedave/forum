@@ -22,8 +22,10 @@ class forum extends _dto {
 	var $priority = 0;
 	var $user_id = 0;
 	var $by_email = 0;
-	var $notify = '';
 	var $tag = '';
+	var $flag = 0;
+	var $resolved = 0;
+	var $notify = '';
 
 	public function subscribed( $email ) {
 		$a = explode( '|', $this->notify );

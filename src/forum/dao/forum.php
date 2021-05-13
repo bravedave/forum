@@ -75,7 +75,8 @@ class forum extends _dao {
 				properties.address_street address,
 				users.name user_name,
 				f.notify,
-				f.priority
+				f.priority,
+				f.resolved
 			FROM
 				forum f
 					LEFT JOIN
@@ -117,24 +118,21 @@ class forum extends _dao {
 		$this->Q( $sql);
 
 		if ( $showOnlyMine) {
-			$sql = 'ALTER TABLE T ADD COLUMN `pkey` BIGINT AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`pkey`)';
-			$this->Q($sql);
-
 			$dKeys = array();
-			if ( $data = $this->result( 'SELECT pkey, reporter, user_id, notify FROM T')) {
+			if ( $data = $this->result( 'SELECT id, reporter, user_id, notify FROM T')) {
 				while ( $dto = $data->dto()) {
 					if ( $dto->reporter == \currentUser::id()) continue;
 					if ( $dto->user_id == \currentUser::id()) continue;
 					if (strpos($dto->notify, \currentUser::email()) !== false) continue;
 
-					$dKeys[] = $dto->pkey;
+					$dKeys[] = $dto->id;
 
 				}
 
 			}
 
 			if ( count( $dKeys))
-				$this->Q( sprintf( 'DELETE FROM T WHERE pkey IN (%s)', implode( ',', $dKeys)));
+				$this->Q( sprintf( 'DELETE FROM T WHERE id IN (%s)', implode( ',', $dKeys)));
 
 		}
 
@@ -188,8 +186,9 @@ class forum extends _dao {
 			FROM
 				T
 			ORDER BY
-				priority DESC,
-				last_updated DESC
+				`resolved` DESC,
+				`priority` DESC,
+				`last_updated` DESC
 			LIMIT %d,%d', $offset, $limit));
 
 		$res = (object)[

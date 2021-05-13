@@ -15,7 +15,8 @@ use html; ?>
 
 <style>
 @media print{@page {size: landscape; margin: 40px 20px 20px 20px}}
-
+.status-danger { background-color: #f8d7da }
+.status-success { background-color: #d4edda }
 .line-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -98,19 +99,30 @@ use html; ?>
     elseif ( $dto->priority == config::FORUM_LOW_PRIORITY) $priority = config::FORUM_LOW_PRIORITY_TEXT;
     ?>
 
-    <div class="form-row mb-2 border-bottom <?= config::FORUM_BROKEN_PRIORITY == $dto->priority ? 'bg-danger text-white' : '' ?>"
-      data-role="item"
-      data-id="<?= $dto->id ?>"
+    <div class="form-row mb-2 border-bottom <?php
+      if ( $dto->resolved) {
+        print 'status-success';
+
+      }
+      elseif ( config::FORUM_BROKEN_PRIORITY == $dto->priority) {
+        print 'status-danger';
+      }
+      ?>"
       data-created="<?= date( 'Y-m-d H:i', strtotime( $dto->created)) ?>"
-      data-updated="<?= date( 'Y-m-d H:i', strtotime( $dto->created)) ?>"
-      data-reporter="<?= strings::initials( $dto->reporter_name); ?>"
-      data-updater="<?= strings::initials( $dto->user_name); ?>"
       data-complete="<?= ( $dto->complete == 1 ? 'yes' : 'no' ) ?>"
-      data-closed="<?= ( $dto->closed == 1 ? 'yes' : 'no' ) ?>"
-      data-tag="<?= ( $dto->tag ? $dto->tag : 'ZZ' ) ?>"
+      data-closed="<?= $dto->closed == 1 ? 'yes' : 'no' ?>"
+      data-href="<?= strings::url( 'forum/view/' . $dto->id) ?>"
+      data-id="<?= $dto->id ?>"
+      data-priority="<?= $dto->priority ?>"
+      data-priority_unused="<?php printf( '%s-%s', $dto->priority, date( 'Y-m-d-H-i', strtotime( $dto->created ))) ?>"
+      data-reporter="<?= strings::initials( $dto->reporter_name); ?>"
+      data-resolved="<?= $dto->resolved ? 'yes' : 'no' ?>"
+      data-role="item"
       data-status="<?= $status ?>"
-      data-priority="<?php printf( '%s-%s', $dto->priority, date( 'Y-m-d-H-i', strtotime( $dto->created ))) ?>"
-      data-href="<?= strings::url( 'forum/view/' . $dto->id) ?>">
+      data-tag="<?= $dto->tag ? $dto->tag : 'ZZ' ?>"
+      data-updated="<?= date( 'Y-m-d H:i', strtotime( $dto->created)) ?>"
+      data-updater="<?= strings::initials( $dto->user_name); ?>"
+      >
 
       <div class="col-2 col-xl-4">
         <div class="form-row">
@@ -207,11 +219,11 @@ use html; ?>
           $('div[role="priority"]', _row).html( d.text);
 
           if ( '<?= config::FORUM_BROKEN_PRIORITY ?>' == d.priority ) {
-            _row.addClass( 'bg-danger text-white');
+            _row.addClass( 'status-danger');
 
           }
           else {
-            _row.removeClass( 'bg-danger text-white');
+            _row.removeClass( 'status-danger');
 
           }
 
@@ -320,55 +332,122 @@ use html; ?>
 
         }));
 
-        _context.append( '<hr />');
+        _context.append( '<hr>');
 
-        _context.append( $('<a href="#"><?= config::FORUM_LOW_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+        _context.append(
+          $('<a href="#"><?= config::FORUM_LOW_PRIORITY_TEXT ?></a>').on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_LOW_PRIORITY ?>' );
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_LOW_PRIORITY ?>' );
 
-        }));
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_LOW_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
 
-        _context.append( $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+          })
+          .trigger( 'check-state')
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_NORMAL_PRIORITY ?>' );
+        );
 
-        }));
+        _context.append(
+          $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
+          .on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
 
-        _context.append( $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_NORMAL_PRIORITY ?>' );
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_MEDIUM_PRIORITY ?>' );
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_NORMAL_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
 
-        }));
+          })
+          .trigger( 'check-state')
 
-        _context.append( $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+        );
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_HIGH_PRIORITY ?>' );
+        _context.append(
+          $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
 
-        }));
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_MEDIUM_PRIORITY ?>' );
 
-        _context.append( $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_MEDIUM_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_URGENT_PRIORITY ?>' );
+          })
+          .trigger( 'check-state')
 
-        }));
+        );
 
-        _context.append( $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>').on('click', function(e) {
-          e.stopPropagation();e.preventDefault();
+        _context.append(
+          $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
 
-          _context.close()
-          prioritise.call( _row, '<?= config::FORUM_BROKEN_PRIORITY ?>' );
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_HIGH_PRIORITY ?>' );
 
-        }));
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_HIGH_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+          })
+          .trigger( 'check-state')
+
+        );
+
+        _context.append(
+          $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
+
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_URGENT_PRIORITY ?>' );
+
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_URGENT_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+          })
+          .trigger( 'check-state')
+
+        );
+
+        _context.append(
+          $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>')
+          .on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
+
+            _context.close()
+            prioritise.call( _row, '<?= config::FORUM_BROKEN_PRIORITY ?>' );
+
+          })
+          .on( 'check-state', function(e) {
+            if ( <?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+          })
+          .trigger( 'check-state')
+
+        );
+
+        _context.append(
+          $('<a href="#">resolved</a>')
+          .on('click', function(e) {
+            e.stopPropagation();e.preventDefault();
+
+            _context.close()
+            _row.trigger( 'yes' == _data.resolved ? 'resolved-undo' : 'resolved');
+
+          })
+          .on( 'check-state', function(e) {
+            if ( 'yes' == _data.resolved) $(this).prepend('<i class="bi bi-check"></i>');
+
+          })
+          .trigger( 'check-state')
+
+        );
 
         _context.append( '<hr>');
 
@@ -394,6 +473,64 @@ use html; ?>
         _context.open( e);
 
       })
+      .on( 'resolved', function( e) {
+        let _me = $(this);
+        let _data = _me.data();
+
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : {
+            action : 'set-resolved',
+            id : _data.id,
+            val : 1
+
+          },
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            _me.removeClass('status-danger').addClass('status-success');
+            _me.data('resolved', 'yes');
+
+          }
+          else {
+            _.growl( d)
+
+          }
+
+        });
+
+      })
+      .on( 'resolved-undo', function( e) {
+        let _me = $(this);
+        let _data = _me.data();
+
+        _.post({
+          url : _.url('<?= $this->route ?>'),
+          data : {
+            action : 'set-resolved',
+            id : _data.id,
+            val : 0
+
+          },
+
+        }).then( d => {
+          if ( 'ack' == d.response) {
+            _me.removeClass('status-success');
+            _me.data('resolved', 'no');
+            if ( <?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
+              _me.addClass( 'status-danger');
+
+            }
+
+          }
+          else {
+            _.growl( d)
+
+          }
+
+        });
+
+      });
 
     });
 

@@ -9,7 +9,7 @@
 */  ?>
 
 <div class="form-row mb-2 d-print-none">
-  <div class="col-md-5 col-lg-4">
+  <div class="col-md-5 col-lg-4 pt-md-1">
     <div class="input-group">
       <?php
       if ( $this->dataset->page > 1 ) {
@@ -49,48 +49,180 @@
 
   </div>
 
-  <div class="col text-right pt-2">
-    [<a href="<?= strings::url( $this->route . '/flagged') ?>">Flagged</a>]
+  <div class="col">
+    <div class="row">
+      <div class="col text-right small">
+        [<a href="<?= strings::url( $this->route . '/flagged') ?>">Flagged</a>]
 
-    <div class="form-check-inline d-none d-lg-inline">
-      <input type="checkbox" class="form-check-input" name="chk-show-only-mine" id="chk-show-only-mine" <?php if ( $this->showOnlyMine) print 'checked'; ?> />
-      <label class="form-check-label" for="chk-show-only-mine">
-        only mine
 
-      </label>
+      </div>
 
     </div>
 
-    <div class="form-check-inline ml-md-2">
-      <input type="checkbox" class="form-check-input" name="chk-show-complete" id="chk-show-complete" <?php if ( $this->includeComplete) print 'checked'; ?> />
-      <label class="form-check-label" for="chk-show-complete">
-        complete
+    <div class="row">
+      <div class="col text-right">
+        <div class="form-check-inline d-none d-lg-inline">
+          <input type="checkbox" class="form-check-input" id="<?= $_uid = strings::rand() ?>"
+            <?php if ( $this->showOnlyMine) print 'checked'; ?>>
+          <label class="form-check-label" for="<?= $_uid ?>">only mine</label>
 
-      </label>
+          <script>
+          ( _ => {
+            $('#<?= $_uid ?>').on( 'change', function() {
+              let _me = $(this);
+              _.hourglass.on();
 
-    </div>
+              _.post({
+                url : _.url('<?= $this->route ?>'),
+                data : {
+                  action : 'show-mine',
+                  state : _me.prop('checked') ? 'yes' : ''
 
-    <div class="form-check-inline ml-md-2">
-      <input type="checkbox" class="form-check-input" name="chk-show-closed" id="chk-show-closed" <?php if ( isset( $this->showClosed) && $this->showClosed) print 'checked'; ?> />
-      <label class="form-check-label" for="chk-show-closed">
-        closed
+                },
 
-      </label>
+              }).then( d => {
+                if ( 'ack' == d.response) {
+                  window.location.reload();
 
-    </div>
+                }
+                else {
+                  _.growl( d);
+                  _.hourglass.on();
 
-    <div class="form-check-inline d-none d-lg-inline ml-md-2">
-      <input type="checkbox" class="form-check-input" name="chk-show-dead" id="chk-show-dead" <?php if ( isset( $this->hideDead) && $this->hideDead) print 'checked'; ?> />
-      <label class="form-check-label" for="chk-show-dead">
-        hide defunct
+                }
 
-      </label>
+              });
+
+            });
+
+          }) (_brayworth_);
+          </script>
+
+        </div>
+
+        <div class="form-check-inline ml-md-1">
+          <input type="checkbox" class="form-check-input" id="<?= $_uid = strings::rand() ?>"
+            <?php if ( $this->includeComplete) print 'checked'; ?>>
+          <label class="form-check-label" for="<?= $_uid ?>">complete</label>
+          <script>
+          ( _ => {
+            $('#<?= $_uid ?>').on( 'change', function() {
+              let _me = $(this);
+              _.hourglass.on();
+
+              _.post({
+                url : _.url('<?= $this->route ?>'),
+                data : {
+                  action : 'show-complete',
+                  state : _me.prop('checked') ? 'yes' : ''
+
+                },
+
+              }).then( d => {
+                if ( 'ack' == d.response) {
+                  window.location.reload();
+
+                }
+                else {
+                  _.growl( d);
+                  _.hourglass.on();
+
+                }
+
+              });
+
+            });
+
+          }) (_brayworth_);
+          </script>
+
+        </div>
+
+        <div class="form-check-inline ml-md-1">
+          <input type="checkbox" class="form-check-input" id="<?= $_uid = strings::rand() ?>"
+            <?php if ( isset( $this->showClosed) && $this->showClosed) print 'checked'; ?>>
+          <label class="form-check-label" for="<?= $_uid ?>">closed</label>
+          <script>
+          ( _ => {
+            $('#<?= $_uid ?>').on( 'change', function() {
+              let _me = $(this);
+              _.hourglass.on();
+
+              _.post({
+                url : _.url('<?= $this->route ?>'),
+                data : {
+                  action : 'show-closed',
+                  state : _me.prop('checked') ? 'yes' : ''
+
+                },
+
+              }).then( d => {
+                if ( 'ack' == d.response) {
+                  window.location.reload();
+
+                }
+                else {
+                  _.growl( d);
+                  _.hourglass.on();
+
+                }
+
+              });
+
+            });
+
+          }) (_brayworth_);
+          </script>
+
+        </div>
+
+        <div class="form-check-inline d-none d-lg-inline ml-md-1 mr-0">
+          <input type="checkbox" class="form-check-input" id="<?= $_uid = strings::rand() ?>"
+            <?php if ( isset( $this->hideDead) && $this->hideDead) print 'checked'; ?>>
+          <label class="form-check-label" for="<?= $_uid ?>">hide defunct</label>
+
+          <script>
+          ( _ => {
+            $('#<?= $_uid ?>').on( 'change', function() {
+              let _me = $(this);
+              _.hourglass.on();
+
+              _.post({
+                url : _.url('<?= $this->route ?>'),
+                data : {
+                  action : 'show-dead',
+                  state : _me.prop('checked') ? 'yes' : ''
+
+                },
+
+              }).then( d => {
+                if ( 'ack' == d.response) {
+                  window.location.reload();
+
+                }
+                else {
+                  _.growl( d);
+                  _.hourglass.on();
+
+                }
+
+              });
+
+            });
+
+          }) (_brayworth_);
+          </script>
+
+
+        </div>
+
+      </div>
 
     </div>
 
   </div>
 
-  <div class="col-auto">
+  <div class="col-auto pt-1">
     <button type="button" class="btn btn-outline-primary rounded-circle" data-role="new-forum-item"><i class="bi bi-plus"></i></button>
 
   </div>
@@ -103,27 +235,6 @@
     .then( modal => modal.on( 'success', e => window.location.reload()));
 
   });
-
-	$('#chk-show-only-mine').on( 'change', function() {
-    window.location.href = _.url('<?= $this->route ?>/showOnlyMine/' + ($(this).prop('checked') ? 'on' : 'off'));
-
-	});
-
-	$('#chk-show-complete').on( 'change', function() {
-    // console.log( _.url('<?= $this->route ?>/showComplete/' + ($(this).prop('checked') ? 'on' : 'off')));
-    window.location.href = _.url('<?= $this->route ?>/showComplete/' + ($(this).prop('checked') ? 'on' : 'off'));
-
-	});
-
-	$('#chk-show-closed').on( 'change', function() {
-    window.location.href = _.url('<?= $this->route ?>/showClosed/' + ($(this).prop('checked') ? 'on' : 'off'));
-
-	});
-
-	$('#chk-show-dead').on( 'change', function() {
-    window.location.href = _.url('<?= $this->route ?>/hideDead/' + ($(this).prop('checked') ? 'on' : 'off'));
-
-	});
 
 	$('[role="forum-items-per-page"]').on( 'keyup', function(e) {
 		if ( !e.shiftKey && e.keyCode == 13) {

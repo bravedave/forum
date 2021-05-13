@@ -28,6 +28,7 @@ $dbc->defineField( 'complete_date', 'datetime' );
 $dbc->defineField( 'user_id', 'bigint');
 $dbc->defineField( 'by_email', 'tinyint' );
 $dbc->defineField( 'flag', 'tinyint' );
+$dbc->defineField( 'resolved', 'tinyint' );
 $dbc->defineField( 'property_id', 'bigint');
 $dbc->defineField( 'notify', 'text' );
 

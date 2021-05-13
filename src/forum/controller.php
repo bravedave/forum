@@ -70,6 +70,8 @@ class controller extends \Controller {
 	}
 
 	protected function before() {
+		config::forum_checkdatabase();
+
 		if ( $ipp = (int)currentUser::option( 'forum-items-per-page')) {
       $this->ItemsPerPage = $ipp;
 
@@ -78,6 +80,7 @@ class controller extends \Controller {
 		return parent::before();
 
 	}
+
 
 	protected function postHandler() {
 		$action =$this->getPost('action');
@@ -340,6 +343,39 @@ class controller extends \Controller {
 			}
 
 		}
+		elseif ( 'set-resolved' == $action) {
+			if ( $id = (int)$this->getPost('id')) {
+				$dao = new dao\forum;
+				$dao->UpdateByID( ['resolved' => (int)$this->getPost('val')], $id);
+				Json::ack( $action);
+
+			}
+			else {
+				Json::nak( $action);
+
+			}
+
+		}
+		elseif ( 'show-closed' == $action) {
+			currentUser::option( 'forum-closed', $this->getPost('state'));
+			Json::ack( $action);
+
+		}
+		elseif ( 'show-complete' == $action) {
+			currentUser::option( 'forum-complete', $this->getPost('state'));
+			Json::ack( $action);
+
+		}
+		elseif ( 'show-dead' == $action) {
+			currentUser::option( 'forum-hidedead', $this->getPost('state'));
+			Json::ack( $action);
+
+		}
+		elseif ( 'show-mine' == $action) {
+			currentUser::option( 'forum-showOnlyMine', $this->getPost('state'));
+			Json::ack( $action);
+
+		}
 		elseif ( 'update-subject' == $action) {
 			$id = (int)$this->getPost( 'id' );
 			if ( $id > 0 ) {
@@ -406,24 +442,6 @@ class controller extends \Controller {
 
   }
 
-	public function showClosed( $state = 'on') {
-		$state == 'on' ?
-			currentUser::option( 'forum-closed', 'yes') :
-			currentUser::option( 'forum-closed', '');
-
-		$this->_index();
-
-	}
-
-	public function showComplete( $state = 'on') {
-		$state == 'on' ?
-			currentUser::option( 'forum-complete', 'yes') :
-			currentUser::option( 'forum-complete', '');
-
-		$this->_index();
-
-	}
-
 	public function flagged() {
 		$dao = new dao\forum;
 		$this->data = (object)[
@@ -441,26 +459,6 @@ class controller extends \Controller {
 			]
 
 		]);
-
-	}
-
-	public function hideDead( $state = 'on') {
-		$state == 'on' ?
-			currentUser::option( 'forum-hidedead', 'yes') :
-			currentUser::option( 'forum-hidedead', '');
-
-		$this->_index();
-
-	}
-
-	public function showOnlyMine( $state = '' ) {
-		if ( $state == 'on')
-			currentUser::option( 'forum-showOnlyMine', 'yes' );
-
-		elseif ( $state == 'off')
-			currentUser::option( 'forum-showOnlyMine', 'no' );
-
-		$this->index();
 
 	}
 

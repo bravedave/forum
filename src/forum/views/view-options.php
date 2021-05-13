@@ -40,34 +40,51 @@ use green;	?>
 
 <div class="form-group row">
 	<div class="col">
-		<div class="form-check">
+		<div class="form-check"><!-- --[complete]-- -->
 			<input class="form-check-input" type="checkbox" id="topic-is-complete"
 				<?php if ( $this->data->dto->complete ) print "checked"; ?> />
 
-			<label class="form-check-label" for="topic-is-complete">
-				complete
-
-			</label>
+			<label class="form-check-label" for="topic-is-complete">complete</label>
 
 		</div>
 
-		<div class="form-check">
+		<div class="form-check"><!-- --[watch]-- -->
 			<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic"
 				<?= ( $this->data->dto->subscribed( currentUser::email()) ? 'checked=checked' : '' ) ?>>
-			<label class="form-check-label" for="watch">
-				watch
-
-			</label>
+			<label class="form-check-label" for="watch">watch</label>
 
 		</div>
 
-		<div class="form-check">
+		<div class="form-check"><!-- --[resolved]-- -->
+			<input class="form-check-input" type="checkbox" id="<?= $_uid = strings::rand() ?>"
+				<?= $this->data->dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
+
+		</div>
+		<script>
+		( _ => {
+			$('#<?= $_uid ?>').on( 'change', function( e) {
+				let _me = $(this);
+				_.post({
+					url : _.url('<?= $this->route ?>'),
+					data : {
+						action : 'set-resolved',
+						id : <?= (int)$this->data->dto->id ?>,
+						val : _me.prop('checked') ? 1 : 0
+
+					},
+
+				}).then( d => _.growl( d));
+
+			});
+
+		}) (_brayworth_);
+		</script>
+
+		<div class="form-check"><!-- --[flag]-- -->
 			<input class="form-check-input" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>"
 				<?= $this->data->dto->flag ? 'checked' : '' ?>>
-			<label class="form-check-label" for="<?= $_uid ?>">
-				flag
-
-			</label>
+			<label class="form-check-label" for="<?= $_uid ?>">flag</label>
 
 		</div>
 		<script>
