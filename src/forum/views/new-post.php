@@ -8,7 +8,11 @@
  *
 */
 
-namespace dvc\forum;  ?>
+namespace dvc\forum;
+
+use dvc\bs;
+
+?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="link">
@@ -19,7 +23,7 @@ namespace dvc\forum;  ?>
       <div class="modal-content">
         <div class="modal-header bg-secondary text-white py-2">
           <h5 class="modal-title" id="<?= $_modal ?>Label">New Topic</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close" <?= bs::data('dismiss', 'modal') ?> aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -36,7 +40,8 @@ namespace dvc\forum;  ?>
                 <input type="text" class="form-control" name="tag" id="<?= $_tag = strings::rand() ?>" placeholder="tag" required>
 
                 <div class="input-group-append">
-                  <button class="btn btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                  <button class="btn btn-light dropdown-toggle" type="button" <?= bs::data('toggle', 'dropdown') ?>
+                    aria-haspopup="true" aria-expanded="false"></button>
                   <div class="dropdown-menu dropdown-menu-right" id="<?= $_tags = strings::rand() ?>"></div>
 
                 </div>
@@ -160,7 +165,7 @@ namespace dvc\forum;  ?>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">close</button>
+          <button type="button" class="btn btn-secondary" <?= bs::data('dismiss', 'modal') ?>>close</button>
           <button type="submit" class="btn btn-primary">Save</button>
 
         </div>
