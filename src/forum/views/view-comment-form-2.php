@@ -34,10 +34,6 @@
 			<div class="form-group row">
 				<div class="col">
 					<input class="btn btn-primary" type="submit" name="form_action" id="<?= $uid ?>form_button" value="post comment" />
-					<?php if (currentUser::isDavid()) {	?>
-						<button class="btn btn-outline-primary" type="button" id="<?= $uid ?>dvmc">Done, verify and mark complete</button>
-
-					<?php }	?>
 
 				</div>
 
