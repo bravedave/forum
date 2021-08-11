@@ -76,7 +76,7 @@
 							plugins: 'paste imagetools table autolink lists',
 							selector: '#<?= $uid ?>',
 							statusbar: false,
-							toolbar: 'undo redo done | bold italic | bullist numlist outdent indent blockquote',
+							toolbar: 'undo redo | done | bold italic | bullist numlist outdent indent blockquote',
 
 						};
 
