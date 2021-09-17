@@ -10,8 +10,8 @@
 
 namespace dvc\forum\dao;
 
-use dvc\forum\forumUtility;
-use dvc\forum\strings;
+use dvc\emailutility;
+use dvc\forum\{forumUtility, strings};
 use dao\_dao;
 
 class forum extends _dao {
@@ -25,21 +25,22 @@ class forum extends _dao {
 		$hidedead = false,
 		$showOnlyMine = false,
 		$offset = 0,
-		$limit = 20 ) {
+		$limit = 20
+	) {
 
 		$debug = false;
 		// $debug = true;
 
 		$condition = array('f.parent = 0');
-		if ( $limit < 1)
+		if ($limit < 1)
 			$limit = 20;
 
-		if ( !$closed )
+		if (!$closed)
 			$condition[] = 'f.closed = 0';
-		if ( !$complete )
+		if (!$complete)
 			$condition[] = 'f.complete = 0';
-		if ( $hidedead )
-			$condition[] = sprintf( '(
+		if ($hidedead)
+			$condition[] = sprintf('(
 				CASE
 				WHEN u.user_id IS NULL THEN f.user_id <> %d
 				ELSE u.user_id <> %d
@@ -48,9 +49,10 @@ class forum extends _dao {
 				CASE
 				WHEN u.updated IS NULL THEN f.updated > "%s"
 				ELSE u.updated > "%s"
-			END)', \currentUser::id(), \currentUser::id(), date( 'Y-m-d', strtotime('-3 days')), date( 'Y-m-d', strtotime('-3 days')));
+			END)', \currentUser::id(), \currentUser::id(), date('Y-m-d', strtotime('-3 days')), date('Y-m-d', strtotime('-3 days')));
 
-		$sql = sprintf( 'CREATE TEMPORARY TABLE T AS
+		$sql = sprintf(
+			'CREATE TEMPORARY TABLE T AS
 			SELECT
 				f.id,
 				f.tag,
@@ -109,31 +111,29 @@ class forum extends _dao {
 			WHERE
 				%s
 			ORDER BY
-				last_updated DESC'
-			, implode( ' AND ', $condition ));
+				last_updated DESC',
+			implode(' AND ', $condition)
+		);
 
-		if ( $debug) \sys::logSQL( $sql);
+		if ($debug) \sys::logSQL($sql);
 		//~ return ( $this->db->result( $sql));
 
-		$this->Q( $sql);
+		$this->Q($sql);
 
-		if ( $showOnlyMine) {
+		if ($showOnlyMine) {
 			$dKeys = array();
-			if ( $data = $this->result( 'SELECT id, reporter, user_id, notify FROM T')) {
-				while ( $dto = $data->dto()) {
-					if ( $dto->reporter == \currentUser::id()) continue;
-					if ( $dto->user_id == \currentUser::id()) continue;
+			if ($data = $this->result('SELECT id, reporter, user_id, notify FROM T')) {
+				while ($dto = $data->dto()) {
+					if ($dto->reporter == \currentUser::id()) continue;
+					if ($dto->user_id == \currentUser::id()) continue;
 					if (strpos($dto->notify, \currentUser::email()) !== false) continue;
 
 					$dKeys[] = $dto->id;
-
 				}
-
 			}
 
-			if ( count( $dKeys))
-				$this->Q( sprintf( 'DELETE FROM T WHERE id IN (%s)', implode( ',', $dKeys)));
-
+			if (count($dKeys))
+				$this->Q(sprintf('DELETE FROM T WHERE id IN (%s)', implode(',', $dKeys)));
 		}
 
 		//~ $this->Q( 'DROP TABLE IF EXISTS _t');
@@ -143,7 +143,7 @@ class forum extends _dao {
 			they may be low (4) to urgent (8),
 			unprioritised records become normal
 			*/
-		$this->Q( 'UPDATE
+		$this->Q('UPDATE
 				T
 			SET
 				priority = CASE
@@ -161,14 +161,13 @@ class forum extends _dao {
 
 		$tot = 0;
 		//~ if ( $res = $this->db->Result( sprintf( 'SELECT count(*) count FROM forum f WHERE %s', implode( ' AND ', $condition )))) {
-		if ( $res = $this->Result( 'SELECT count(*) count FROM T')) {
-			if ( $row = $res->dto())
+		if ($res = $this->Result('SELECT count(*) count FROM T')) {
+			if ($row = $res->dto())
 				$tot = (int)$row->count;
-
 		}
 
 		$count = 0;
-		if ( $data = $this->Result( sprintf( 'SELECT
+		if ($data = $this->Result(sprintf('SELECT
 				count(*) `count`
 			FROM
 				T
@@ -177,11 +176,10 @@ class forum extends _dao {
 				last_updated DESC
 			LIMIT %d,%d', $offset, $limit))) {
 
-			if ( $dto = $data->dto()) $rows = $dto->count;
-
+			if ($dto = $data->dto()) $rows = $dto->count;
 		};
 
-		$data = $this->Result( sprintf( 'SELECT
+		$data = $this->Result(sprintf('SELECT
 				*
 			FROM
 				T
@@ -194,83 +192,71 @@ class forum extends _dao {
 		$res = (object)[
 			'start' => (int)$offset + 1,
 			'end' => (int)$offset + $count,
-			'page' => ( (int)$offset/(int)$limit) + 1,
-			'nextpage' => ( (int)$offset/(int)$limit) + 2,
-			'totalpages' => (int)( (int)$tot/(int)$limit) + 1,
+			'page' => ((int)$offset / (int)$limit) + 1,
+			'nextpage' => ((int)$offset / (int)$limit) + 2,
+			'totalpages' => (int)((int)$tot / (int)$limit) + 1,
 			'total' => (int)$tot,
 			'data' => $data
 		];
 
 		return $res;
-
 	}
 
-	public function subscribe( $id, $email = null ) {
-		if ( $dto = $this->getByID( $id )) {
-			if ( is_null( $email))
+	public function subscribe($id, $email = null) {
+		if ($dto = $this->getByID($id)) {
+			if (is_null($email))
 				$email = \currentUser::email();
 
-			$emails = explode( ',', $email);
+			$emails = explode(',', $email);
 
-			foreach ( $emails as $em) {
-				if ( !( $dto->subscribed( $em))) {
-					$dto->subscribe( $em);
-					$this->UpdateByID( ['notify' => $dto->notify], $dto->id);
+			foreach ($emails as $em) {
+				if (!($dto->subscribed($em))) {
+					$dto->subscribe($em);
+					$this->UpdateByID(['notify' => $dto->notify], $dto->id);
 
-					return ( true);
-
+					return (true);
 				}
-
 			}
-
 		}
 
-		return ( false);
-
+		return (false);
 	}
 
-	public function unsubscribe( $id, $email = null ) {
-		if ( $dto = $this->getByID( $id )) {
-			if ( is_null( $email))
+	public function unsubscribe($id, $email = null) {
+		if ($dto = $this->getByID($id)) {
+			if (is_null($email))
 				$email = \currentUser::email();
 
-			if ( $dto->subscribed( $email)) {
-				$dto->unsubscribe( $email);
-				$this->UpdateByID( [ 'notify' => $dto->notify], $dto->id);
+			if ($dto->subscribed($email)) {
+				$dto->unsubscribe($email);
+				$this->UpdateByID(['notify' => $dto->notify], $dto->id);
 
-				return ( true);
-
+				return (true);
 			}
-
 		}
 
-		return ( false);
-
+		return (false);
 	}
 
-	public function reopenTopic( $id ) {
-		if ( $dto = $this->getByID( $id )) {
-			$this->UpdateByID( ['closed' => 0], $dto->id);
+	public function reopenTopic($id) {
+		if ($dto = $this->getByID($id)) {
+			$this->UpdateByID(['closed' => 0], $dto->id);
 			return true;
-
 		}
 
 		return false;
-
 	}
 
-	public function closeTopic( $id ) {
-		if ( $dto = $this->getByID( $id )) {
+	public function closeTopic($id) {
+		if ($dto = $this->getByID($id)) {
 			$this->UpdateByID([
 				'closed' => 1,
 				'closed_date' => \db::dbTimeStamp()
-			], $dto->id );
+			], $dto->id);
 			return true;
-
 		}
 
 		return false;
-
 	}
 
 	public function getFlagged() {
@@ -288,58 +274,50 @@ class forum extends _dao {
 			WHERE
 				f.flag = 1';
 
-		if ( $res = $this->Result( $sql)) {
+		if ($res = $this->Result($sql)) {
 			return $res;
-
 		}
 
 		return null;
-
 	}
 
-	public function markComplete( $id ) {
-		if ( $dto = $this->getByID( $id )) {
+	public function markComplete($id) {
+		if ($dto = $this->getByID($id)) {
 			$this->UpdateByID([
 				'complete' => 1,
 				'complete_date' => \db::dbTimeStamp()
 			], $dto->id);
 
 			return true;
-
 		}
 
 		return false;
-
 	}
 
-	public function markInComplete( $id ) {
-		if ( $dto = $this->getByID( $id )) {
+	public function markInComplete($id) {
+		if ($dto = $this->getByID($id)) {
 			$this->UpdateByID([
 				'complete' => 0
 
 			], $dto->id);
 
 			return true;
-
 		}
 
 		return false;
-
 	}
 
-	public function prioritise( $id, $priority ) {
-		if ( ( $id = (int)$id) && (int)$priority < 10) {
-			$a = array( 'priority' => $priority );
-			$this->UpdateByID( $a, $id );
+	public function prioritise($id, $priority) {
+		if (($id = (int)$id) && (int)$priority < 10) {
+			$a = array('priority' => $priority);
+			$this->UpdateByID($a, $id);
 			return true;
-
 		}
 
 		return false;
-
 	}
 
-	public function getById( $id ) {
+	public function getById($id) {
 		$sql = sprintf(
 			'SELECT
 				f.*, properties.address_street address, users.name
@@ -349,18 +327,20 @@ class forum extends _dao {
 				LEFT JOIN
 					properties on properties.id = f.property_id
 			WHERE
-				f.id = %d', $id );
+				f.id = %d',
+			$id
+		);
 		//~ \sys::logSQL( $sql);
 
-		if ( $res = $this->Result( $sql)) {
+		if ($res = $this->Result($sql)) {
 
-			if ( $row = $res->fetch()) {
-				$dto = new dto\forum( $row);
+			if ($row = $res->fetch()) {
+				$dto = new dto\forum($row);
 				$dto->comments = [];
 				$dto->children = [];
 
-				if ( $res = $this->Result(
-					sprintf( 'SELECT
+				if ($res = $this->Result(
+					sprintf('SELECT
 						f.id, f.comment, f.thread, f.updated, f.user_id, users.name
 					FROM forum f
 						LEFT JOIN
@@ -368,52 +348,43 @@ class forum extends _dao {
 					WHERE
 						f.parent = %d
 					ORDER BY
-						f.id ASC', $id))) {
+						f.id ASC', $id)
+				)) {
 
-					while ( $row = $res->fetch()) {
-						$c = new dto\forum( $row );
+					while ($row = $res->fetch()) {
+						$c = new dto\forum($row);
 						$c->children = [];
-						if ( $c->thread == '' ) {
+						if ($c->thread == '') {
 							$dto->children[] = $c;
-
-						}
-						else {
-							$a = explode( ':', $c->thread );
-							$pid = array_pop( $a );
-							if ( $pid == $id ) {
+						} else {
+							$a = explode(':', $c->thread);
+							$pid = array_pop($a);
+							if ($pid == $id) {
 								$dto->children[] = $c;
-
-							}
-							else {
+							} else {
 								$dto->comments[$pid]->children[] = $c;
-
 							}
-
 						}
 
 						$dto->comments[$row['id']] = $c;
-
 					}
-
 				}
 
 				return ($dto);
-
 			}
-
 		}
 
 		return FALSE;
-
 	}
 
-	public function notify( $subject, $message, $email, $forumTop) {
-		if ( $this->debug) \sys::logger( sprintf( 'add forum email ::%s:', $email));
+	public function notify($subject, $message, $email, $forumTop) {
+		if ($this->debug) \sys::logger(sprintf('add forum email ::%s:', $email));
 
-		$url = strings::url( 'forum/view/' . $forumTop, $protocol = true);
+		$url = strings::url('forum/view/' . $forumTop, $protocol = true);
 
 		$prelude = sprintf(
 			'<html><body><div>
+			<p>Do NOT reply to this email</p>
 			This forum topic can be viewed at: <a href="%s">%s</a>
 			<p>&nbsp;</p>
 
@@ -424,80 +395,71 @@ class forum extends _dao {
 		);
 
 		$DOM = new \DOMDocument;
-		$DOM->loadHTML( $prelude);
+		$DOM->loadHTML($prelude);
 
 		$body = $DOM->getElementsByTagName('body');
-		if ( $body && 0<$body->length ) {
+		if ($body && 0 < $body->length) {
 			$body = $body->item(0);
 
-			if ( $dto = $this->getById( $forumTop)) {
+			if ($dto = $this->getById($forumTop)) {
 				$ftext = array('<table class="table table-striped"><tbody>');
 
-				if ( count( $dto->children )) {
+				if (count($dto->children)) {
 					$ftext[] = '<tr><td colspan="3" style="padding: 10px;"><strong>forum thread</strong>' . PHP_EOL;
-					$ftext[] = sprintf( '<tr><td colspan="3" style="padding: 0;">%s', PHP_EOL );
-					for ( $i = count($dto->children); $i > 0; $i-- )
-						$ftext[] = forumUtility::printThread( $dto->children[$i-1], NULL, TRUE);
+					$ftext[] = sprintf('<tr><td colspan="3" style="padding: 0;">%s', PHP_EOL);
+					for ($i = count($dto->children); $i > 0; $i--)
+						$ftext[] = forumUtility::printThread($dto->children[$i - 1], NULL, TRUE);
 
-					$ftext[] = sprintf( '</td></tr>%s', PHP_EOL );
-
+					$ftext[] = sprintf('</td></tr>%s', PHP_EOL);
 				}	// if ( count( $dto->children ))
 
 				$ftext[] = '<tr><td colspan="3" style="padding: 10px;"><strong>original post</strong>' . PHP_EOL;
-				$ftext[] = sprintf( '<tr>
+				$ftext[] = sprintf(
+					'<tr>
 						<td>%s</td>
 						<td style="width: 60px;">%s<br />%s</td>
 						<td style="width: 60px;">%s</td>
 					</tr>',
-					strings::AutoTextAsHTML( $dto->comment),
-					date( 'd/m/Y', strtotime( $dto->updated )),
-					date( 'h:ia', strtotime( $dto->updated )),
-					strings::initials( $dto->name));
+					strings::AutoTextAsHTML($dto->comment),
+					date('d/m/Y', strtotime($dto->updated)),
+					date('h:ia', strtotime($dto->updated)),
+					strings::initials($dto->name)
+				);
 
 				$ftext[] = '</tbody></table>';
 
-				\html::appendHTML( $body, implode('', $ftext));
-
+				\html::appendHTML($body, implode('', $ftext));
 			}
 
 			$html =  $DOM->saveHTML();
 
 			// create instance
 			$cssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles();
-			$css = file_get_contents( sprintf( '%s/%s', \config::$TEMPLATES_DIR_CSS, 'minimum.css' ));
+			$css = file_get_contents(sprintf('%s/%s', \config::$TEMPLATES_DIR_CSS, 'minimum.css'));
 
 			// output
-			$html = $cssToInlineStyles->convert( $html, $css);
+			$html = $cssToInlineStyles->convert($html, $css);
 
-			$html = utf8_decode( $html);	// without this you get a double encoding to UTF-8
+			$html = utf8_decode($html);	// without this you get a double encoding to UTF-8
 
 			$mail = \sys::forumMailer();
 			$mail->CharSet = 'UTF-8';
 			$mail->Encoding = 'base64';
 			$mail->Subject  = $subject;
-			$mail->AddAddress( $email );
+			$mail->AddAddress($email);
 
-			$msg = \emailutility::image2cid( $html);
-			$mail->MsgHTML( $msg, sys_get_temp_dir());
+			$msg = emailutility::image2cid($html);
+			$mail->MsgHTML($msg, sys_get_temp_dir());
 
+			if ($mail->Send()) {
+				if ($this->debug) \sys::logger('OK - Forum Mail Sent');
+			} else {
+				if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
+			}
 		}
-		else {
-			$mail->MsgHTML( $prelude . $message );
-
-		}
-
-		if ( $mail->Send()) {
-			if ( $this->debug) \sys::logger( 'OK - Forum Mail Sent' );
-
-		}
-		else {
-			if ( $this->debug) \sys::logger( 'NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
-
-		}
-
 	}
 
-	public function InsertDTO( dto\forum $dto, $notifyList = null ) {
+	public function InsertDTO(dto\forum $dto, $notifyList = null) {
 		$a = [
 			'comment' => $dto->comment,
 			'description' => $dto->description,
@@ -507,16 +469,15 @@ class forum extends _dao {
 			'by_email' => $dto->by_email,
 			'tag' => $dto->tag,
 			'updated' => \db::dbTimeStamp(),
-			'user_id' => \currentUser::id()];
+			'user_id' => \currentUser::id()
+		];
 
 		//~ \sys::logger( sprintf( 'message length: %s (%s)', strlen( $a['comment'] ), strlen( $dto->comment )));
 
-		if ( $dto->parent > 0 ) {
-			$id = $this->Insert( $a);
-
-		}
-		else {
-			if ( is_null( $notifyList))
+		if ($dto->parent > 0) {
+			$id = $this->Insert($a);
+		} else {
+			if (is_null($notifyList))
 				$notifyList = [];
 
 			/*
@@ -524,167 +485,138 @@ class forum extends _dao {
 			 * not "Name Of You" <email@you.com>
 			 */
 			$_notifyList = [];
-			foreach ( $notifyList as $e) {
-				$o = new \EmailAddress( $e );
-				if ( $o->check()) $_notifyList[] = $o->email;
-
+			foreach ($notifyList as $e) {
+				$o = new \EmailAddress($e);
+				if ($o->check()) $_notifyList[] = $o->email;
 			}
 
-			if ( !in_array( \config::$SUPPORT_EMAIL, $_notifyList))
+			if (!in_array(\config::$SUPPORT_EMAIL, $_notifyList))
 				$_notifyList[] = \config::$SUPPORT_EMAIL;
 
 			/* this has to be consistent with dto\forum->subscribe() */
-			$a['notify'] = implode( '|', $_notifyList);
+			$a['notify'] = implode('|', $_notifyList);
 
-			$id = $this->Insert( $a);
-			$this->subscribe( $id);
-			$dto = $this->getById( $id );
-
+			$id = $this->Insert($a);
+			$this->subscribe($id);
+			$dto = $this->getById($id);
 		}
 
 		//~ \sys::logger( sprintf( 'message legnth: %s ', strlen( $dto->comment )));
 
-		$z = explode( '|', $dto->notify );
-		foreach ( $z as $email ) {
-			if ( $email != '' && $email != \currentUser::email()) {
-				if ( \config::$SUPPORT_EMAIL == $email && \currentUser::isDavid()) {
-					if ( $this->debug) \sys::logger( 'InsertDTO // not self notifing : ' . $email);
-
-				}
-				else {
+		$z = explode('|', $dto->notify);
+		foreach ($z as $email) {
+			if ($email != '' && $email != \currentUser::email()) {
+				if (\config::$SUPPORT_EMAIL == $email && \currentUser::isDavid()) {
+					if ($this->debug) \sys::logger('InsertDTO // not self notifing : ' . $email);
+				} else {
 
 					$this->notify(
-						sprintf( '%s : %s', ( $dto->parent > 0 ? 'Follow Up' : 'New Topic' ), $dto->description ),
+						sprintf('%s : %s', ($dto->parent > 0 ? 'Follow Up' : 'New Topic'), $dto->description),
 						$a['comment'],
 						$email,
-						( $dto->parent > 0 ? $dto->parent : $id ));
+						($dto->parent > 0 ? $dto->parent : $id)
+					);
 
-					if ( $this->debug) \sys::logger( 'notify:' . $email);
-
+					if ($this->debug) \sys::logger('notify:' . $email);
 				}
-
+			} else {
+				if ($this->debug) \sys::logger('NOT notify:' . $email);
 			}
-			else {
-				if ( $this->debug) \sys::logger( 'NOT notify:' . $email);
-
-			}
-
 		}
 
-		return ( $id );
-
+		return ($id);
 	}
 
-	public function last_updated( dto\forum $dto ) {
-		if ( $res = $this->Result( sprintf( 'SELECT MAX(updated) updated FROM forum WHERE parent = %d', $dto->id))) {
-			if ( $_dto = $res->dto())
-				return ( $_dto->updated);
-
+	public function last_updated(dto\forum $dto) {
+		if ($res = $this->Result(sprintf('SELECT MAX(updated) updated FROM forum WHERE parent = %d', $dto->id))) {
+			if ($_dto = $res->dto())
+				return ($_dto->updated);
 		}
 
-		return ( $dto->updated);
-
+		return ($dto->updated);
 	}
 
-	public function getRecentTags() : array {
-    $_sql =
-    'SELECT DISTINCT tag
+	public function getRecentTags(): array {
+		$_sql =
+			'SELECT DISTINCT tag
       FROM forum
       WHERE tag <> ""
       ORDER BY id DESC
       LIMIT 10';
 
-		if ( $res = $this->Result( $_sql)) {
-      return ( $res->dtoSet());
+		if ($res = $this->Result($_sql)) {
+			return ($res->dtoSet());
+		}
 
-    }
-
-    return [];
-
+		return [];
 	}
 
-	public function getTags( $asJson) {
+	public function getTags($asJson) {
 		$ret = [];
-		$res = $this->Result( 'SELECT DISTINCT tag FROM forum WHERE tag <> ""');
-		if ( $asJson) {
-			while ( $dto = $res->dto())
+		$res = $this->Result('SELECT DISTINCT tag FROM forum WHERE tag <> ""');
+		if ($asJson) {
+			while ($dto = $res->dto())
 				$ret[] = $dto->tag;
 
-			return ( json_encode( $ret));
+			return (json_encode($ret));
+		} elseif ($res)
+			return ($res->dtoSet());
 
-		}
-		elseif ( $res)
-			return ( $res->dtoSet());
-
-		return ( $ret);
-
+		return ($ret);
 	}
 
-	protected function _link( $a, $b) {
-		if ( $dto = $this->getByID( $a)) {
+	protected function _link($a, $b) {
+		if ($dto = $this->getByID($a)) {
 			$data = ['link' => $b];
-			if ( $dto->link) {
-				$links = explode( ',', $dto->link);
-				if ( !( in_array( $b, $links))) {
+			if ($dto->link) {
+				$links = explode(',', $dto->link);
+				if (!(in_array($b, $links))) {
 					$links[] = $b;
-
 				}
-				$data['link'] = implode( ',', $links);
-
+				$data['link'] = implode(',', $links);
 			}
-			$this->UpdateByID( $data, $dto->id);
-
+			$this->UpdateByID($data, $dto->id);
 		}
-
 	}
 
-	public function link( $a, $b) {
-		if ( $a & $b && $a != $b) {
-			$this->_link( $a, $b);
-			$this->_link( $b, $a);
+	public function link($a, $b) {
+		if ($a & $b && $a != $b) {
+			$this->_link($a, $b);
+			$this->_link($b, $a);
 			return true;
-
 		}
 
 		return false;
-
 	}
 
-	protected function _linkRemove( $a, $b) {
-		if ( $dto = $this->getByID( $a)) {
-			if ( $dto->link) {
-				$links = explode( ',', $dto->link);
-				if ( in_array( $b, $links)) {
+	protected function _linkRemove($a, $b) {
+		if ($dto = $this->getByID($a)) {
+			if ($dto->link) {
+				$links = explode(',', $dto->link);
+				if (in_array($b, $links)) {
 					$_links = [];
-					foreach ( $links as $link) {
-						if ( $link != $b) $_links[] = $link;
-
+					foreach ($links as $link) {
+						if ($link != $b) $_links[] = $link;
 					}
 
-					$data = [ 'link' => implode( ',', $_links)];	// could be ''
-					$this->UpdateByID( $data, $dto->id);
+					$data = ['link' => implode(',', $_links)];	// could be ''
+					$this->UpdateByID($data, $dto->id);
 
 					return TRUE;
-
 				}
-
 			}
 		}
 
 		return FALSE;
-
 	}
 
-	public function linkRemove( $a, $b) {
-		if ( $a & $b && $a != $b) {
-			$this->_linkRemove( $a, $b);
-			$this->_linkRemove( $b, $a);
+	public function linkRemove($a, $b) {
+		if ($a & $b && $a != $b) {
+			$this->_linkRemove($a, $b);
+			$this->_linkRemove($b, $a);
 			return true;
-
 		}
 
 		return false;
-
 	}
-
 }
