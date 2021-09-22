@@ -150,7 +150,7 @@ use html; ?>
           </div>
           <div class="col-md-5 col-lg-6 col-xl-3 text-center small pt-1"><?= strings::asShortDate( $dto->created, true); ?></div>
           <div class="col text-center"><?= html::icon( $dto->reporter_name); ?></div>
-          <div class="col text-center small pt-1" role="priority"><?= $priority ?></div>
+          <div class="col text-center small pt-1 text-truncate" role="priority"><?= $priority ?></div>
 
         </div>
 
