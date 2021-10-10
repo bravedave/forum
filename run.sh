@@ -2,7 +2,7 @@
 
 WD=`pwd`
 PORT=$[RANDOM%10000+1024]
-
+PORT=3571
 apache=`command -v httpd`
 
 
@@ -18,7 +18,7 @@ if [[ "" == $apache ]]; then
   cd $WD
 
 else
-  data="`pwd`/src/app/data"
+  data="`pwd`/src/data"
   error_log="$data/error.log"
   access_log="$data/access.log"
   config="$data/httpd.conf"
@@ -60,7 +60,7 @@ else
       httpd \
         -f $config \
         -c "PidFile $pidFile"
-      tail -f src/dev/data/error.log
+      tail -f $error_log
 
     fi
 

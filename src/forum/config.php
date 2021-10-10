@@ -34,6 +34,9 @@ abstract class config extends \config {
 	const FORUM_URGENT_PRIORITY_TEXT = 'urgent';
 	const FORUM_BROKEN_PRIORITY_TEXT = 'broken';
 
+	const resolved_resolved = 1;
+	const resolved_noaction = 2;
+
   static protected $_FORUM_VERSION = 0;
 
 	static function forum_checkdatabase() {
