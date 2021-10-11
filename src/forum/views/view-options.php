@@ -60,7 +60,7 @@ use green;	?>
 
 		<!-- --[resolved]-- -->
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $this->data->dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
 
 		</div>
