@@ -75,7 +75,6 @@ use green;	?>
 			(_ => {
 				$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not')
 					.on('change', function(e) {
-						console.log(this);
 						let _me = $(this);
 						_.post({
 							url: _.url('<?= $this->route ?>'),
