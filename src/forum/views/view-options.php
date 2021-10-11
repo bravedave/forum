@@ -73,7 +73,7 @@ use green;	?>
 		</div>
 		<script>
 			(_ => {
-				$('#<?= $_uid ?>, #<?= $_uid ?>-na')
+				$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not')
 					.on('change', function(e) {
 						let _me = $(this);
 						_.post({
