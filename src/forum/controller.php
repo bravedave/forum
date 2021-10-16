@@ -81,7 +81,6 @@ class controller extends \Controller {
 
 	}
 
-
 	protected function postHandler() {
 		$action =$this->getPost('action');
 

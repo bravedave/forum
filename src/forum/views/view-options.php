@@ -71,9 +71,16 @@ use green;	?>
 			<label class="form-check-label" for="<?= $_uid ?>-na">no action</label>
 
 		</div>
+
+		<!-- --[resolved - feedback]-- -->
+		<div class="form-check">
+			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>-feedback" <?= config::resolved_feedback == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>-feedback">feedback</label>
+
+		</div>
 		<script>
 			(_ => {
-				$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not')
+				$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not, #<?= $_uid ?>-feedback')
 					.on('change', function(e) {
 						let _me = $(this);
 						_.post({

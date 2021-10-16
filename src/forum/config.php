@@ -36,6 +36,7 @@ abstract class config extends \config {
 
 	const resolved_resolved = 1;
 	const resolved_noaction = 2;
+	const resolved_feedback = 3;
 
   static protected $_FORUM_VERSION = 0;
 

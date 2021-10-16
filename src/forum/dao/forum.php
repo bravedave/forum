@@ -551,7 +551,7 @@ class forum extends _dao {
 		return [];
 	}
 
-	public function getTags($asJson) {
+	public function getTags($asJson = false) {
 		$ret = [];
 		$res = $this->Result('SELECT DISTINCT tag FROM forum WHERE tag <> ""');
 		if ($asJson) {

@@ -30,7 +30,11 @@ use html; ?>
   }
 
   .status-warning {
-    background-color: #fdd457
+    background-color: #fff3cd
+  }
+
+  .status-feedback {
+    background-color: #d4a8d4
   }
 
   .line-clamp {
@@ -118,6 +122,9 @@ use html; ?>
     } elseif (config::resolved_noaction == $dto->resolved) {
       $statusClass = 'status-warning';
       $resolvedStatus = 'noaction';
+    } elseif (config::resolved_feedback == $dto->resolved) {
+      $statusClass = 'status-feedback';
+      $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
       $statusClass = 'status-danger';
     }
@@ -485,7 +492,7 @@ use html; ?>
 
             })
             .on('check-state', function(e) {
-              if (/(yes|noaction)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
+              if (/(yes|noaction|feedback)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
 
             })
             .trigger('check-state')
@@ -584,7 +591,7 @@ use html; ?>
 
           }).then(d => {
             if ('ack' == d.response) {
-              _me.removeClass('status-success status-warning');
+              _me.removeClass('status-success status-warning status-feedback');
               _me.data('resolved', 'no');
               if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
                 _me.addClass('status-danger');
