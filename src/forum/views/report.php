@@ -115,6 +115,7 @@ use html; ?>
     elseif ($dto->priority == config::FORUM_LOW_PRIORITY) $priority = config::FORUM_LOW_PRIORITY_TEXT;
 
     $statusClass = '';
+    $popover = '';
     $resolvedStatus = 'no';
     if (config::resolved_resolved == $dto->resolved) {
       $statusClass = 'status-success';
@@ -123,6 +124,7 @@ use html; ?>
       $statusClass = 'status-warning';
       $resolvedStatus = 'noaction';
     } elseif (config::resolved_feedback == $dto->resolved) {
+      $popover = 'title="Feedback Requested" data-content="Please provide feedback" data-toggle="popover" data-trigger="hover" data-placement="auto"';
       $statusClass = 'status-feedback';
       $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
@@ -145,7 +147,8 @@ use html; ?>
         data-status="%s"
         data-tag="%s"
         data-updated="%s"
-        data-updater="%s">',
+        data-updater="%s"
+        %s>',
       $statusClass,
       date('Y-m-d H:i', strtotime($dto->created)),
       ($dto->complete == 1 ? 'yes' : 'no'),
@@ -159,7 +162,8 @@ use html; ?>
       $status,
       $dto->tag ? $dto->tag : 'ZZ',
       date('Y-m-d H:i', strtotime($dto->created)),
-      strings::initials($dto->user_name)
+      strings::initials($dto->user_name),
+      $popover
     );
   ?>
 
@@ -168,19 +172,20 @@ use html; ?>
         <div class="col-xl-5 d-none d-xl-block small pt-1">
           <div class="form-row">
             <div class="col-3 d-print-none"><?= $dto->id ?></div>
-            <div class="col-3"><?php
-                                if ($dto->complete)
-                                  print '<i class="bi bi-check" role="status-icon" aria-hidden="true" title="complete"></i>';
-                                elseif ($status == 1)
-                                  print '<i class="bi bi-hand-thumbs-up" role="status-icon" aria-hidden="true" title="topic is open - responded"></i>';
-                                elseif ($status == 2)
-                                  print '<i class="bi bi-hand-thumbs-up" role="status-icon" aria-hidden="true" title="topic is complete"></i>';
-                                elseif ($status == 3)
-                                  print '<i class="bi bi-folder" role="status-icon" aria-hidden="true" title="topic is closed"></i>';
-                                else
-                                  print '<i class="bi bi-hand-thumbs-down" role="status-icon" aria-hidden="true" title="topic is open"></i>';
+            <div class="col-3">
+              <?php
+              if ($dto->complete)
+                print '<i class="bi bi-check" role="status-icon" aria-hidden="true" title="complete"></i>';
+              elseif ($status == 1)
+                print '<i class="bi bi-hand-thumbs-up" role="status-icon" aria-hidden="true" title="topic is open - responded"></i>';
+              elseif ($status == 2)
+                print '<i class="bi bi-hand-thumbs-up" role="status-icon" aria-hidden="true" title="topic is complete"></i>';
+              elseif ($status == 3)
+                print '<i class="bi bi-folder" role="status-icon" aria-hidden="true" title="topic is closed"></i>';
+              else
+                print '<i class="bi bi-hand-thumbs-down" role="status-icon" aria-hidden="true" title="topic is open"></i>';
 
-                                ?></div>
+              ?></div>
 
             <div class="col text-truncate" data-role="tag"><?= $dto->tag ?></div>
 
@@ -311,303 +316,305 @@ use html; ?>
 
     let tags = [];
     let reporter = [];
-    $('#<?= $_env ?> [data-role="item"]').each((i, el) => {
+    $('#<?= $_env ?> [data-role="item"]')
+      .each((i, el) => {
 
-      let _el = $(el);
-      let _data = _el.data();
-      // console.log( _data);
+        let _el = $(el);
+        let _data = _el.data();
+        // console.log( _data);
 
-      if ('' != _data.tag && 'ZZ' != _data.tag) {
-        if (tags.indexOf(_data.tag) < 0) {
-          tags.push(_data.tag);
+        if ('' != _data.tag && 'ZZ' != _data.tag) {
+          if (tags.indexOf(_data.tag) < 0) {
+            tags.push(_data.tag);
 
-        }
-
-      }
-
-      if ('' != _data.reporter) {
-        if (reporter.indexOf(_data.reporter) < 0) {
-          reporter.push(_data.reporter);
+          }
 
         }
 
-      }
+        if ('' != _data.reporter) {
+          if (reporter.indexOf(_data.reporter) < 0) {
+            reporter.push(_data.reporter);
 
-      _el
-        .on('contextmenu', function(e) {
-          if (e.shiftKey)
-            return;
+          }
 
-          let _row = $(this);
-          let _data = _row.data();
-          let complete = 'yes' == _data.complete;
+        }
 
-          e.stopPropagation();
-          e.preventDefault();
+        _el
+          .on('contextmenu', function(e) {
+            if (e.shiftKey)
+              return;
 
-          _.hideContexts();
+            let _row = $(this);
+            let _data = _row.data();
+            let complete = 'yes' == _data.complete;
 
-          let _context = _.context();
-
-          _context.append($('<a href="#">tag</a>').on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
 
-            _context.close()
+            _.hideContexts();
 
-            let url = _.url('<?= $this->route ?>/tag/' + _data.id);
-            _.get.modal(url)
-              .then(modal => modal.on('success', (e, data) => {
-                _row.data('tag', data.tag);
-                $('div[data-role="tag"]', _row).html(data.tag);
-                // console.log( data);
+            let _context = _.context();
 
-              }));
-
-          }));
-
-          _context.append($('<a href="#">' + (complete ? 'Mark Incomplete' : 'Mark Complete') + '</a>').on('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            _context.close()
-            mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete');
-
-          }));
-
-          _context.append('<hr>');
-
-          _context.append(
-            $('<a href="#"><?= config::FORUM_LOW_PRIORITY_TEXT ?></a>').on('click', function(e) {
+            _context.append($('<a href="#">tag</a>').on('click', function(e) {
               e.stopPropagation();
               e.preventDefault();
 
               _context.close()
-              prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>');
 
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_LOW_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+              let url = _.url('<?= $this->route ?>/tag/' + _data.id);
+              _.get.modal(url)
+                .then(modal => modal.on('success', (e, data) => {
+                  _row.data('tag', data.tag);
+                  $('div[data-role="tag"]', _row).html(data.tag);
+                  // console.log( data);
 
-            })
-            .trigger('check-state')
+                }));
 
-          );
+            }));
 
-          _context.append(
-            $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
-            .on('click', function(e) {
+            _context.append($('<a href="#">' + (complete ? 'Mark Incomplete' : 'Mark Complete') + '</a>').on('click', function(e) {
               e.stopPropagation();
               e.preventDefault();
 
               _context.close()
-              prioritise.call(_row, '<?= config::FORUM_NORMAL_PRIORITY ?>');
+              mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete');
 
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_NORMAL_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+            }));
 
-            })
-            .trigger('check-state')
+            _context.append('<hr>');
 
-          );
+            _context.append(
+              $('<a href="#"><?= config::FORUM_LOW_PRIORITY_TEXT ?></a>').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-          _context.append(
-            $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_LOW_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
+              .on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_NORMAL_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_NORMAL_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_MEDIUM_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_MEDIUM_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_HIGH_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_HIGH_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_URGENT_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_URGENT_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>')
+              .on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                prioritise.call(_row, '<?= config::FORUM_BROKEN_PRIORITY ?>');
+
+              })
+              .on('check-state', function(e) {
+                if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append(
+              $('<a href="#">resolved</a>')
+              .on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                _context.close()
+                _row.trigger(/(yes|noaction|feedback)/.test(_data.resolved) ? 'resolved-undo' : 'resolved');
+
+              })
+              .on('check-state', function(e) {
+                if (/(yes|noaction|feedback)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
+
+              })
+              .trigger('check-state')
+
+            );
+
+            _context.append('<hr>');
+
+            _context.append($('<a href="#">Reset Priority</a>').on('click', function(e) {
               e.stopPropagation();
               e.preventDefault();
 
               _context.close()
-              prioritise.call(_row, '<?= config::FORUM_MEDIUM_PRIORITY ?>');
+              _.post({
+                url: _.url('<?= $this->route ?>'),
+                data: {
+                  action: 'priority-reset'
 
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_MEDIUM_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+                },
 
-            })
-            .trigger('check-state')
+              }).then(d => {
+                _.growl(d);
+                window.location.reload();
 
-          );
+              });
 
-          _context.append(
-            $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
+            }));
 
-              _context.close()
-              prioritise.call(_row, '<?= config::FORUM_HIGH_PRIORITY ?>');
+            _context.open(e);
 
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_HIGH_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+          })
+          .on('resolved', function(e) {
+            let _me = $(this);
+            let _data = _me.data();
 
-            })
-            .trigger('check-state')
-
-          );
-
-          _context.append(
-            $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
-
-              _context.close()
-              prioritise.call(_row, '<?= config::FORUM_URGENT_PRIORITY ?>');
-
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_URGENT_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-            })
-            .trigger('check-state')
-
-          );
-
-          _context.append(
-            $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>')
-            .on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
-
-              _context.close()
-              prioritise.call(_row, '<?= config::FORUM_BROKEN_PRIORITY ?>');
-
-            })
-            .on('check-state', function(e) {
-              if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-            })
-            .trigger('check-state')
-
-          );
-
-          _context.append(
-            $('<a href="#">resolved</a>')
-            .on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
-
-              _context.close()
-              _row.trigger(/(yes|noaction)/.test(_data.resolved) ? 'resolved-undo' : 'resolved');
-
-            })
-            .on('check-state', function(e) {
-              if (/(yes|noaction|feedback)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
-
-            })
-            .trigger('check-state')
-
-          );
-
-          _context.append('<hr>');
-
-          _context.append($('<a href="#">Reset Priority</a>').on('click', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            _context.close()
             _.post({
               url: _.url('<?= $this->route ?>'),
               data: {
-                action: 'priority-reset'
+                action: 'set-resolved',
+                id: _data.id,
+                val: <?= config::resolved_resolved ?>
 
               },
 
             }).then(d => {
-              _.growl(d);
-              window.location.reload();
+              if ('ack' == d.response) {
+                _me.removeClass('status-danger').addClass('status-success');
+                _me.data('resolved', 'yes');
 
-            });
-
-          }));
-
-          _context.open(e);
-
-        })
-        .on('resolved', function(e) {
-          let _me = $(this);
-          let _data = _me.data();
-
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: {
-              action: 'set-resolved',
-              id: _data.id,
-              val: <?= config::resolved_resolved ?>
-
-            },
-
-          }).then(d => {
-            if ('ack' == d.response) {
-              _me.removeClass('status-danger').addClass('status-success');
-              _me.data('resolved', 'yes');
-
-            } else {
-              _.growl(d)
-
-            }
-
-          });
-
-        })
-        .on('resolved-no-action', function(e) {
-          let _me = $(this);
-          let _data = _me.data();
-
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: {
-              action: 'set-resolved',
-              id: _data.id,
-              val: <?= config::resolved_noaction ?>
-
-            },
-
-          }).then(d => {
-            if ('ack' == d.response) {
-              _me.removeClass('status-danger').addClass('status-success');
-              _me.data('resolved', 'yes');
-
-            } else {
-              _.growl(d)
-
-            }
-
-          });
-
-        })
-        .on('resolved-undo', function(e) {
-          let _me = $(this);
-          let _data = _me.data();
-
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: {
-              action: 'set-resolved',
-              id: _data.id,
-              val: 0
-
-            },
-
-          }).then(d => {
-            if ('ack' == d.response) {
-              _me.removeClass('status-success status-warning status-feedback');
-              _me.data('resolved', 'no');
-              if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
-                _me.addClass('status-danger');
+              } else {
+                _.growl(d)
 
               }
 
-            } else {
-              _.growl(d)
+            });
 
-            }
+          })
+          .on('resolved-no-action', function(e) {
+            let _me = $(this);
+            let _data = _me.data();
+
+            _.post({
+              url: _.url('<?= $this->route ?>'),
+              data: {
+                action: 'set-resolved',
+                id: _data.id,
+                val: <?= config::resolved_noaction ?>
+
+              },
+
+            }).then(d => {
+              if ('ack' == d.response) {
+                _me.removeClass('status-danger').addClass('status-success');
+                _me.data('resolved', 'yes');
+
+              } else {
+                _.growl(d)
+
+              }
+
+            });
+
+          })
+          .on('resolved-undo', function(e) {
+            let _me = $(this);
+            let _data = _me.data();
+
+            _.post({
+              url: _.url('<?= $this->route ?>'),
+              data: {
+                action: 'set-resolved',
+                id: _data.id,
+                val: 0
+
+              },
+
+            }).then(d => {
+              if ('ack' == d.response) {
+                _me.removeClass('status-success status-warning status-feedback');
+                _me.popover('destroy');
+                _me.data('resolved', 'no');
+                if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
+                  _me.addClass('status-danger');
+
+                }
+
+              } else {
+                _.growl(d)
+
+              }
+
+            });
 
           });
 
-        });
-
-    });
+      });
 
     $('#<?= $_env ?>')
       .on('filter-apply', function(e) {
@@ -726,50 +733,54 @@ use html; ?>
 
     if (reporter.length > 0) {
       // console.table( reporter);
-      $('#<?= $_uidWho ?>').on('contextmenu', function(e) {
-        if (e.shiftKey)
-          return;
+      $('#<?= $_uidWho ?>')
+        .on('contextmenu', function(e) {
+          if (e.shiftKey)
+            return;
 
-        e.stopPropagation();
-        e.preventDefault();
+          e.stopPropagation();
+          e.preventDefault();
 
-        _.hideContexts();
+          _.hideContexts();
 
-        let _context = _.context();
-        $.each(reporter, (i, r) => {
-          _context.append($('<a href="#"></a>').html(r).on('click', function(e) {
+          let _context = _.context();
+          $.each(reporter, (i, r) => {
+            _context.append($('<a href="#"></a>').html(r).on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              let _me = $(this);
+              localStorage.setItem('<?= config::forum_filterWho ?>', _me.html());
+              $('#<?= $_env ?>').trigger('filter-apply');
+
+              _context.close();
+
+            }));
+
+          });
+
+          _context.append('<hr>');
+          _context.append($('<a href="#">clear</a>').on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
 
-            let _me = $(this);
-            localStorage.setItem('<?= config::forum_filterWho ?>', _me.html());
+            localStorage.removeItem('<?= config::forum_filterWho ?>');
             $('#<?= $_env ?>').trigger('filter-apply');
 
             _context.close();
 
           }));
 
+          _context.open(e);
+
         });
-
-        _context.append('<hr>');
-        _context.append($('<a href="#">clear</a>').on('click', function(e) {
-          e.stopPropagation();
-          e.preventDefault();
-
-          localStorage.removeItem('<?= config::forum_filterWho ?>');
-          $('#<?= $_env ?>').trigger('filter-apply');
-
-          _context.close();
-
-        }));
-
-        _context.open(e);
-
-      });
 
     }
 
-    $(document).ready(() => $('#<?= $_env ?>').trigger('filter-init'));
+    $(document).ready(() => {
+      $('#<?= $_env ?>').trigger('filter-init');
+      $('[data-toggle="popover"]').popover()
+    });
 
   })(_brayworth_);
 </script>
