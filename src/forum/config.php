@@ -15,8 +15,8 @@ use Json;
 abstract class config extends \config {
 	const forum_db_version = 0.3;
 
-  const forum_filterKey = 'forum-filter';
-  const forum_filterWho = 'forum-filter-who';
+	const forum_filterKey = 'forum-filter';
+	const forum_filterWho = 'forum-filter-who';
 
 	const FORUM_PRIORITY_ALL_VALID = '456789';
 
@@ -38,60 +38,22 @@ abstract class config extends \config {
 	const resolved_noaction = 2;
 	const resolved_feedback = 3;
 
-  static protected $_FORUM_VERSION = 0;
-
 	static function forum_checkdatabase() {
-		if ( self::forum_version() < self::forum_db_version) {
-      $dao = new dao\dbinfo;
-			$dao->dump( $verbose = false);
+		$dao = new dao\dbinfo(null, method_exists(__CLASS__, 'cmsStore') ? self::cmsStore() : self::dataPath());
+		// // $dao->debug = true;
+		$dao->checkVersion('forum', self::forum_db_version);
 
-			config::forum_version( self::forum_db_version);
-
+		if (file_exists($_file = self::forum_config())) {
+			\sys::logger(sprintf('cleanup %s', $_file));
+			unlink($_file);
 		}
-
 	}
 
 	static function forum_config() {
-		return implode( DIRECTORY_SEPARATOR, [
-      rtrim( self::dataPath(), '/ '),
-      'forum.json'
+		return implode(DIRECTORY_SEPARATOR, [
+			rtrim(self::dataPath(), '/ '),
+			'forum.json'
 
-    ]);
-
+		]);
 	}
-
-  static function forum_init() {
-    $_a = [
-      'forum_version' => self::$_FORUM_VERSION,
-
-    ];
-
-		if ( file_exists( $config = self::forum_config())) {
-
-      $j = (object)array_merge( $_a, (array)Json::read( $config));
-
-      self::$_FORUM_VERSION = (float)$j->forum_version;
-
-		}
-
-	}
-
-	static protected function forum_version( $set = null) {
-		$ret = self::$_FORUM_VERSION;
-
-		if ( (float)$set) {
-			$j = Json::read( $config = self::forum_config());
-
-			self::$_FORUM_VERSION = $j->forum_version = $set;
-
-			Json::write( $config, $j);
-
-		}
-
-		return $ret;
-
-	}
-
 }
-
-config::forum_init();
