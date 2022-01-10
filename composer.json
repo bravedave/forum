@@ -5,15 +5,13 @@
     "Forum"
   ],
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "license": "MIT",
   "authors": [
     {
       "name": "Dave Bray",
       "email": "david@brayworth.com.au"
     }
-  ],
-  "repositories": [
-    { "type": "git", "url": "https://github.com/bravedave/dvc" }
   ],
   "require": {
     "bravedave/dvc": "*",
@@ -25,23 +23,16 @@
   "autoload": {
     "psr-4": {
       "dvc\\forum\\": "src/forum/"
-
     }
-
   },
   "autoload-dev": {
     "psr-4": {
       "": "src/app/"
-
     }
-
   },
   "scripts": {
     "post-update-cmd": [
       "dvc\\forum\\postUpdate::upgrade"
-
     ]
-
   }
-
 }
