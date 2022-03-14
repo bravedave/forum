@@ -8,32 +8,31 @@
  *
 */	?>
 
+<input type="hidden" name="form_action" value="post comment">
 <div id="commentForm" class="d-print-none" data-role="comment-container" data-master="yes">
-	<div class="row">
-		<div class="offset-lg-1 offset-md-2 col pl-md-0">
-			<i id="show-comment-box" class="bi bi-caret-right"></i>
+	<div class="form-row">
+		<div class="col pl-md-0">
+			<i id="<?= $_uidShowCommentBox = strings::rand() ?>" class="bi bi-caret-right"></i>
 			Add your Comment
-
 		</div>
-
 	</div>
 
-	<div class="row d-none" data-comment-body>
-		<div class="offset-lg-1 offset-md-2 col pl-md-0">
+	<div class="form-row d-none" data-comment-body>
+		<div class="col pl-md-0">
 			<input type="hidden" name="parent" value="<?= $this->data->dto->id ?>" />
 			<input type="hidden" id="commentThread" name="thread" data-default="<?= $this->data->dto->id ?>" value="<?= $this->data->dto->id ?>" />
 
-			<div class="form-group row">
-				<div class="col">
-					<textarea data-role="comment" name="comment" id="<?= $uid = uniqid('cms_') ?>" class="form-control" rows="10" placeholder="add your comment"></textarea>
+			<div class="form-row">
+				<div class="col mb-2">
+					<textarea data-role="comment" name="comment" id="<?= $uid = strings::rand() ?>" class="form-control" rows="16" placeholder="add your comment"></textarea>
 
 				</div>
 
 			</div>
 
-			<div class="form-group row">
+			<div class="form-row">
 				<div class="col">
-					<input class="btn btn-primary" type="submit" name="form_action" id="<?= $uid ?>form_button" value="post comment" />
+					<button type="submit" class="btn btn-primary" id="<?= $uid ?>form_button">post comment</button>
 
 				</div>
 
@@ -48,20 +47,24 @@
 	(_ => $(document).ready(() => {
 		let editorDone = false;
 
-		$('#show-comment-box').parent().addClass('pointer').on('click', function(e) {
+		$('#<?= $_uidShowCommentBox ?>').parent().addClass('pointer').on('click', function(e) {
 			e.stopPropagation();
 			e.preventDefault();
 
-			var _el = $('#show-comment-box', this);
+			let _el = $('#<?= $_uidShowCommentBox ?>');
 
 			if (_el.data('state') == 'open') {
-				_el.removeClass('bi-caret-down').addClass('bi-caret-right');
-				_el.data('state', 'hidden');
+				_el
+					.removeClass('bi-caret-down')
+					.addClass('bi-caret-right')
+					.data('state', 'hidden');
 				$('#commentForm [data-comment-body]').addClass('d-none');
 
 			} else {
-				_el.removeClass('bi-caret-right').addClass('bi-caret-down');
-				_el.data('state', 'open');
+				_el
+					.removeClass('bi-caret-right')
+					.addClass('bi-caret-down')
+					.data('state', 'open');
 				$('#commentForm [data-comment-body]').removeClass('d-none');
 
 				if (!editorDone) {

@@ -11,7 +11,9 @@
 namespace dvc\forum;
 
 use currentUser;
-use green;	?>
+use green;
+
+$dto = $this->data->dto;	?>
 
 <ul class="nav flex-column">
 	<li class="nav-item"><a class="h5" href="<?= strings::url($this->route) ?>">forums</a></li>
@@ -20,15 +22,15 @@ use green;	?>
 	<li class="nav-item"><a class="nav-link" href="#" id="clone-topic">clone</a></li>
 	<?php
 	if (currentUser::isAdmin()) {
-		if ($this->data->dto->closed) {
-			printf('<li class="nav-item"><a class="nav-link" href="%s">re-open</a></li>', strings::url('forum/reopenTopic/' . $this->data->dto->id));
+		if ($dto->closed) {
+			printf('<li class="nav-item"><a class="nav-link" href="%s">re-open</a></li>', strings::url('forum/reopenTopic/' . $dto->id));
 		} else {
-			printf('<li class="nav-item"><a class="nav-link" href="%s">close topic</a></li>', strings::url('forum/closeTopic/' . $this->data->dto->id));
+			printf('<li class="nav-item"><a class="nav-link" href="%s">close topic</a></li>', strings::url('forum/closeTopic/' . $dto->id));
 		}
 	}	?>
 
 	<li class="nav-item mt-2">
-		<a class="h6" href="<?= strings::url('forum/view/' . $this->data->dto->id) ?>"><?= sprintf('topic : #%s', $this->data->dto->id) ?></a>
+		<a class="h6" href="<?= strings::url('forum/view/' . $dto->id) ?>"><?= sprintf('topic : #%s', $dto->id) ?></a>
 
 	</li>
 
@@ -38,7 +40,7 @@ use green;	?>
 	<div class="col">
 		<div class="form-check">
 			<!-- --[complete]-- -->
-			<input class="form-check-input" type="checkbox" id="topic-is-complete" <?php if ($this->data->dto->complete) print "checked"; ?> />
+			<input class="form-check-input" type="checkbox" id="topic-is-complete" <?php if ($dto->complete) print "checked"; ?> />
 
 			<label class="form-check-label" for="topic-is-complete">complete</label>
 
@@ -46,83 +48,78 @@ use green;	?>
 
 		<div class="form-check">
 			<!-- --[watch]-- -->
-			<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic" <?= ($this->data->dto->subscribed(currentUser::email()) ? 'checked=checked' : '') ?>>
+			<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic" <?= ($dto->subscribed(currentUser::email()) ? 'checked=checked' : '') ?>>
 			<label class="form-check-label" for="watch">watch</label>
 
 		</div>
 
 		<!-- --[not resolved]-- -->
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>-not" <?= 0 == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>-not" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>-not">not resolved</label>
 
 		</div>
 
 		<!-- --[resolved]-- -->
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
 
 		</div>
 
 		<!-- --[resolved - no action]-- -->
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>-na" <?= config::resolved_noaction == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>-na" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>-na">no action</label>
 
 		</div>
 
 		<!-- --[resolved - feedback]-- -->
 		<div class="form-check">
-			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>-feedback" <?= config::resolved_feedback == $this->data->dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>-feedback" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>-feedback">feedback</label>
 
 		</div>
 		<script>
-			(_ => {
+			(_ =>
 				$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not, #<?= $_uid ?>-feedback')
-					.on('change', function(e) {
-						let _me = $(this);
-						_.post({
-							url: _.url('<?= $this->route ?>'),
-							data: {
-								action: 'set-resolved',
-								id: <?= (int)$this->data->dto->id ?>,
-								val: _me.prop('checked') ? _me.val() : 0
-
-							},
-
-						}).then(d => _.growl(d));
-
-					});
-
-			})(_brayworth_);
-		</script>
-
-		<div class="form-check">
-			<!-- --[flag]-- -->
-			<input class="form-check-input" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>" <?= $this->data->dto->flag ? 'checked' : '' ?>>
-			<label class="form-check-label" for="<?= $_uid ?>">flag</label>
-
-		</div>
-		<script>
-			(_ => {
-				$('#<?= $_uid ?>').on('change', function(e) {
+				.on('change', function(e) {
 					let _me = $(this);
 					_.post({
 						url: _.url('<?= $this->route ?>'),
 						data: {
-							action: 'set-flag',
-							id: <?= (int)$this->data->dto->id ?>,
-							val: _me.prop('checked') ? 1 : 0
+							action: 'set-resolved',
+							id: <?= (int)$dto->id ?>,
+							val: _me.prop('checked') ? _me.val() : 0
 
 						},
 
 					}).then(d => _.growl(d));
 
-				});
+				}))(_brayworth_);
+		</script>
 
-			})(_brayworth_);
+		<div class="form-check">
+			<!-- --[flag]-- -->
+			<input class="form-check-input" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>" <?= $dto->flag ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">flag</label>
+
+		</div>
+		<script>
+			(_ => $('#<?= $_uid ?>').on('change', function(e) {
+				let _me = $(this);
+				_.post({
+					url: _.url('<?= $this->route ?>'),
+					data: {
+						action: 'set-flag',
+						id: <?= (int)$dto->id ?>,
+						val: _me.prop('checked') ? 1 : 0
+
+					},
+
+				}).then(d => _.growl(d));
+
+			}))(_brayworth_);
 		</script>
 
 	</div>
@@ -131,7 +128,7 @@ use green;	?>
 
 <?php
 $uDao = new green\users\dao\users;
-foreach ($this->data->dto->subscribers() as $s) {
+foreach ($dto->subscribers() as $s) {
 	if ($s == currentUser::email()) continue;	?>
 
 	<div class="form-group row">
@@ -177,13 +174,13 @@ foreach ($this->data->dto->subscribers() as $s) {
 	</div>
 <?php
 
-}	// foreach ( $this->data->dto->subscribers() as $s) {
+}	// foreach ( $dto->subscribers() as $s) {
 
 if (currentUser::isAdmin()) {
 	if ($users = $uDao->getActive()) {
 		$subs = array('<option>Subscribe a User</option>');
 		foreach ($users as $u) {
-			if (!$this->data->dto->subscribed($u->email)) {
+			if (!$dto->subscribed($u->email)) {
 				$subs[] = sprintf('<option value="%s">%s</option>', $u->email, $u->name);
 			}
 		}
@@ -195,18 +192,19 @@ if (currentUser::isAdmin()) {
 <div class="form-group">
 	<label for="topic-priority">Priority</label>
 
-	<select id="topic-priority" class="form-control"><?php
-																										$pri = config::FORUM_NORMAL_PRIORITY;
-																										if ($this->data->dto->priority &&  (strstr(config::FORUM_PRIORITY_ALL_VALID, $this->data->dto->priority) !== FALSE))
-																											$pri = $this->data->dto->priority;
-																										?>
+	<select id="topic-priority" class="form-control">
+		<?php
+		$pri = config::FORUM_NORMAL_PRIORITY;
+		if ($dto->priority &&  (strstr(config::FORUM_PRIORITY_ALL_VALID, $dto->priority) !== FALSE))
+			$pri = $dto->priority;
+		?>
 
-		<option value="<?= config::FORUM_BROKEN_PRIORITY ?>" <?php if ($pri == config::FORUM_BROKEN_PRIORITY) print 'selected'; ?>><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></option>
-		<option value="<?= config::FORUM_URGENT_PRIORITY ?>" <?php if ($pri == config::FORUM_URGENT_PRIORITY) print 'selected'; ?>><?= config::FORUM_URGENT_PRIORITY_TEXT ?></option>
-		<option value="<?= config::FORUM_HIGH_PRIORITY ?>" <?php if ($pri == config::FORUM_HIGH_PRIORITY) print 'selected'; ?>><?= config::FORUM_HIGH_PRIORITY_TEXT ?></option>
-		<option value="<?= config::FORUM_MEDIUM_PRIORITY ?>" <?php if ($pri == config::FORUM_MEDIUM_PRIORITY) print 'selected'; ?>><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></option>
-		<option value="<?= config::FORUM_NORMAL_PRIORITY ?>" <?php if ($pri == config::FORUM_NORMAL_PRIORITY) print 'selected'; ?>><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></option>
-		<option value="<?= config::FORUM_LOW_PRIORITY ?>" <?php if ($pri == config::FORUM_LOW_PRIORITY) print 'selected'; ?>><?= config::FORUM_LOW_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_BROKEN_PRIORITY ?>" <?= $pri == config::FORUM_BROKEN_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_URGENT_PRIORITY ?>" <?= $pri == config::FORUM_URGENT_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_URGENT_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_HIGH_PRIORITY ?>" <?= $pri == config::FORUM_HIGH_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_HIGH_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_MEDIUM_PRIORITY ?>" <?= $pri == config::FORUM_MEDIUM_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_NORMAL_PRIORITY ?>" <?= $pri == config::FORUM_NORMAL_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></option>
+		<option value="<?= config::FORUM_LOW_PRIORITY ?>" <?= $pri == config::FORUM_LOW_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_LOW_PRIORITY_TEXT ?></option>
 
 	</select>
 
@@ -216,7 +214,7 @@ if (currentUser::isAdmin()) {
 	<label for="forum-tag">Tag:</label>
 
 	<div class="input-group">
-		<input type="text" name="tag" id="<?= $_uid = strings::rand()  ?>" class="form-control" value="<?= $this->data->dto->tag ?>" readonly />
+		<input type="text" name="tag" id="<?= $_uid = strings::rand()  ?>" class="form-control" value="<?= $dto->tag ?>" readonly />
 
 		<div class="input-group-prepend">
 			<button type="button" class="btn input-group-text" id="<?= $_uid ?>pencil"><i class="bi bi-pencil"></i></button>
@@ -231,13 +229,8 @@ if (currentUser::isAdmin()) {
 		$('#<?= $_uid ?>pencil').on('click', function(e) {
 			e.stopPropagation();
 
-			let url = _.url('<?= $this->route ?>/tag/<?= $this->data->dto->id ?>');
-			_.get.modal(url)
-				.then(modal => modal.on('success', (e, data) => {
-					$('#<?= $_uid ?>').val(data.tag);
-					// console.log( data);
-
-				}));
+			_.get.modal(_.url('<?= $this->route ?>/tag/<?= $dto->id ?>'))
+				.then(modal => modal.on('success', (e, data) => $('#<?= $_uid ?>').val(data.tag)));
 
 		});
 
@@ -251,7 +244,7 @@ if (currentUser::isAdmin()) {
 <div class="form-group">
 	<label for="forum-link">Link:</label>
 
-	<input type="text" name="link" id="forum-link" class="form-control" />
+	<input type="text" name="link" id="forum-link" class="form-control">
 
 </div>
 
@@ -262,7 +255,7 @@ if (currentUser::isAdmin()) {
 				url: _.url('<?= $this->route ?>'),
 				data: {
 					action: $(this).prop('checked') ? 'mark-complete' : 'mark-incomplete',
-					id: <?= $this->data->dto->id ?>
+					id: <?= $dto->id ?>
 
 				}
 
@@ -272,13 +265,13 @@ if (currentUser::isAdmin()) {
 
 		$('input[data-role="watch-topic"]').on('change', function() {
 			if (this.checked) {
-				$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $this->data->dto->id ?>'), d => {
+				$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>'), d => {
 					_.growl(d);
 
 				});
 
 			} else {
-				$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $this->data->dto->id ?>'), d => {
+				$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>'), d => {
 					_.growl(d);
 
 				});
@@ -292,7 +285,7 @@ if (currentUser::isAdmin()) {
 			if (!this.checked) {
 				var em = $(this).data('email');
 				//~ console.log( 'change:unsubscribe' );
-				$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $this->data->dto->id ?>?email=' + encodeURIComponent(em)), data => {
+				$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
 					_.growl('unsubscribed ' + em);
 					$(me).closest('.form-check').remove();
 
@@ -308,7 +301,7 @@ if (currentUser::isAdmin()) {
 			var _me = $(this);
 			var em = _me.val();
 			var name = _me.find('option[value="' + em + '"]').html();
-			$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $this->data->dto->id ?>?email=' + encodeURIComponent(em)), data => {
+			$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
 				_.growl(data);
 				if ('ack' == data.response) {
 					let randomID = 'cj_' + parseInt(Math.random() * 5000);
@@ -339,7 +332,7 @@ if (currentUser::isAdmin()) {
 					url: _.url('<?= $this->route ?>'),
 					data: {
 						action: 'prioritise',
-						id: <?= (int)$this->data->dto->id ?>,
+						id: <?= (int)$dto->id ?>,
 						priority: $(this).val(),
 					}
 
@@ -356,7 +349,7 @@ if (currentUser::isAdmin()) {
 							url: _.url('<?= $this->route ?>'),
 							data: {
 								action: 'add-link',
-								id: <?= $this->data->dto->id ?>,
+								id: <?= $dto->id ?>,
 								link: ui.item.id,
 
 							}
@@ -365,7 +358,7 @@ if (currentUser::isAdmin()) {
 						.then(d => {
 							_.growl(d);
 							$('#forum-link').val('');
-							showLinks(<?= $this->data->dto->id ?>);
+							showLinks(<?= $dto->id ?>);
 
 						});
 
@@ -400,7 +393,7 @@ if (currentUser::isAdmin()) {
 											url: _.url('<?= $this->route ?>'),
 											data: {
 												action: 'remove-link',
-												id: <?= $this->data->dto->id ?>,
+												id: <?= $dto->id ?>,
 												link: el.id,
 
 											}
@@ -430,7 +423,7 @@ if (currentUser::isAdmin()) {
 
 		}
 
-		showLinks(<?= $this->data->dto->id ?>);
+		showLinks(<?= $dto->id ?>);
 
 		$('#new-topic').on('click', function(e) {
 			e.stopPropagation();
@@ -439,8 +432,8 @@ if (currentUser::isAdmin()) {
 			_.get.modal(_.url('<?= $this->route ?>/add/'))
 				.then(modal => {
 					console.log(modal.closest('form'));
-					$('input[name="link"]', modal.closest('form')).val(<?= $this->data->dto->id ?>);
-					modal.on('success', e => showLinks(<?= $this->data->dto->id ?>));
+					$('input[name="link"]', modal.closest('form')).val(<?= $dto->id ?>);
+					modal.on('success', e => showLinks(<?= $dto->id ?>));
 
 				});
 

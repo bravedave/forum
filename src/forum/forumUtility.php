@@ -53,7 +53,7 @@ abstract class forumUtility {
 			$ret[] = sprintf( '<table class="table" style="margin-bottom: 0; border: 0;"><tbody>
 				<tr>
 					<td>%s</td>
-					<td style="font-size: .6em; width: 60px;" class="text-center">%s<br />%s</td>
+					<td style="font-size: .6em; width: 60px;" class="text-center">%s<br>%s</td>
 					<td style="font-size: .6em; width: 60px;" class="text-center">%s</td>
 				</tr>%s',
 				$text,
@@ -83,8 +83,8 @@ abstract class forumUtility {
 
 		}
 		else {
-			$ret[] = sprintf( '<div class="row" data-thread="%s">
-					<div class="col-lg-1 col-md-2 text-center px-0 pt-2"><small>%s<br/>%s</small></div>
+			$ret[] = sprintf( '<div class="form-row" data-thread="%s">
+					<div class="col-lg-1 col-md-2 border-top text-center px-0 pt-2"><small>%s<br>%s</small></div>
 					<div class="col-lg-11 col-md-10 border-top border-left" style="%s">%s
 						<div data-role="comment-container"></div>
 					</div>
