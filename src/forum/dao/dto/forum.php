@@ -9,7 +9,7 @@
 */
 
 namespace dvc\forum\dao\dto;
-use dao\dto\_dto;
+use dvc\dao\dto\_dto;
 
 class forum extends _dto {
 	var $id = 0;
