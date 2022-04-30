@@ -12,7 +12,7 @@ namespace dvc\forum\dao;
 
 use dvc\emailutility;
 use dvc\forum\{forumUtility, strings};
-use dao\_dao;
+use dvc\dao\_dao;
 
 class forum extends _dao {
 	protected $_db_name = 'forum';
