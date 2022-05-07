@@ -18,7 +18,7 @@ class strings extends \strings {
 		//~ if ( preg_match( '@^\<\!DOCTYPE@i', $text )) {
 		if ( $text != strip_tags($text)) {
 
-			if ( $debug) sys::logger( sprintf( 'not converting text2html (it already is) (%s)', $maxrows));
+			if ( $debug) \sys::logger( sprintf( 'not converting text2html (it already is) (%s)', $maxrows));
 
 			if ( (int)$maxrows > 0 ) {
 				$text = strip_tags( $text, '<br>' );
@@ -34,7 +34,7 @@ class strings extends \strings {
 
 		}
 
-		if ( $debug) sys::logger( 'converting text2html' );
+		if ( $debug) \sys::logger( 'converting text2html' );
 		return self::text2htmlExtended( $text, $maxrows = -1 );
 
 	}

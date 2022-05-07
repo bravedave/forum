@@ -28,6 +28,7 @@ class postUpdate extends service {
     green\properties\config::green_properties_checkdatabase();
 
     config::route_register( 'forum', 'dvc\\forum\\controller');
+    config::route_register( 'idea', 'dvc\\idea\\controller');
 
     config::route_register( 'people', 'green\\people\\controller');
     config::route_register( 'properties', 'green\\properties\\controller');

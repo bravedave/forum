@@ -13,17 +13,21 @@ use dvc\theme;
 use dvc\bs;
 ?>
 
-<nav class="<?= theme::navbar() ?>" role="navigation" >
+<nav class="<?= theme::navbar() ?> py-0" role="navigation" >
 	<div class="container-fluid">
     <div class="navbar-brand" ><?= $this->data->title	?></div>
 
     <ul class="ml-auto navbar-nav">
       <li class="nav-item">
         <a class="nav-link" href="<?= strings::url('forum') ?>">
-          <i class="bi bi-share"></i> Forum
-
+          <i class="bi bi-share"></i> forum
         </a>
+      </li>
 
+      <li class="nav-item">
+        <a class="nav-link" href="<?= strings::url('idea') ?>">
+          <i class="bi bi-lightbulb"></i> iDEA
+        </a>
       </li>
 
       <li class="nav-item dropdown">
@@ -57,7 +61,7 @@ use dvc\bs;
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="https://github.com/bravedave/">
+        <a class="nav-link" target="_blank" href="https://github.com/bravedave/">
           <i class="bi bi-github"></i>
           <span class="sr-only">GitHub</span>
 

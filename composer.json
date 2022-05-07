@@ -5,7 +5,6 @@
     "Forum"
   ],
   "minimum-stability": "dev",
-  "prefer-stable": true,
   "license": "MIT",
   "authors": [
     {
@@ -22,7 +21,8 @@
   },
   "autoload": {
     "psr-4": {
-      "dvc\\forum\\": "src/forum/"
+      "dvc\\forum\\": "src/forum/",
+      "dvc\\idea\\": "src/idea/"
     }
   },
   "autoload-dev": {
@@ -33,6 +33,7 @@
   "scripts": {
     "post-update-cmd": [
       "dvc\\forum\\postUpdate::upgrade"
-    ]
+    ],
+    "start": "bash ./run.sh"
   }
 }

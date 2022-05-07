@@ -16,17 +16,11 @@ use dvc\dao\_dao;
 
 class forum extends _dao {
 	protected $_db_name = 'forum';
+	protected $template = __NAMESPACE__ . '\dto\forum';
 
 	public $debug = false;
 
-	public function getTopLevel(
-		$closed = false,
-		$complete = false,
-		$hidedead = false,
-		$showOnlyMine = false,
-		$offset = 0,
-		$limit = 20
-	) {
+	public function getTopLevel($closed = false, $complete = false, $hidedead = false, $showOnlyMine = false, $offset = 0, $limit = 20) {
 
 		$debug = false;
 		// $debug = true;

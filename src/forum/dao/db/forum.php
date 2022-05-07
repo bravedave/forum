@@ -32,6 +32,6 @@ $dbc->defineField( 'resolved', 'tinyint' );
 $dbc->defineField( 'property_id', 'bigint');
 $dbc->defineField( 'notify', 'text' );
 
-$dbc->defineIndex('CLOSED-COMPLETE-UPDATED', '`closed` ASC, `complete` ASC, `updated` ASC' );
-$dbc->defineIndex('PARENT', '`parent` ASC' );
+$dbc->defineIndex('forum_idx_closed_complete_updated', '`closed` ASC, `complete` ASC, `updated` ASC' );
+$dbc->defineIndex('forum_idx_parent', '`parent` ASC' );
 $dbc->check();
