@@ -22,4 +22,8 @@ class forum_idea extends _dto {
 
   public $data = '';
 
+  public $tag = '';
+
+  public $forum = []; // rich data
+
 }

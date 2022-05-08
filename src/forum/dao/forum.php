@@ -314,12 +314,17 @@ class forum extends _dao {
 	public function getById($id) {
 		$sql = sprintf(
 			'SELECT
-				f.*, properties.address_street address, users.name
+				f.*,
+				p.address_street address,
+				idea.idea forum_idea_idea,
+				users.name
 			FROM forum f
 				LEFT JOIN
 					users ON users.id = f.user_id
 				LEFT JOIN
-					properties on properties.id = f.property_id
+					properties p on p.id = f.property_id
+				LEFT JOIN
+					forum_idea idea on idea.id = f.forum_idea_id
 			WHERE
 				f.id = %d',
 			$id
@@ -335,7 +340,12 @@ class forum extends _dao {
 
 				if ($res = $this->Result(
 					sprintf('SELECT
-						f.id, f.comment, f.thread, f.updated, f.user_id, users.name
+						f.id,
+						f.comment,
+						f.thread,
+						f.updated,
+						f.user_id,
+						users.name
 					FROM forum f
 						LEFT JOIN
 							users on users.id = f.user_id
@@ -364,11 +374,11 @@ class forum extends _dao {
 					}
 				}
 
-				return ($dto);
+				return $dto;
 			}
 		}
 
-		return FALSE;
+		return null;
 	}
 
 	public function notify($subject, $message, $email, $forumTop) {
@@ -462,6 +472,7 @@ class forum extends _dao {
 			'priority' => $dto->priority,
 			'by_email' => $dto->by_email,
 			'tag' => $dto->tag,
+			'forum_idea_id' => $dto->forum_idea_id,
 			'updated' => \db::dbTimeStamp(),
 			'user_id' => \currentUser::id()
 		];

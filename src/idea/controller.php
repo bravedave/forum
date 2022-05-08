@@ -60,8 +60,9 @@ class controller extends \Controller {
 
       case 'idea-save':
         $a = [
-          'idea' => $this->getPost('idea'),
-          'data' => $this->getPost('data')
+          'idea' => (string)$this->getPost('idea'),
+          'data' => (string)$this->getPost('data'),
+          'tag' => (string)$this->getPost('tag')
         ];
 
         $dao = new dao\forum_idea;
@@ -111,6 +112,9 @@ class controller extends \Controller {
     if ($id) {
       $dao = new dao\forum_idea;
       if ($dto = $dao->getByID($id)) {
+
+        $dto = $dao->getRichData($dto);
+
         $this->data = (object)[
           'title' => $this->title = config::label_view,
           'dto' => $dto,

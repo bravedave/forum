@@ -30,6 +30,7 @@ $dbc->defineField( 'by_email', 'tinyint' );
 $dbc->defineField( 'flag', 'tinyint' );
 $dbc->defineField( 'resolved', 'tinyint' );
 $dbc->defineField( 'property_id', 'bigint');
+$dbc->defineField( 'forum_idea_id', 'bigint');
 $dbc->defineField( 'notify', 'text' );
 
 $dbc->defineIndex('forum_idx_closed_complete_updated', '`closed` ASC, `complete` ASC, `updated` ASC' );

@@ -11,7 +11,7 @@
 namespace dvc\idea;
 
 class config extends \config {
-  const idea_db_version = 0.1;
+  const idea_db_version = 0.11;
 
   const label = 'iDEA';
   const label_edit = 'Edit iDEA';

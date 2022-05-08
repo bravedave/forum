@@ -9,75 +9,76 @@
 */
 
 namespace dvc\forum\dao\dto;
+
 use dvc\dao\dto\_dto;
 
 class forum extends _dto {
-	var $id = 0;
-	var $description = '';
-	var $parent = 0;
-	var $comment = '';
-	var $thread = 0;
-	var $updated = 0;
-	var $closed = 0;
-	var $priority = 0;
-	var $user_id = 0;
-	var $by_email = 0;
-	var $tag = '';
-	var $flag = 0;
-	var $resolved = 0;
-	var $notify = '';
+	public $id = 0;
+	public $description = '';
+	public $parent = 0;
+	public $comment = '';
+	public $thread = 0;
+	public $updated = 0;
+	public $closed = 0;
+	public $priority = 0;
+	public $user_id = 0;
+	public $by_email = 0;
+	public $tag = '';
+	public $flag = 0;
+	public $resolved = 0;
 
-	public function subscribed( $email ) {
-		$a = explode( '|', $this->notify );
-		if ( in_array( $email, $a )) {
+	public $property_id = 0;
+
+	public $address_street = '';
+
+	public $forum_idea_id = 0;
+
+	public $forum_idea_idea = '';
+
+	public $notify = '';
+
+	public function subscribed($email) {
+		$a = explode('|', $this->notify);
+		if (in_array($email, $a)) {
 			//~ \sys::logger( 'found subscriber' );
 			return true;
-
 		}
 
 		return false;
-
 	}
 
 	public function subscribers() {
-		return ( $a = explode( '|', $this->notify ));
-
+		return ($a = explode('|', $this->notify));
 	}
 
-	public function subscribe( $email ) {
-		if ( $this->notify == '' )
+	public function subscribe($email) {
+		if ($this->notify == '')
 			$a = array();
 		else
-			$a = explode( '|', $this->notify );
+			$a = explode('|', $this->notify);
 
-		if ( $email) {
+		if ($email) {
 			$found = false;
-			foreach ($a as $e ) {
-				if ( $e == $email )
+			foreach ($a as $e) {
+				if ($e == $email)
 					$found = true;
-
 			}
 
-			if ( !$found )
+			if (!$found)
 				$a[] = $email;
-
 		}
 
-		$this->notify = implode( '|', $a );
-
+		$this->notify = implode('|', $a);
 	}
 
-	public function unsubscribe( $email ) {
+	public function unsubscribe($email) {
 		$s = array();
-		$a = explode( '|', $this->notify );
-		foreach ($a as $e ) {
-			if ( $e != $email )
+		$a = explode('|', $this->notify);
+		foreach ($a as $e) {
+			if ($e != $email)
 				$s[] = $e;
-
 		}
 
-		$this->notify = implode( '|', $s );
-
+		$this->notify = implode('|', $s);
 	}
-
 }

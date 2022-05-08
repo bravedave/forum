@@ -186,7 +186,7 @@ extract((array)$this->data);  ?>
       let nav = accordionNav();
       const navItem = () => $('<li class="nav-item"></li>').prependTo(nav);
 
-      let viewer = $('<div></div>')
+      let viewer = $('<div class="js-idea-viewer"></div>')
         .on('refresh', function(e) {
           e.stopPropagation();
 
@@ -232,6 +232,24 @@ extract((array)$this->data);  ?>
               })
               .trigger('refresh');
           });
+        })
+        .appendTo(navItem());
+
+      $('<a class="nav-link" href="#"><i class="bi bi-plus-circle" title="new item"></i></a>')
+        .on('click', e => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          _.hideContexts();
+
+          _.get.modal(_.url('forum/add/'))
+            .then(modal => {
+              $('input[name="forum_idea_id"]', modal.closest('form')).val(_dto.id);
+              $('input[name="tag"]', modal.closest('form')).val(_dto.tag);
+              modal.on('success', e => viewer.trigger('refresh'));
+              return modal;
+            });
+
         })
         .appendTo(navItem());
 

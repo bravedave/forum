@@ -13,7 +13,7 @@ namespace dvc\forum;
 use Json;
 
 abstract class config extends \config {
-	const forum_db_version = 0.3;
+	const forum_db_version = 0.31;
 
 	const forum_filterKey = 'forum-filter';
 	const forum_filterWho = 'forum-filter-who';
@@ -33,6 +33,9 @@ abstract class config extends \config {
 	const FORUM_HIGH_PRIORITY_TEXT = 'high';
 	const FORUM_URGENT_PRIORITY_TEXT = 'urgent';
 	const FORUM_BROKEN_PRIORITY_TEXT = 'broken';
+
+	const label_edit = 'forum edit';
+	const label_not_found = 'forum item not found';
 
 	const resolved_resolved = 1;
 	const resolved_noaction = 2;

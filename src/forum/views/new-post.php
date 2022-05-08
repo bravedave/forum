@@ -16,6 +16,7 @@ use dvc\bs;
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="link">
+  <input type="hidden" name="forum_idea_id" value="0">
   <input type="hidden" name="action" value="post-new">
 
   <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
@@ -59,14 +60,10 @@ use dvc\bs;
 
                         if (!_brayworth_.browser.isMobileDevice) {
                           $('#<?= $_tag ?>').focus().select();
-
                         }
-
                       })
                       .appendTo('#<?= $_tags ?>');
-
                   });
-
                 })(_brayworth_);
               </script>
 
@@ -90,9 +87,7 @@ use dvc\bs;
           <div class="form-row mb-2">
             <div class="col">
               <textarea class="form-control" name="comment" rows="14" id="<?= $_uidComment = strings::rand() ?>"></textarea>
-
             </div>
-
           </div>
 
           <div class="form-row">
