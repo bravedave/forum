@@ -245,15 +245,15 @@ extract((array)$this->data);	?>
 		</div>
 	</div>
 
-	<div class="form-row">
-		<div class="col" id="link-display"></div>
-	</div>
-
 	<div class="form-row d-none">
 		<div class="col">
 			<label for="forum-link">link</label>
 			<input type="text" name="link" id="forum-link" class="form-control">
 		</div>
+	</div>
+
+	<div class="form-row">
+		<div class="col js-link-display"></div>
 	</div>
 
 	<script>
@@ -281,12 +281,14 @@ extract((array)$this->data);	?>
 					})
 					.then(d => {
 						if ('ack' == d.response) {
-							$('#link-display').html('');
+							$('.js-link-display', form).html('');
 							if (d.data.length > 0) {
-								let ul = $('<ul class="list-unstyled"></ul>').appendTo('#link-display');
+								let ul = $('<ul class="list-unstyled"></ul>');
+								$('.js-link-display', form).append(ul);
 								$.each(d.data, (i, el) => {
 
-									$(`<li class="d-flex"><a href="${_.url('<?= $this->route ?>/view/' + el.id)}">${el.description}</a></li>`)
+									$(`<li class="d-flex"></li>`)
+										.append(`<a href="${_.url('<?= $this->route ?>/view/' + el.id)}">${el.description}</a>`)
 										.append($('<a href="#" class="ml-auto"><i class="bi bi-trash"></i></a>').on('click', function(e) {
 											e.stopPropagation();
 											e.preventDefault();
