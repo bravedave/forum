@@ -14,7 +14,7 @@ use html;
 
 abstract class forumUtility {
 	static function referLinks( $text) {
-		return preg_replace_callback( "@{topic:.*}@", function ($matches) {
+		return preg_replace_callback( "@{topic:[^}]*}@", function ($matches) {
 			$str = preg_replace( '@({|})@', '', $matches[0] );
 			$a = explode( ':', $str );
 
