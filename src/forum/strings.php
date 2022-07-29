@@ -51,7 +51,7 @@ class strings extends \strings {
 				"\n",
 				"&amp; "
 			], $inText );
-		//~ $src = preg_replace( "/\\\\\\\\\r\n/", "<br />", $inText );
+		//~ $src = preg_replace( "/\\\\\\\\\r\n/", "<br>", $inText );
 
 		$aLines = explode( "\n", $src );
 
@@ -78,7 +78,7 @@ class strings extends \strings {
 			}
 			elseif ( substr( $line, 0, 1 ) == "`" ) {
 				while ( $indent > 0 ) { $indent --; $output .= "</ul>"; }
-				$line = "<span style='font-family: monospace;'>" . preg_replace( "/\s/", "&nbsp;", substr( $line, 1 )) . "</span><br />";
+				$line = "<span style='font-family: monospace;'>" . preg_replace( "/\s/", "&nbsp;", substr( $line, 1 )) . "</span><br>";
 
 			}
 			elseif ( substr( $line, 0, 5 ) == "*****" || substr( $line, 0, 5 ) == "#####" ) {
@@ -157,7 +157,7 @@ class strings extends \strings {
 				else {
 					while ( $indent > 0 ) { $indent --; $output .= "</ul>"; }
 
-					$line .= "<br />";
+					$line .= "<br>";
 
 				}
 
