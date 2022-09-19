@@ -13,6 +13,7 @@ namespace dvc\forum\dao;
 use dvc\emailutility;
 use dvc\forum\{forumUtility, strings};
 use dvc\dao\_dao;
+use dvc\template;
 
 class forum extends _dao {
 	protected $_db_name = 'forum';
@@ -381,7 +382,7 @@ class forum extends _dao {
 		return null;
 	}
 
-	public function notify($subject, $message, $email, $forumTop) {
+	public function notify(string $subject, string $email, int $forumTop): void {
 		if ($this->debug) \sys::logger(sprintf('add forum email ::%s:', $email));
 
 		$url = strings::url('forum/view/' . $forumTop, $protocol = true);
@@ -439,27 +440,49 @@ class forum extends _dao {
 
 			// create instance
 			$cssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles();
-			$css = file_get_contents(sprintf('%s/%s', \config::$TEMPLATES_DIR_CSS, 'minimum.css'));
+			if (file_exists($path = sprintf('%s/minimum.css', \config::$TEMPLATES_DIR_CSS))) {
+				$css = file_get_contents($path);
+			} else {
+				$css = file_get_contents(template::pdf_css);
+			}
 
 			// output
 			$html = $cssToInlineStyles->convert($html, $css);
-
 			$html = utf8_decode($html);	// without this you get a double encoding to UTF-8
 
-			$mail = \sys::forumMailer();
-			$mail->CharSet = 'UTF-8';
-			$mail->Encoding = 'base64';
-			$mail->Subject  = $subject;
-			$mail->AddAddress($email);
-
 			$msg = emailutility::image2cid($html);
-			$mail->MsgHTML($msg, sys_get_temp_dir());
-
-			if ($mail->Send()) {
-				if ($this->debug) \sys::logger('OK - Forum Mail Sent');
-			} else {
-				if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
+			if ( file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
+				unlink($_htmlOut);
 			}
+			file_put_contents($_htmlOut, $html);
+
+			$mail = \dvc\sendmail::email($forum = true);
+			$mail->to($email)
+				->subject($subject)
+				->html($msg);
+
+			try {
+				\dvc\sendmail::send($mail);
+				if ($this->debug) \sys::logger('OK - Forum Mail Sent');
+			} catch (\Throwable $th) {
+				//throw $th;
+				if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $th->getMessage());
+			}
+
+			// $mail = \sys::forumMailer();
+			// $mail->CharSet = 'UTF-8';
+			// $mail->Encoding = 'base64';
+			// $mail->Subject  = $subject;
+			// $mail->AddAddress($email);
+
+			// $msg = emailutility::image2cid($html);
+			// $mail->MsgHTML($msg, sys_get_temp_dir());
+
+			// if ($mail->Send()) {
+			// 	if ($this->debug) \sys::logger('OK - Forum Mail Sent');
+			// } else {
+			// 	if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
+			// }
 		}
 	}
 
@@ -517,7 +540,6 @@ class forum extends _dao {
 
 					$this->notify(
 						sprintf('%s : %s', ($dto->parent > 0 ? 'Follow Up' : 'New Topic'), $dto->description),
-						$a['comment'],
 						$email,
 						($dto->parent > 0 ? $dto->parent : $id)
 					);

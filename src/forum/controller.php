@@ -229,11 +229,13 @@ class controller extends \Controller {
 			/*
 				this isn't used, it just to test the mailer
 				( _ => _.post({
-					url : _.url('forum'),
-					data : { id : 7511, action : 'notify' },
-
-				}).then( d => _.growl( d)))
-				( _brayworth_ )
+						url : _.url('forum', true),
+						data : {
+							action : 'notify',
+							id : 3
+						},
+					}).then( _.growl)
+				)( _brayworth_ )
 
 			*/
 			if ($id = (int)$this->getPost('id')) {
@@ -241,7 +243,6 @@ class controller extends \Controller {
 				if ($dto = $dao->getByID($id)) {
 					$dao->notify(
 						sprintf('%s : %s', ($dto->parent > 0 ? 'Follow Up' : 'New Topic'), $dto->description),
-						'test this',
 						currentUser::email(),
 						($dto->parent > 0 ? $dto->parent : $id)
 					);
