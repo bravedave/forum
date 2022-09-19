@@ -451,38 +451,43 @@ class forum extends _dao {
 			$html = utf8_decode($html);	// without this you get a double encoding to UTF-8
 
 			$msg = emailutility::image2cid($html);
-			if ( file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
+			if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
 				unlink($_htmlOut);
 			}
-			file_put_contents($_htmlOut, $html);
+			// file_put_contents($_htmlOut, $html);
 
-			$mail = \dvc\sendmail::email($forum = true);
-			$mail->to($email)
-				->subject($subject)
-				->html($msg);
+			$symfony = false;
+			if ($symfony) {
 
-			try {
-				\dvc\sendmail::send($mail);
-				if ($this->debug) \sys::logger('OK - Forum Mail Sent');
-			} catch (\Throwable $th) {
-				//throw $th;
-				if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $th->getMessage());
+				$mail = \dvc\sendmail::email($forum = true);
+				$mail->to($email)
+					->subject($subject)
+					->html($msg);
+
+				try {
+					\dvc\sendmail::send($mail);
+					if ($this->debug) \sys::logger('OK - Forum Mail Sent');
+				} catch (\Throwable $th) {
+					//throw $th;
+					if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $th->getMessage());
+				}
+			} else {
+
+				$mail = \sys::forumMailer();
+				$mail->CharSet = 'UTF-8';
+				$mail->Encoding = 'base64';
+				$mail->Subject  = $subject;
+				$mail->AddAddress($email);
+
+				$msg = emailutility::image2cid($html);
+				$mail->MsgHTML($msg, sys_get_temp_dir());
+
+				if ($mail->Send()) {
+					if ($this->debug) \sys::logger('OK - Forum Mail Sent');
+				} else {
+					if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
+				}
 			}
-
-			// $mail = \sys::forumMailer();
-			// $mail->CharSet = 'UTF-8';
-			// $mail->Encoding = 'base64';
-			// $mail->Subject  = $subject;
-			// $mail->AddAddress($email);
-
-			// $msg = emailutility::image2cid($html);
-			// $mail->MsgHTML($msg, sys_get_temp_dir());
-
-			// if ($mail->Send()) {
-			// 	if ($this->debug) \sys::logger('OK - Forum Mail Sent');
-			// } else {
-			// 	if ($this->debug) \sys::logger('NOK - Forum Mailer Error: ' . $mail->ErrorInfo);
-			// }
 		}
 	}
 
