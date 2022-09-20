@@ -11,9 +11,15 @@
 namespace dvc\forum\dao;
 
 use dvc\emailutility;
-use dvc\forum\{forumUtility, strings};
+use dvc\forum\{
+	forumUtility,
+	strings
+};
 use dvc\dao\_dao;
-use dvc\template;
+use dvc\{
+	sendmail,
+	template
+};
 
 class forum extends _dao {
 	protected $_db_name = 'forum';
@@ -450,22 +456,25 @@ class forum extends _dao {
 			$html = $cssToInlineStyles->convert($html, $css);
 			$html = utf8_decode($html);	// without this you get a double encoding to UTF-8
 
-			$msg = emailutility::image2cid($html);
-			if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
-				unlink($_htmlOut);
-			}
-			// file_put_contents($_htmlOut, $html);
 
-			$symfony = false;
+			$symfony = true;
+			// $symfony = false;
 			if ($symfony) {
 
-				$mail = \dvc\sendmail::email($forum = true);
+				$mail = sendmail::email($forum = true);
+				$msg = sendmail::image2cid($html, $mail);
+
+				if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
+					unlink($_htmlOut);
+				}
+				file_put_contents($_htmlOut, $html);
+
 				$mail->to($email)
 					->subject($subject)
 					->html($msg);
 
 				try {
-					\dvc\sendmail::send($mail);
+					sendmail::send($mail);
 					if ($this->debug) \sys::logger('OK - Forum Mail Sent');
 				} catch (\Throwable $th) {
 					//throw $th;
@@ -473,13 +482,17 @@ class forum extends _dao {
 				}
 			} else {
 
+				$msg = emailutility::image2cid($html);
+				if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
+					unlink($_htmlOut);
+				}
+				// file_put_contents($_htmlOut, $html);
+
 				$mail = \sys::forumMailer();
 				$mail->CharSet = 'UTF-8';
 				$mail->Encoding = 'base64';
 				$mail->Subject  = $subject;
 				$mail->AddAddress($email);
-
-				$msg = emailutility::image2cid($html);
 				$mail->MsgHTML($msg, sys_get_temp_dir());
 
 				if ($mail->Send()) {

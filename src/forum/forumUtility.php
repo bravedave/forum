@@ -53,8 +53,8 @@ abstract class forumUtility {
 			$ret[] = sprintf( '<table class="table" style="margin-bottom: 0; border: 0;"><tbody>
 				<tr>
 					<td>%s</td>
-					<td style="font-size: .6em; width: 60px;" class="text-center">%s<br>%s</td>
-					<td style="font-size: .6em; width: 60px;" class="text-center">%s</td>
+					<td style="width: 60px;" class="text-center">%s<br>%s</td>
+					<td style="width: 60px;" class="text-center">%s</td>
 				</tr>%s',
 				$text,
 				strings::asShortDate( $dto->updated ),
