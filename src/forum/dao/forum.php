@@ -402,7 +402,6 @@ class forum extends _dao {
 			</div></body></html>',
 			$url,
 			$url
-
 		);
 
 		$DOM = new \DOMDocument;
@@ -456,22 +455,18 @@ class forum extends _dao {
 			$html = $cssToInlineStyles->convert($html, $css);
 			$html = utf8_decode($html);	// without this you get a double encoding to UTF-8
 
-
 			$symfony = true;
 			// $symfony = false;
 			if ($symfony) {
 
-				$mail = sendmail::email($forum = true);
-				$msg = sendmail::image2cid($html, $mail);
+				$mail = sendmail::email([
+					'from' => sendmail::address(\config::$FORUM_EMAIL, \config::$FORUM_NAME)
+				]);
 
-				if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
-					unlink($_htmlOut);
-				}
-				file_put_contents($_htmlOut, $html);
-
-				$mail->to($email)
+				$mail
+					->to($email)
 					->subject($subject)
-					->html($msg);
+					->html(sendmail::image2cid($html, $mail));
 
 				try {
 					sendmail::send($mail);

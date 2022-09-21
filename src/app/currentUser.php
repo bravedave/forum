@@ -11,22 +11,17 @@
 class currentUser extends dvc\currentUser {
 	static public function id() {
 		return self::user()->id;
-
 	}
 
 	static function name() {
-		return ( self::user()->name) ;
-
+		return (self::user()->name);
 	}
 
 	static public function email() {
 		return self::user()->email;
-
 	}
 
-  static function isDavid() {
-    return true;
-
-  }
-
+	static function isDavid() {
+		return true;
+	}
 }
