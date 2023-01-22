@@ -11,7 +11,7 @@
 namespace dvc\forum;
 
 use currentUser;
-use green;
+use dao;
 
 extract((array)$this->data);	?>
 
@@ -128,7 +128,7 @@ extract((array)$this->data);	?>
 	</div>
 
 	<?php
-	$uDao = new green\users\dao\users;
+	$uDao = new dao\users;
 	foreach ($dto->subscribers() as $s) {
 		if ($s == currentUser::email()) continue;	?>
 
