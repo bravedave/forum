@@ -9,9 +9,9 @@
 */
 namespace dvc\idea\dao\dto;
 
-use dvc\dao\dto\_dto;
+use bravedave\dvc\dto;
 
-class forum_idea extends _dto {
+class forum_idea extends dto {
   public $id = 0;
 
   public $created = 0;

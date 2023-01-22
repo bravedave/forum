@@ -9,6 +9,7 @@
 */
 
 abstract class sys extends dvc\sys {
+
   static function forumMailer() {
     return (self::mailer(true));
   }

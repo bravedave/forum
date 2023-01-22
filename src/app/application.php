@@ -10,6 +10,7 @@
  */
 
 class application extends dvc\application {
+
 	static function startDir() {
 		return dirname(__DIR__);
 	}

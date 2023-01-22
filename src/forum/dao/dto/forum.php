@@ -10,9 +10,9 @@
 
 namespace dvc\forum\dao\dto;
 
-use dvc\dao\dto\_dto;
+use bravedave\dvc\dto;
 
-class forum extends _dto {
+class forum extends dto {
 	public $id = 0;
 	public $description = '';
 	public $parent = 0;
