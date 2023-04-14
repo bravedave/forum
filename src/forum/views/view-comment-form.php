@@ -76,6 +76,7 @@
 							document_base_url: _.url('', true),
 							menubar: false,
 							paste_data_images: true,
+							deprecation_warnings: false,
 							plugins: 'paste imagetools table autolink lists',
 							selector: '#<?= $uid ?>',
 							statusbar: false,

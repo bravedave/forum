@@ -198,6 +198,7 @@ use dvc\bs;
             paste_data_images: true,
             relative_urls: false,
             remove_script_host: false,
+            deprecation_warnings: false,
             setup: ed => {
               ed.on('keydown', e => {
                 if (e.keyCode == 9) { // tab pressed
