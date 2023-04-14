@@ -77,6 +77,7 @@ extract((array)$this->data);  ?>
             "Webdings=webdings;" +
             "Wingdings=wingdings,zapf dingbats",
           branding: false,
+          deprecation_warnings: false,
           document_base_url: _.url('', true),
           menubar: false,
           selector: 'textarea[name="comment"]',
