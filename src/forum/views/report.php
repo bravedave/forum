@@ -138,7 +138,6 @@ use html; ?>
         data-created="%s"
         data-complete="%s"
         data-closed="%s"
-        data-href="%s"
         data-id="%s"
         data-priority="%s"
         data-priority_unused="%s"
@@ -153,7 +152,6 @@ use html; ?>
       date('Y-m-d H:i', strtotime($dto->created)),
       ($dto->complete == 1 ? 'yes' : 'no'),
       $dto->closed == 1 ? 'yes' : 'no',
-      strings::url('forum/view/' . $dto->id),
       $dto->id,
       $dto->priority,
       sprintf('%s-%s', $dto->priority, date('Y-m-d-H-i', strtotime($dto->created))),
@@ -340,46 +338,42 @@ use html; ?>
         }
 
         _el
-          .on('contextmenu', function(e) {
-            if (e.shiftKey)
-              return;
+          .on(_.browser.isMobileDevice ? 'dblclick' : 'click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _.hideContexts();
+
+            let _row = $(this);
+            let _data = _row.data();
+            window.location.href = _.url(`forum/view/${_data.id}`);
+          })
+          .on(_.browser.isMobileDevice ? 'click' : 'contextmenu', function(e) {
+            if (e.shiftKey) return;
 
             let _row = $(this);
             let _data = _row.data();
             let complete = 'yes' == _data.complete;
 
-            e.stopPropagation();
-            e.preventDefault();
+            let _context = _.context(e);
 
-            _.hideContexts();
+            _context.append.a({
+              html : 'tag',
+              click, e => {
 
-            let _context = _.context();
+                let url = _.url('<?= $this->route ?>/tag/' + _data.id);
 
-            _context.append($('<a href="#">tag</a>').on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
+                _.get.modal(url)
+                  .then(modal => modal.on('success', (e, data) => {
+                    _row.data('tag', data.tag);
+                    $('div[data-role="tag"]', _row).html(data.tag);
+                  }));
+              }
+            });
 
-              _context.close()
-
-              let url = _.url('<?= $this->route ?>/tag/' + _data.id);
-              _.get.modal(url)
-                .then(modal => modal.on('success', (e, data) => {
-                  _row.data('tag', data.tag);
-                  $('div[data-role="tag"]', _row).html(data.tag);
-                  // console.log( data);
-
-                }));
-
-            }));
-
-            _context.append($('<a href="#">' + (complete ? 'Mark Incomplete' : 'Mark Complete') + '</a>').on('click', function(e) {
-              e.stopPropagation();
-              e.preventDefault();
-
-              _context.close()
-              mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete');
-
-            }));
+            _context.append.a({
+              html: complete ? 'Mark Incomplete' : 'Mark Complete',
+              click: e => mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete')
+            });
 
             _context.append('<hr>');
 
