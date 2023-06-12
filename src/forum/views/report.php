@@ -353,7 +353,7 @@ use html; ?>
             click: e => $(this).trigger('view')
           });
 
-          _context.append.a('<hr>');
+          _context.append('<hr>');
 
           _context.append.a({
             html : 'tag',
