@@ -193,44 +193,40 @@ use html; ?>
         <div class="col-md-5 col-lg-6 col-xl-3 text-center small pt-1"><?= strings::asShortDate($dto->created, true); ?></div>
         <div class="col text-center"><?= html::icon($dto->reporter_name); ?></div>
         <div class="col text-center small pt-1 text-truncate" role="priority"><?= $priority ?></div>
-
       </div>
-
     </div>
 
     <div class="col-8 col-md-7 col-lg-8 col-xl-6 line-clamp text-xl-truncate">
-      <strong><?php
-              $discards = [
-                '/(^Email:\s?)/',
-                '@ \(1\) at realeastate.com.au on [0-9][0-9]/[0-9][0-9]/2[0-9][0-9][0-9] and 1 day\(s\) previous$@'
+      <strong>
+        <?php
+        $discards = [
+          '/(^Email:\s?)/',
+          '@ \(1\) at realeastate.com.au on [0-9][0-9]/[0-9][0-9]/2[0-9][0-9][0-9] and 1 day\(s\) previous$@'
+        ];
 
-              ];
-
-              print preg_replace($discards, '', $dto->description)
-              ?></strong>
+        print preg_replace($discards, '', $dto->description)
+        ?>
+      </strong>
       -
-      <span class="small"><?php
-                          if ($dto->closed)
-                            print 'closed';
-
-                          else
-                            print strings::brief((empty($dto->last_comment) ? $dto->comment : $dto->last_comment));
-
-                          ?></span>
-
+      <span class="small">
+        <?php
+        if ($dto->closed)
+          print 'closed';
+        else
+          print strings::brief((empty($dto->last_comment) ? $dto->comment : $dto->last_comment));
+        ?>
+      </span>
     </div>
 
     <div class="col-2 col-md-3 col-lg-2">
       <div class="row">
+
         <div class="col-md-6 text-center small">
           <?= strings::asShortDate($dto->last_updated, true); ?>
-
         </div>
 
         <div class="col-md-6 text-center"><?= html::icon($dto->user_name); ?></div>
-
       </div>
-
     </div>
 
 
@@ -314,300 +310,288 @@ use html; ?>
 
     let tags = [];
     let reporter = [];
-    $('#<?= $_env ?> [data-role="item"]')
-      .each((i, el) => {
+    $('#<?= $_env ?> [data-role="item"]').each((i, el) => {
 
-        let _el = $(el);
-        let _data = _el.data();
-        // console.log( _data);
+      let _el = $(el);
+      let _data = _el.data();
+      // console.log( _data);
 
-        if ('' != _data.tag && 'ZZ' != _data.tag) {
-          if (tags.indexOf(_data.tag) < 0) {
-            tags.push(_data.tag);
+      if ('' != _data.tag && 'ZZ' != _data.tag) {
 
-          }
+        if (tags.indexOf(_data.tag) < 0) {
 
+          tags.push(_data.tag);
         }
+      }
 
-        if ('' != _data.reporter) {
-          if (reporter.indexOf(_data.reporter) < 0) {
-            reporter.push(_data.reporter);
+      if ('' != _data.reporter) {
 
-          }
+        if (reporter.indexOf(_data.reporter) < 0) {
 
+          reporter.push(_data.reporter);
         }
+      }
 
-        _el
-          .on(_.browser.isMobileDevice ? 'dblclick' : 'click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            _.hideContexts();
+      _el
+        .on(_.browser.isMobileDevice ? 'dblclick' : 'click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          $(this).trigger('view');
+        })
+        .on(_.browser.isMobileDevice ? 'click' : 'contextmenu', function(e) {
+          if (e.shiftKey) return;
 
-            let _row = $(this);
-            let _data = _row.data();
-            window.location.href = _.url(`forum/view/${_data.id}`);
-          })
-          .on(_.browser.isMobileDevice ? 'click' : 'contextmenu', function(e) {
-            if (e.shiftKey) return;
+          let _row = $(this);
+          let _data = _row.data();
+          let complete = 'yes' == _data.complete;
 
-            let _row = $(this);
-            let _data = _row.data();
-            let complete = 'yes' == _data.complete;
+          let _context = _.context(e);
 
-            let _context = _.context(e);
+          _context.append.a({
+            html : '<strong>view</strong>',
+            click: e => $(this).trigger('view')
+          });
 
-            _context.append.a({
-              html : 'tag',
-              click: e => {
+          _context.append.a('<hr>');
 
-                let url = _.url('<?= $this->route ?>/tag/' + _data.id);
+          _context.append.a({
+            html : 'tag',
+            click: e => {
 
-                _.get.modal(url)
-                  .then(modal => modal.on('success', (e, data) => {
-                    _row.data('tag', data.tag);
-                    $('div[data-role="tag"]', _row).html(data.tag);
-                  }));
-              }
-            });
+              let url = _.url('<?= $this->route ?>/tag/' + _data.id);
 
-            _context.append.a({
-              html: complete ? 'Mark Incomplete' : 'Mark Complete',
-              click: e => mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete')
-            });
+              _.get.modal(url)
+                .then(modal => modal.on('success', (e, data) => {
+                  _row.data('tag', data.tag);
+                  $('div[data-role="tag"]', _row).html(data.tag);
+                }));
+            }
+          });
 
-            _context.append('<hr>');
+          _context.append.a({
+            html: complete ? 'Mark Incomplete' : 'Mark Complete',
+            click: e => mark.call(_row, complete ? 'mark-incomplete' : 'mark-complete')
+          });
 
-            _context.append(
-              $('<a href="#"><?= config::FORUM_LOW_PRIORITY_TEXT ?></a>').on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
+          _context.append('<hr>');
 
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_LOW_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
-              .on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_NORMAL_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_NORMAL_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_MEDIUM_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_MEDIUM_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_HIGH_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_HIGH_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_URGENT_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_URGENT_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>')
-              .on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                prioritise.call(_row, '<?= config::FORUM_BROKEN_PRIORITY ?>');
-
-              })
-              .on('check-state', function(e) {
-                if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append(
-              $('<a href="#">resolved</a>')
-              .on('click', function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                _context.close()
-                _row.trigger(/(yes|noaction|feedback)/.test(_data.resolved) ? 'resolved-undo' : 'resolved');
-
-              })
-              .on('check-state', function(e) {
-                if (/(yes|noaction|feedback)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
-
-              })
-              .trigger('check-state')
-
-            );
-
-            _context.append('<hr>');
-
-            _context.append($('<a href="#">Reset Priority</a>').on('click', function(e) {
+          _context.append.a({
+            html : `${<?= config::FORUM_LOW_PRIORITY ?> == _data.priority ? '<i class="bi bi-check"></i>' : ''}<?= config::FORUM_LOW_PRIORITY_TEXT ?>`,
+            click: e => prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>')
+          });
+          
+          _context.append(
+            $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
+            .on('click', function(e) {
               e.stopPropagation();
               e.preventDefault();
 
               _context.close()
-              _.post({
-                url: _.url('<?= $this->route ?>'),
-                data: {
-                  action: 'priority-reset'
+              prioritise.call(_row, '<?= config::FORUM_NORMAL_PRIORITY ?>');
 
-                },
+            })
+            .on('check-state', function(e) {
+              if (<?= config::FORUM_NORMAL_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
 
-              }).then(d => {
-                _.growl(d);
-                window.location.reload();
+            })
+            .trigger('check-state')
 
-              });
+          );
 
-            }));
+          _context.append(
+            $('<a href="#"><?= config::FORUM_MEDIUM_PRIORITY_TEXT ?></a>').on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
 
-            _context.open(e);
+              _context.close()
+              prioritise.call(_row, '<?= config::FORUM_MEDIUM_PRIORITY ?>');
 
-          })
-          .on('resolved', function(e) {
-            let _me = $(this);
-            let _data = _me.data();
+            })
+            .on('check-state', function(e) {
+              if (<?= config::FORUM_MEDIUM_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
 
+            })
+            .trigger('check-state')
+
+          );
+
+          _context.append(
+            $('<a href="#"><?= config::FORUM_HIGH_PRIORITY_TEXT ?></a>').on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              _context.close()
+              prioritise.call(_row, '<?= config::FORUM_HIGH_PRIORITY ?>');
+
+            })
+            .on('check-state', function(e) {
+              if (<?= config::FORUM_HIGH_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+            })
+            .trigger('check-state')
+
+          );
+
+          _context.append(
+            $('<a href="#"><?= config::FORUM_URGENT_PRIORITY_TEXT ?></a>').on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              _context.close()
+              prioritise.call(_row, '<?= config::FORUM_URGENT_PRIORITY ?>');
+
+            })
+            .on('check-state', function(e) {
+              if (<?= config::FORUM_URGENT_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+            })
+            .trigger('check-state')
+
+          );
+
+          _context.append(
+            $('<a href="#"><?= config::FORUM_BROKEN_PRIORITY_TEXT ?></a>')
+            .on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              _context.close()
+              prioritise.call(_row, '<?= config::FORUM_BROKEN_PRIORITY ?>');
+
+            })
+            .on('check-state', function(e) {
+              if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) $(this).prepend('<i class="bi bi-check"></i>');
+
+            })
+            .trigger('check-state')
+
+          );
+
+          _context.append(
+            $('<a href="#">resolved</a>')
+            .on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              _context.close()
+              _row.trigger(/(yes|noaction|feedback)/.test(_data.resolved) ? 'resolved-undo' : 'resolved');
+
+            })
+            .on('check-state', function(e) {
+              if (/(yes|noaction|feedback)/.test(_data.resolved)) $(this).prepend('<i class="bi bi-check"></i>');
+
+            })
+            .trigger('check-state')
+
+          );
+
+          _context.append('<hr>');
+
+          _context.append($('<a href="#">Reset Priority</a>').on('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            _context.close()
             _.post({
               url: _.url('<?= $this->route ?>'),
               data: {
-                action: 'set-resolved',
-                id: _data.id,
-                val: <?= config::resolved_resolved ?>
+                action: 'priority-reset'
 
               },
 
             }).then(d => {
-              if ('ack' == d.response) {
-                _me.removeClass('status-danger').addClass('status-success');
-                _me.data('resolved', 'yes');
-
-              } else {
-                _.growl(d)
-
-              }
+              _.growl(d);
+              window.location.reload();
 
             });
 
-          })
-          .on('resolved-no-action', function(e) {
-            let _me = $(this);
-            let _data = _me.data();
+          }));
 
-            _.post({
-              url: _.url('<?= $this->route ?>'),
-              data: {
-                action: 'set-resolved',
-                id: _data.id,
-                val: <?= config::resolved_noaction ?>
+          _context.open(e);
+        })
+        .on('resolved', function(e) {
+          let _me = $(this);
+          let _data = _me.data();
 
-              },
+          _.post({
+            url: _.url('<?= $this->route ?>'),
+            data: {
+              action: 'set-resolved',
+              id: _data.id,
+              val: <?= config::resolved_resolved ?>
+            },
+          }).then(d => {
 
-            }).then(d => {
-              if ('ack' == d.response) {
-                _me.removeClass('status-danger').addClass('status-success');
-                _me.data('resolved', 'yes');
+            if ('ack' == d.response) {
 
-              } else {
-                _.growl(d)
+              _me.removeClass('status-danger').addClass('status-success');
+              _me.data('resolved', 'yes');
+            } else {
 
-              }
-
-            });
-
-          })
-          .on('resolved-undo', function(e) {
-            let _me = $(this);
-            let _data = _me.data();
-
-            _.post({
-              url: _.url('<?= $this->route ?>'),
-              data: {
-                action: 'set-resolved',
-                id: _data.id,
-                val: 0
-
-              },
-
-            }).then(d => {
-              if ('ack' == d.response) {
-                _me.removeClass('status-success status-warning status-feedback');
-                _me.popover('destroy');
-                _me.data('resolved', 'no');
-                if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
-                  _me.addClass('status-danger');
-
-                }
-
-              } else {
-                _.growl(d)
-
-              }
-
-            });
-
+              _.growl(d)
+            }
           });
+        })
+        .on('resolved-no-action', function(e) {
+          let _me = $(this);
+          let _data = _me.data();
 
+          _.post({
+            url: _.url('<?= $this->route ?>'),
+            data: {
+              action: 'set-resolved',
+              id: _data.id,
+              val: <?= config::resolved_noaction ?>
+            },
+          }).then(d => {
+
+            if ('ack' == d.response) {
+
+              _me.removeClass('status-danger').addClass('status-success');
+              _me.data('resolved', 'yes');
+            } else {
+
+              _.growl(d)
+            }
+          });
+        })
+        .on('resolved-undo', function(e) {
+          let _me = $(this);
+          let _data = _me.data();
+
+          _.post({
+            url: _.url('<?= $this->route ?>'),
+            data: {
+              action: 'set-resolved',
+              id: _data.id,
+              val: 0
+            },
+          }).then(d => {
+
+            if ('ack' == d.response) {
+
+              _me.removeClass('status-success status-warning status-feedback');
+              _me.popover('destroy');
+              _me.data('resolved', 'no');
+              if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
+
+                _me.addClass('status-danger');
+              }
+            } else {
+              _.growl(d)
+            }
+          });
+        })
+        .on('view', function(e) {
+          e.stopPropagation();
+
+          _.hideContexts();
+
+          let _row = $(this);
+          let _data = _row.data();
+          window.location.href = _.url(`forum/view/${_data.id}`);
+        });
       });
 
     $('#<?= $_env ?>')
