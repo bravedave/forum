@@ -358,7 +358,7 @@ use html; ?>
 
             _context.append.a({
               html : 'tag',
-              click, e => {
+              click: e => {
 
                 let url = _.url('<?= $this->route ?>/tag/' + _data.id);
 
