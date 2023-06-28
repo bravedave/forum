@@ -333,10 +333,11 @@ use html; ?>
       }
 
       _el
+        .addClass('pointer')
         .on(_.browser.isMobileDevice ? 'dblclick' : 'click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          
+
           $(this).trigger('view');
         })
         .on(_.browser.isMobileDevice ? 'click' : 'contextmenu', function(e) {
@@ -380,7 +381,7 @@ use html; ?>
             html : `${<?= config::FORUM_LOW_PRIORITY ?> == _data.priority ? '<i class="bi bi-check"></i>' : ''}<?= config::FORUM_LOW_PRIORITY_TEXT ?>`,
             click: e => prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>')
           });
-          
+
           _context.append(
             $('<a href="#"><?= config::FORUM_NORMAL_PRIORITY_TEXT ?></a>')
             .on('click', function(e) {
