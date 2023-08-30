@@ -685,7 +685,7 @@ extract((array)($this->data ?? [])); ?>
           let filter = localStorage.getItem('<?= config::forum_filterKey ?>');
 
           $.each(tags, (i, tag) => {
-            $('<button class="col-auto btn btn-sm mb-2"></button>')
+            $('<button class="col-auto btn btn-sm mb-1"></button>')
               .addClass(tag == filter ? 'btn-secondary' : 'btn-light')
               .html(tag)
               .on('click', function(e) {
@@ -698,7 +698,7 @@ extract((array)($this->data ?? [])); ?>
           });
 
           if (tags.length > 0) {
-            $('<button class="col-auto btn btn-sm btn-light mb-2">&times;</button>')
+            $('<button class="col-auto btn btn-sm btn-light mb-1">&times;</button>')
               .on('click', function(e) {
                 e.stopPropagation();
                 $('#<?= $_env ?>').trigger('filter-clear');
