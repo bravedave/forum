@@ -7,11 +7,28 @@
  * MIT License
  *
 */
+/**
+ * replace:
+ * [x] data-dismiss => data-bs-dismiss
+ * [x] data-toggle => data-bs-toggle
+ * [x] data-parent => data-bs-parent
+ * [x] text-right => text-end
+ * [x] custom-select - form-select
+ * [x] mr-* => me-*
+ * [x] ml-* => ms-*
+ * [x] pr-* => pe-*
+ * [x] pl-* => ps-*
+ * [x] input-group-prepend - remove
+ * [x] input-group-append - remove
+ * [x] btn input-group-text => btn btn-light
+ * [x] form-row => row
+ */
 
 namespace dvc\forum;
 
 use currentUser;
-use html; ?>
+use html;
+extract((array)($this->data ?? [])); ?>
 
 <style>
   @media print {
@@ -57,13 +74,13 @@ use html; ?>
 
 <h1 class="m-0 d-none d-print-block"><?= $this->title ?></h1>
 
-<div class="form-row d-print-none" id="<?= $_tagBox = strings::rand() ?>"></div>
+<div class="row g-2 d-print-none" id="<?= $_tagBox = strings::rand() ?>"></div>
 
-<div class="form-row text-muted small border-top border-bottom mb-1">
+<div class="row g-2 text-muted small border-top border-bottom mb-1">
   <div class="col-2 col-xl-4">
-    <div class="form-row">
+    <div class="row g-2">
       <div class="col-xl-5 d-none d-xl-block">
-        <div class="form-row">
+        <div class="row g-2">
           <div class="col-3 d-print-none">#</div>
           <div class="col-3"></div>
           <div class="col">tag</div>
@@ -91,7 +108,7 @@ use html; ?>
 </div>
 
 <div class="d-none" id="<?= $_env = strings::rand() ?>">
-  <?php while ($dto = $this->dataset->data->dto()) {
+  <?php while ($dto = $dataset->data->dto()) {
     $status = 0;  // open
     if ($dto->closed || $dto->complete) {
       if ($dto->complete) {
@@ -124,7 +141,7 @@ use html; ?>
       $statusClass = 'status-warning';
       $resolvedStatus = 'noaction';
     } elseif (config::resolved_feedback == $dto->resolved) {
-      $popover = 'title="Feedback Requested" data-content="Please provide feedback" data-toggle="popover" data-trigger="hover" data-placement="auto"';
+      $popover = 'title="Feedback Requested" data-bs-content="Please provide feedback" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="auto"';
       $statusClass = 'status-feedback';
       $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
@@ -133,7 +150,7 @@ use html; ?>
 
     printf(
       '<div
-        class="form-row mb-2 border-bottom %s"
+        class="row g-2 border-bottom %s"
         data-role="item"
         data-created="%s"
         data-complete="%s"
@@ -165,10 +182,10 @@ use html; ?>
     );
   ?>
 
-    <div class="col-2 col-xl-4">
-      <div class="form-row">
-        <div class="col-xl-5 d-none d-xl-block small pt-1">
-          <div class="form-row">
+    <div class="col-2 col-xl-4 mb-2">
+      <div class="row g-2">
+        <div class="col-xl-5 mb-2 d-none d-xl-block small pt-1">
+          <div class="row g-2">
             <div class="col-3 d-print-none"><?= $dto->id ?></div>
             <div class="col-3">
               <?php
@@ -190,13 +207,13 @@ use html; ?>
           </div>
 
         </div>
-        <div class="col-md-5 col-lg-6 col-xl-3 text-center small pt-1"><?= strings::asShortDate($dto->created, true); ?></div>
-        <div class="col text-center"><?= html::icon($dto->reporter_name); ?></div>
-        <div class="col text-center small pt-1 text-truncate" role="priority"><?= $priority ?></div>
+        <div class="col-md-5 col-lg-6 col-xl-3 mb-2 text-center small pt-1"><?= strings::asShortDate($dto->created, true); ?></div>
+        <div class="col mb-2 text-center"><?= html::icon($dto->reporter_name); ?></div>
+        <div class="col mb-2 text-center small pt-1 text-truncate" role="priority"><?= $priority ?></div>
       </div>
     </div>
 
-    <div class="col-8 col-md-7 col-lg-8 col-xl-6 line-clamp text-xl-truncate">
+    <div class="col-8 col-md-7 col-lg-8 col-xl-6 mb-2 line-clamp text-xl-truncate">
       <strong>
         <?php
         $discards = [
@@ -218,7 +235,7 @@ use html; ?>
       </span>
     </div>
 
-    <div class="col-2 col-md-3 col-lg-2">
+    <div class="col-2 col-md-3 col-lg-2 mb-2">
       <div class="row">
 
         <div class="col-md-6 text-center small">
@@ -229,12 +246,10 @@ use html; ?>
       </div>
     </div>
 
-
   <?php
     print '</div>';
-  } // while ( $row = $this->dataset->fetch()) {
+  }
   ?>
-
 </div>
 
 <script>
@@ -758,7 +773,7 @@ use html; ?>
 
     $(document).ready(() => {
       $('#<?= $_env ?>').trigger('filter-init');
-      $('[data-toggle="popover"]').popover()
+      $('[data-bs-toggle="popover"]').popover()
     });
 
   })(_brayworth_);

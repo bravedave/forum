@@ -8,10 +8,28 @@
  *
 */
 
+/**
+ * replace:
+ * [x] data-dismiss => data-bs-dismiss
+ * [x] data-toggle => data-bs-toggle
+ * [x] data-parent => data-bs-parent
+ * [x] text-right => text-end
+ * [x] custom-select - form-select
+ * [x] mr-* => me-*
+ * [x] ml-* => ms-*
+ * [x] pr-* => pe-*
+ * [x] pl-* => ps-*
+ * [ ] input-group-prepend - remove
+ * [ ] input-group-append - remove
+ * [ ] btn input-group-text => btn btn-light
+ * [x] form-row => row g-2
+ */
+
 namespace dvc\forum;
 
-use dvc\bs;
+use theme;
 
+extract((array)($this->data ?? []));
 ?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
@@ -21,156 +39,117 @@ use dvc\bs;
 
   <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+
       <div class="modal-content">
-        <div class="modal-header bg-secondary text-white py-2">
+
+        <div class="modal-header <?= theme::modalHeader() ?>">
           <h5 class="modal-title" id="<?= $_modal ?>Label">New Topic</h5>
-          <button type="button" class="close" <?= bs::data('dismiss', 'modal') ?> aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
-          <div class="form-row mb-2">
-            <div class="col">
+
+          <div class="row g-2">
+
+            <div class="col mb-2">
+
               <input type="text" class="form-control" name="description" placeholder="topic" required>
-
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3 mb-2">
+
               <div class="input-group">
+
                 <input type="text" class="form-control" name="tag" id="<?= $_tag = strings::rand() ?>" placeholder="tag" required>
-
-                <div class="input-group-append">
-                  <button class="btn btn-light dropdown-toggle" type="button" <?= bs::data('toggle', 'dropdown') ?> aria-haspopup="true" aria-expanded="false"></button>
-                  <div class="dropdown-menu dropdown-menu-right" id="<?= $_tags = strings::rand() ?>"></div>
-
+                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end" id="<?= $_tags = strings::rand() ?>">
+                  <?php
+                  array_walk($tags, fn ($tag) => printf(
+                    '<a class="dropdown-item js-tags-suggestion" href="#">%s</a>',
+                    $tag->tag
+                  ));
+                  ?>
                 </div>
-
               </div>
-
-              <script>
-                (_ => {
-                  $(<?= json_encode($this->data->tags) ?>).each((i, tag) => {
-                    let a = $('<a class="dropdown-item" href="#"></a');
-
-                    a
-                      .html(tag.tag)
-                      .on('click', function(e) {
-                        $('#<?= $_tag ?>').val(this.innerHTML);
-
-                        if (!_brayworth_.browser.isMobileDevice) {
-                          $('#<?= $_tag ?>').focus().select();
-                        }
-                      })
-                      .appendTo('#<?= $_tags ?>');
-                  });
-                })(_brayworth_);
-              </script>
-
             </div>
 
-            <div class="col-md-3">
-              <select class="form-control" title="priority" name="priority" required>
+            <div class="col-md-3 mb-2">
+
+              <select class="form-select" title="priority" name="priority" required>
                 <option value="<?= config::FORUM_BROKEN_PRIORITY ?>">broken</option>
                 <option value="<?= config::FORUM_URGENT_PRIORITY ?>">urgent</option>
                 <option value="<?= config::FORUM_HIGH_PRIORITY ?>">high</option>
                 <option value="<?= config::FORUM_MEDIUM_PRIORITY ?>">medium</option>
                 <option value="<?= config::FORUM_NORMAL_PRIORITY ?>" selected>normal</option>
                 <option value="<?= config::FORUM_LOW_PRIORITY ?>">low</option>
-
               </select>
-
-            </div>
-
-          </div>
-
-          <div class="form-row mb-2">
-            <div class="col">
-              <textarea class="form-control" name="comment" rows="14" id="<?= $_uidComment = strings::rand() ?>"></textarea>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="col">
+          <div class="row g-2">
+            <div class="col mb-2">
+              <textarea class="form-control" name="comment" rows="16" id="<?= $_uidComment = strings::rand() ?>">
+              <em>use this template to describe your issue, delete text as required</em>
+
+              <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
+              <ol style="margin-top: 5px;">
+                <li>Sales &gt; PO6 Authority</li>
+                <li>Click an Authority</li>
+              </ol>
+
+              <h5 style="margin-bottom: 0;">Expected Result</h5>
+              <ol style="margin-top: 5px;">
+                <li>the authority would open</li>
+              </ol>
+
+              <h5 style="margin-bottom: 0;">Actual Result</h5>
+              <ol style="margin-top: 5px;">
+                <li>the authority does not open</li>
+              </ol>
+
+              <h5>Notes</h5>
+
+            </textarea>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col mb-2">
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <div class="input-group-text">Notify</div>
-                </div>
 
-                <select class="form-control" id="<?= $_uid = strings::rand()  ?>">
+                <div class="input-group-text">Notify</div>
+                <select class="form-control js-users" id="<?= $_uid = strings::rand()  ?>">
                   <option value="">select person to notify</option>
                 </select>
-                <script>
-                  (_ => {
-                    _.post({
-                      url: _.url('<?= $this->route ?>'),
-                      data: {
-                        action: 'get-active-users'
-
-                      },
-
-                    }).then(d => {
-                      if ('ack' == d.response) {
-                        $.each(d.data, (i, u) => {
-                          $('#<?= $_uid ?>').append($('<option></option>').val(u.email).html(u.email));
-
-                        });
-
-                        $('#<?= $_uid ?>').on('change', function(e) {
-                          if (this.selectedIndex > 0) {
-
-                            let _me = $(this);
-
-                            let col = $('<div class="col"></div>').prependTo(_me.closest('.form-row'));
-                            $('<input type="hidden" name="notify[]">').val($(this).val()).appendTo(col);
-
-                            let ig = $('<div class="input-group"></div>').appendTo(col);
-                            $('<input type="text" class="form-control">').val($(this).val()).appendTo(ig);
-                            $('<div class="input-group-append pointer"><button type="button" class="btn input-group-text">&times;</button></div>')
-                              .appendTo(ig)
-                              .on('click', e => {
-                                e.stopPropagation();;
-                                col.remove();
-
-                              });
-
-                          }
-
-                        });
-
-                      } else {
-                        _.growl(d);
-
-                      }
-
-                    });
-
-                  })(_brayworth_);
-                </script>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" <?= bs::data('dismiss', 'modal') ?>>close</button>
+          <div class="js-message"></div>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
           <button type="submit" class="btn btn-primary">Save</button>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
 
   <script>
-    (_ => $(document).ready(() => {
-      $('#<?= $_modal ?>')
+    (_ => {
+      const modal = $('#<?= $_modal ?>');
+      const form = $('#<?= $_form ?>');
+
+      const msg = txt => {
+
+        let ctl = $('.js-message').html(txt);
+        ctl[0].className = 'me-auto js-message small p-2';
+        return ctl;
+      };
+
+      const alert = txt => msg(txt).addClass('alert alert-warning');
+
+      modal
         .on('init-tinymce', e => {
           // inline: true,
           let options = {
@@ -246,20 +225,67 @@ use dvc\bs;
 
         });
 
-      $('#<?= $_form ?>')
+      _.fetch
+        .post(_.url('<?= $this->route ?>'), {
+          action: 'get-active-users'
+        })
+        .then(d => {
+
+          if ('ack' == d.response) {
+            let sel = form.find('.js-sers');
+            $.each(d.data, (i, u) => sel.append(`<option value="${u.emai}">${u.emai}</option>`));
+
+            sel.on('change', function(e) {
+
+              if (this.selectedIndex > 0) {
+
+                let _me = $(this);
+
+                let col = $('<div class="col"></div>')
+                  .prependTo(_me.closest('.row'));
+                $('<input type="hidden" name="notify[]">')
+                  .val($(this).val())
+                  .appendTo(col);
+
+                let ig = $('<div class="input-group"></div>')
+                  .appendTo(col);
+
+                $('<input type="text" class="form-control">')
+                  .val($(this).val())
+                  .appendTo(ig);
+
+                $('<button type="button" class="btn input-group-text">&times;</button>')
+                  .appendTo(ig)
+                  .on('click', e => {
+
+                    e.stopPropagation();;
+                    col.remove();
+                  });
+              }
+            });
+          } else {
+
+            _.growl(d);
+          }
+        });
+
+      form.find('.js-tags-suggestion').on('click', function(e) {
+        form.find('input[name="tag"]').val(this.innerHTML);
+      });
+
+      form
         .on('submit', function(e) {
           tinyMCE.triggerSave();
 
           let _form = $(this);
           let _data = _form.serializeFormJSON();
 
-          $('#<?= $_modal ?> .modal-footer .alert').remove();
-
           if ('' == _data.comment) {
-            $('#<?= $_modal ?> .modal-footer').prepend('<div class="alert alert-warning mr-auto">please enter description</div>');
-            return false;
 
+            alert('please enter description');
+            return false;
           }
+          msg('saving ...');
 
           // console.log( _data);
           _.post({
@@ -282,8 +308,6 @@ use dvc\bs;
           return false;
 
         });
-
-    }))(_brayworth_);
+    })(_brayworth_);
   </script>
-
 </form>

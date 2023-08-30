@@ -8,7 +8,7 @@
  *
 */
 
-abstract class sys extends dvc\sys {
+abstract class sys extends bravedave\dvc\sys {
 
   static function forumMailer() {
     return (self::mailer(true));

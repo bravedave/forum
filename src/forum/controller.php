@@ -39,30 +39,35 @@ class controller extends \Controller {
 		$page = (int)$this->getParam('page');
 		if ($page < 1) $page = 1;
 		$offset = ((int)$page - 1) * $this->ItemsPerPage;
-		if ($this->dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $this->showOnlyMine, $offset, $this->ItemsPerPage)) {
+		if ($dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $this->showOnlyMine, $offset, $this->ItemsPerPage)) {
 
-			$this->render([
+			$content = [
+				'parameters',
+				'report'
+			];
+
+			$this->data = (object)[
+				'dataset' => $dataset,
+				'pageUrl' => strings::url($this->route),
+				'searchFocus' => true,
 				'title' => $this->title = sprintf('forum - %s', $about),
-				'content' => [
-					'parameters',
-					'report'
+			];
 
-				],
-				'data' => [
-					'pageUrl' => strings::url($this->route)
-
-				]
-
+			$this->renderBS5([
+				'aside' => [],
+				'main' => fn () => array_walk($content, fn ($p) => $this->load($p))
 			]);
 		} else {
-			$this->render([
+
+			$this->data = (object)[
 				'title' => $this->title = sprintf('forum - %s', $about),
-				'content' => 'blank',
-				'data' => [
-					'pageUrl' => strings::url($this->route)
+				'pageUrl' => strings::url($this->route),
+				'searchFocus' => true,
+			];
 
-				]
-
+			$this->renderBS5([
+				'aside' => [],
+				'main' => fn () => $this->load('blank')
 			]);
 		}
 	}
@@ -444,35 +449,34 @@ class controller extends \Controller {
 	}
 
 	public function add() {
-		$dao = new dao\forum;
-		$this->data = (object)[
-			'tags' => $dao->getRecentTags()
 
+		$this->data = (object)[
+			'tags' => (new dao\forum)->getRecentTags()
 		];
 
 		$this->load('new-post');
 	}
 
-	public function edit($id = 0) {
-		if ($id = (int)$id) {
-			$dao = new dao\forum;
-			if ($dto = $dao->getById($id)) {
+	// public function edit($id = 0) {
+	// 	if ($id = (int)$id) {
+	// 		$dao = new dao\forum;
+	// 		if ($dto = $dao->getById($id)) {
 
-				$this->data = (object)[
-					'title' => $this->title = config::label_edit,
-					'tags' => $dao->getRecentTags(),
-					'dto' => $dto
-				];
-				$this->load('edit');
-			} else {
-				$this->data = (object)[
-					'title' => $this->title = config::label_not_found,
-					'message' => config::label_not_found,
-				];
-				$this->load('modal-error');
-			}
-		}
-	}
+	// 			$this->data = (object)[
+	// 				'title' => $this->title = config::label_edit,
+	// 				'tags' => $dao->getRecentTags(),
+	// 				'dto' => $dto
+	// 			];
+	// 			$this->load('edit');
+	// 		} else {
+	// 			$this->data = (object)[
+	// 				'title' => $this->title = config::label_not_found,
+	// 				'message' => config::label_not_found,
+	// 			];
+	// 			$this->load('modal-error');
+	// 		}
+	// 	}
+	// }
 
 	public function flagged() {
 		$dao = new dao\forum;
@@ -616,27 +620,28 @@ class controller extends \Controller {
 		}
 	}
 
-	public function viewdlg($id = 0) {
-		$this->comments = FALSE;
+	// public function viewdlg($id = 0) {
+	// 	$this->comments = FALSE;
 
-		if ($id > 0) {
-			$dao = new dao\forum;
-			if ($dto = $dao->getById($id)) {
-				$this->data = (object)array(
-					'dto' => $dto,
-					'tags' => $dao->getTags()
-				);
+	// 	if ($id > 0) {
+	// 		$dao = new dao\forum;
+	// 		if ($dto = $dao->getById($id)) {
+	// 			$this->data = (object)array(
+	// 				'dto' => $dto,
+	// 				'tags' => $dao->getTags()
+	// 			);
 
-				$this->load('view');
-			} else {
-				print 'not found';
-			}
-		} else {
-			print 'invalid';
-		}
-	}
+	// 			$this->load('view');
+	// 		} else {
+	// 			print 'not found';
+	// 		}
+	// 	} else {
+	// 		print 'invalid';
+	// 	}
+	// }
 
 	public function view($id = 0) {
+
 		$this->comments = true;
 
 		if ($id > 0) {
@@ -646,24 +651,27 @@ class controller extends \Controller {
 
 			$dao = new dao\forum;
 			if ($dto = $dao->getById($id)) {
+
+
 				$this->data = (object)[
 					'dto' => $dto,
 					'tags' => $dao->getTags($asJson = true),
-					'ideas' => $ideas
+					'ideas' => $ideas,
+					'title' => sprintf('forum :: %s', $dto->description),
+					'pageUrl' => strings::url($this->route . '/view/' . $id),
+					'searchFocus' => true,
+					'aside' => ['view-options']
 				];
 
-				$this->render([
-					'title' => sprintf('forum :: %s', $dto->description),
-					'primary' => 'view',
-					'secondary' => ['view-options'],
-					'data' => [
-						'pageUrl' => strings::url($this->route . '/view/' . $id)
-					]
+				$this->renderBS5([
+					'main' => fn () => $this->load('view')
 				]);
 			} else {
+
 				throw new Exceptions\ForumTopicNotFound;
 			}
 		} else {
+
 			$this->_index();
 		}
 	}

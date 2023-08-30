@@ -8,7 +8,7 @@
  *
 */
 
-class currentUser extends dvc\currentUser {
+class currentUser extends bravedave\dvc\currentUser {
 	static public function id() {
 		return self::user()->id;
 	}

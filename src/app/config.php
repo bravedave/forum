@@ -8,7 +8,7 @@
  *
 */
 
-class config extends dvc\config {
+class config extends bravedave\dvc\config {
   static $FORUM_NAME = 'Example Forum';
   static $FORUM_EMAIL = 'webmaster@example.dom';
 

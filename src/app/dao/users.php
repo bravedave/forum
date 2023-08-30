@@ -13,4 +13,14 @@ namespace dao;
 use green;
 
 class users extends green\users\dao\users {
+
+  public function getActive($fields = '', $order = '') : array {
+
+    return parent::getActive();
+  }
+
+  public function getUserByEmail($email) {
+
+    return parent::getUserByEmail($email);
+  }
 }

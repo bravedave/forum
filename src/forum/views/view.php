@@ -8,77 +8,90 @@
  *
 */
 
+/**
+ * replace:
+ * [x] data-dismiss => data-bs-dismiss
+ * [x] data-toggle => data-bs-toggle
+ * [x] data-parent => data-bs-parent
+ * [x] text-right => text-end
+ * [x] custom-select - form-select
+ * [x] mr-* => me-*
+ * [x] ml-* => ms-*
+ * [x] pr-* => pe-*
+ * [x] pl-* => ps-*
+ * [x] input-group-prepend - remove
+ * [x] input-group-append - remove
+ * [x] btn input-group-text => btn btn-light
+ * [x] form-row => row g-2
+ */
+
 namespace dvc\forum;
 
 use currentUser;
 use html;
 
+extract((array)$this->data);
+
 if ($this->comments)	?>
 <form method="post" action="<?= strings::url($this->route) ?>">
-	<div class="form-row mb-2" data-role="controls">
-		<div class="col">
-			<div id="forum-subject" class="h4"><?= $this->data->dto->description ?></div>
 
-			<?php if (!$this->data->dto->closed) $this->load('view-comment-form'); ?>
+	<div class="row g-2" data-role="controls">
 
+		<div class="col mb-2">
+
+			<div id="forum-subject" class="h4"><?= $dto->description ?></div>
+			<?php if (!$dto->closed) $this->load('view-comment-form'); ?>
 		</div>
-
 	</div>
 
-	<div class="form-row">
+	<div class="row g-2">
+
 		<div class="col">
 			<?php
-			if (count($this->data->dto->children)) {
-				for ($i = count($this->data->dto->children); $i > 0; $i--)
-					print forumUtility::printThread($this->data->dto->children[$i - 1], $reversed = true);
+			if (count($dto->children)) {
+				for ($i = count($dto->children); $i > 0; $i--)
+					print forumUtility::printThread($dto->children[$i - 1], $reversed = true);
 			}
 			?></div>
-
 	</div>
-
 </form>
 
-<div class="form-row border-top">
+<div class="row g-2 border-top">
 	<?php
 	printf(
 		'<div class="col-lg-1 col-md-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
-		html::icon($this->data->dto->name),
-		strings::asShortDate($this->data->dto->updated, true)
+		html::icon($dto->name),
+		strings::asShortDate($dto->updated, true)
 	);
 
 	printf(
-		'<div class="col-lg-11 col-md-10 border-left" id="initial-forum-comment">%s</div>',
-		strings::AutoTextAsHTML($this->data->dto->comment)
+		'<div class="col border-left" id="initial-forum-comment">%s</div>',
+		strings::AutoTextAsHTML($dto->comment)
 	);
 	?>
 </div>
 
 <div>
-	<?php if ($this->comments) {
-		if ($this->data->dto->closed) {
+	<?php
+	if ($this->comments) {
+		if ($dto->closed) {
 			if (currentUser::isDavid()) {	?>
-				<div class="mt-1 text-right">
-					<a class="button button-raised" href="<?= URL ?>forum/reopenTopic/<?= $this->data->dto->id ?>">re-open topic</a>
-
+				<div class="mt-1 text-end">
+					<a class="button button-raised" href="<?= URL ?>forum/reopenTopic/<?= $dto->id ?>">re-open topic</a>
 				</div>
-		<?php
+	<?php
 			}
-		}	?>
+		}
+	}
+	?>
 </div>
 
 <script>
-	(_ => $(document).ready(() => $('img').addClass('img-fluid')))(_brayworth_);
-</script>
-<?php
-	}	// if ( $this->comments ) {
-?>
-
-<script>
-	(_ => $(document).ready(() => {
+	(_ => {
 
 		<?php if (currentUser::isAdmin()) {	?>
 
-			let fs = $('<input type="text" class="form-control" value="<?= addslashes($this->data->dto->description) ?>">');
+			let fs = $('<input type="text" class="form-control" value="<?= addslashes($dto->description) ?>">');
 			fs
 				.on('focus', function() {
 					$(this).closest('form').on('submit', function(e) {
@@ -93,7 +106,7 @@ if ($this->comments)	?>
 							url: _.url('<?= $this->route ?>'),
 							data: {
 								action: 'update-subject',
-								id: <?= (int)$this->data->dto->id ?>,
+								id: <?= (int)$dto->id ?>,
 								subject: $(this).val()
 							}
 						})
@@ -109,6 +122,6 @@ if ($this->comments)	?>
 
 		<?php	}	// if ( currentUser::isAdmin())
 		?>
-
-	}))(_brayworth_);
+		$(document).ready(() => $('img').addClass('img-fluid'))
+	})(_brayworth_);
 </script>

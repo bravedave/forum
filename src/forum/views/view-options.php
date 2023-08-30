@@ -8,10 +8,26 @@
  *
 */
 
+/**
+ * replace:
+ * [x] data-dismiss => data-bs-dismiss
+ * [x] data-toggle => data-bs-toggle
+ * [x] data-parent => data-bs-parent
+ * [x] text-right => text-end
+ * [x] custom-select - form-select
+ * [x] mr-* => me-*
+ * [x] ml-* => ms-*
+ * [x] pr-* => pe-*
+ * [x] pl-* => ps-*
+ * [x] input-group-prepend - remove
+ * [x] input-group-append - remove
+ * [x] btn input-group-text => btn btn-light
+ * [x] form-row => row g-2
+ */
+
 namespace dvc\forum;
 
-use currentUser;
-use dao;
+use currentUser, dao;
 
 extract((array)$this->data);	?>
 
@@ -215,13 +231,9 @@ extract((array)$this->data);	?>
 		<label for="forum-tag">Tag:</label>
 
 		<div class="input-group">
+
 			<input type="text" name="tag" id="<?= $_uid = strings::rand()  ?>" class="form-control" value="<?= $dto->tag ?>" readonly />
-
-			<div class="input-group-prepend">
-				<button type="button" class="btn input-group-text" id="<?= $_uid ?>pencil"><i class="bi bi-pencil"></i></button>
-
-			</div>
-
+			<button type="button" class="btn btn-light" id="<?= $_uid ?>pencil"><i class="bi bi-pencil"></i></button>
 		</div>
 
 	</div>
@@ -238,22 +250,22 @@ extract((array)$this->data);	?>
 		})(_brayworth_);
 	</script>
 
-	<div class="form-row <?= ($ideas ?? false) ? '' : 'd-none' ?>">
-		<div class="col" id="<?= $_ideas = strings::rand() ?>">
+	<div class="row g-2 <?= ($ideas ?? false) ? '' : 'd-none' ?>">
+		<div class="col mb-2" id="<?= $_ideas = strings::rand() ?>">
 			<label for="<?= $_uid = strings::rand() ?>">idea</label>
 			<input type="text" class="form-control js-idea-idea" id="<?= $_uid ?>" value="<?= $dto->forum_idea_idea ?>">
 		</div>
 	</div>
 
-	<div class="form-row d-none">
-		<div class="col">
+	<div class="row g-2 d-none">
+		<div class="col mb-2">
 			<label for="forum-link">link</label>
 			<input type="text" name="link" id="forum-link" class="form-control">
 		</div>
 	</div>
 
-	<div class="form-row">
-		<div class="col js-link-display"></div>
+	<div class="row g-2">
+		<div class="col mb-2 js-link-display"></div>
 	</div>
 
 	<script>
@@ -289,7 +301,7 @@ extract((array)$this->data);	?>
 
 									$(`<li class="d-flex"></li>`)
 										.append(`<a href="${_.url('<?= $this->route ?>/view/' + el.id)}">${el.description}</a>`)
-										.append($('<a href="#" class="ml-auto"><i class="bi bi-trash"></i></a>').on('click', function(e) {
+										.append($('<a href="#" class="ms-auto"><i class="bi bi-trash"></i></a>').on('click', function(e) {
 											e.stopPropagation();
 											e.preventDefault();
 											let _me = $(this);
