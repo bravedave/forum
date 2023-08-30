@@ -229,7 +229,7 @@ extract((array)($this->data ?? []));
 
           if ('ack' == d.response) {
             let sel = form.find('.js-users');
-            $.each(d.data, (i, u) => sel.append(`<option value="${u.emai}">${u.emai}</option>`));
+            $.each(d.data, (i, u) => sel.append(`<option value="${u.email}">${u.email}</option>`));
 
             sel.on('change', function(e) {
 
