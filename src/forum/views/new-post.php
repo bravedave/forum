@@ -195,9 +195,7 @@ extract((array)($this->data ?? []));
 
               ed.on('init', e => _.hourglass.off());
               ed.on('blur', e => tinyMCE.triggerSave());
-
             }
-
           };
 
           options = _.extend(options, {
@@ -213,16 +211,14 @@ extract((array)($this->data ?? []));
             statusbar: false,
             toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote table link mybutton | styleselect fontselect fontsizeselect | forecolor backcolor',
             contextmenu: 'paste | inserttable | cell row column deletetable',
-
           });
 
           tinymce.init(options);
-
         })
         .on('shown.bs.modal', e => {
+
           _.hourglass.on();
           _.tiny().then(() => $('#<?= $_modal ?>').trigger('init-tinymce'));
-
         });
 
       _.fetch
@@ -232,7 +228,7 @@ extract((array)($this->data ?? []));
         .then(d => {
 
           if ('ack' == d.response) {
-            let sel = form.find('.js-sers');
+            let sel = form.find('.js-users');
             $.each(d.data, (i, u) => sel.append(`<option value="${u.emai}">${u.emai}</option>`));
 
             sel.on('change', function(e) {
