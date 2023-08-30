@@ -685,7 +685,7 @@ extract((array)($this->data ?? [])); ?>
           let filter = localStorage.getItem('<?= config::forum_filterKey ?>');
 
           $.each(tags, (i, tag) => {
-            $('<button class="col-xl-1 col-md-2 col-3 btn btn-sm mb-2"></button>')
+            $('<button class="col-auto btn btn-sm mb-2"></button>')
               .addClass(tag == filter ? 'btn-secondary' : 'btn-light')
               .html(tag)
               .on('click', function(e) {
