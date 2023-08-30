@@ -74,7 +74,7 @@ extract((array)($this->data ?? [])); ?>
 
 <h1 class="m-0 d-none d-print-block"><?= $this->title ?></h1>
 
-<div class="row g-2 d-print-none" id="<?= $_tagBox = strings::rand() ?>"></div>
+<div class="row mb-2 d-print-none" id="<?= $_tagBox = strings::rand() ?>"></div>
 
 <div class="row g-2 text-muted small border-top border-bottom mb-1">
   <div class="col-2 col-xl-4">
