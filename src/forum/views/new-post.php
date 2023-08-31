@@ -19,9 +19,9 @@
  * [x] ml-* => ms-*
  * [x] pr-* => pe-*
  * [x] pl-* => ps-*
- * [ ] input-group-prepend - remove
- * [ ] input-group-append - remove
- * [ ] btn input-group-text => btn btn-light
+ * [x] input-group-prepend - remove
+ * [x] input-group-append - remove
+ * [x] btn input-group-text => btn btn-light
  * [x] form-row => row g-2
  */
 
@@ -42,10 +42,7 @@ extract((array)($this->data ?? []));
 
       <div class="modal-content">
 
-        <div class="modal-header <?= theme::modalHeader() ?>">
-          <h5 class="modal-title" id="<?= $_modal ?>Label">New Topic</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+        <div class="modal-header <?= theme::modalHeader() ?>"></div>
 
         <div class="modal-body">
 
@@ -88,21 +85,22 @@ extract((array)($this->data ?? []));
 
           <div class="row g-2">
             <div class="col mb-2">
-              <textarea class="form-control" name="comment" rows="16" id="<?= $_uidComment = strings::rand() ?>">
-              <em>use this template to describe your issue, delete text as required</em>
+              <textarea class="form-control" name="comment" rows="20" id="<?= $_uidComment = strings::rand() ?>">
+              <em>use this <strong>example</strong> template to describe your issue, 
+                <span style="color: red;">delete text as required</span></em>
 
-              <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
+              <h5 style="margin-bottom: 0;">Steps to Reproduce (example)</h5>
               <ol style="margin-top: 5px;">
                 <li>Sales &gt; PO6 Authority</li>
                 <li>Click an Authority</li>
               </ol>
 
-              <h5 style="margin-bottom: 0;">Expected Result</h5>
+              <h5 style="margin-bottom: 0;">Expected Result (example)</h5>
               <ol style="margin-top: 5px;">
                 <li>the authority would open</li>
               </ol>
 
-              <h5 style="margin-bottom: 0;">Actual Result</h5>
+              <h5 style="margin-bottom: 0;">Actual Result (example)</h5>
               <ol style="margin-top: 5px;">
                 <li>the authority does not open</li>
               </ol>
@@ -250,7 +248,7 @@ extract((array)($this->data ?? []));
                   .val($(this).val())
                   .appendTo(ig);
 
-                $('<button type="button" class="btn input-group-text">&times;</button>')
+                $('<button type="button" class="btn btn-light">&times;</button>')
                   .appendTo(ig)
                   .on('click', e => {
 
