@@ -89,20 +89,20 @@ extract((array)($this->data ?? []));
               <em>use this <strong>example</strong> template to describe your issue, 
                 <span style="color: red;">delete text as required</span></em>
 
-              <h5 style="margin-bottom: 0;">Steps to Reproduce (example)</h5>
+              <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
               <ol style="margin-top: 5px;">
-                <li>Sales &gt; PO6 Authority</li>
+                <li>Sales &gt; PO6 Authority (example)</li>
                 <li>Click an Authority</li>
               </ol>
 
-              <h5 style="margin-bottom: 0;">Expected Result (example)</h5>
+              <h5 style="margin-bottom: 0;">Expected Result</h5>
               <ol style="margin-top: 5px;">
-                <li>the authority would open</li>
+                <li>authority would open (example)</li>
               </ol>
 
-              <h5 style="margin-bottom: 0;">Actual Result (example)</h5>
+              <h5 style="margin-bottom: 0;">Actual Result</h5>
               <ol style="margin-top: 5px;">
-                <li>the authority does not open</li>
+                <li>authority does not open (example)</li>
               </ol>
 
               <h5>Notes</h5>
