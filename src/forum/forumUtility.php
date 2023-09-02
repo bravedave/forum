@@ -27,30 +27,31 @@ abstract class forumUtility {
 		}, $text);
 	}
 
-	static function printThread(dao\dto\forum $dto, $reversed = TRUE, $email = FALSE) {
+	static function printThread(dao\dto\forum $dto, $reversed = true, $email = false) {
 		$ret = [];
 
 		$t = [];
-		if ($dto->thread != '')
-			$t = explode(':', $dto->thread);
+		if ($dto->thread != '') $t = explode(':', $dto->thread);
 
 		$t[] = $dto->id;
 		//~ sys::dump( $t );
 
 		$text = $dto->comment;
 		if (substr($text, 0, 1) == '<') {
+
 			$text = self::referLinks($text);
 		} else {
+
 			$text = strings::AutoTextAsHTML(htmlentities($dto->comment));
 		}
 
 		if ($email) {
+
 			$ret[] = sprintf(
 				'<table class="table" style="margin-bottom: 0; border: 0;"><tbody>
 				<tr>
 					<td>%s</td>
-					<td style="width: 60px;" class="text-center">%s<br>%s</td>
-					<td style="width: 60px;" class="text-center">%s</td>
+					<td style="width: 60px;" class="text-center">%s<br>%s<br>%s</td>
 				</tr>%s',
 				$text,
 				strings::asShortDate($dto->updated),
@@ -60,13 +61,16 @@ abstract class forumUtility {
 			);
 
 			if (count($dto->children)) {
+
 				$ret[] = sprintf('<tr><td>%s', PHP_EOL);
 				if ($reversed) {
+
 					for ($i = count($dto->children); $i > 0; $i--)
-						$ret[] = self::printThread($dto->children[$i - 1], $reversed);
+						$ret[] = self::printThread($dto->children[$i - 1], $reversed, $email);
 				} else {
+
 					foreach ($dto->children as $child)
-						$ret[] = self::printThread($child, $reversed);
+						$ret[] = self::printThread($child, $reversed, $email);
 				}
 
 				$ret[] = sprintf('</td></tr>%s', PHP_EOL);
@@ -91,10 +95,13 @@ abstract class forumUtility {
 			);
 
 			if (count($dto->children)) {
+
 				if ($reversed) {
+
 					for ($i = count($dto->children); $i > 0; $i--)
 						$ret[] = self::printThread($dto->children[$i - 1], $reversed);
 				} else {
+
 					foreach ($dto->children as $child)
 						$ret[] = self::printThread($child, $reversed);
 				}
