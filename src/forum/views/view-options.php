@@ -53,7 +53,7 @@ extract((array)$this->data);	?>
 
 	</ul>
 
-	<div class="form-group row">
+	<div class="row g-2">
 		<div class="col">
 			<div class="form-check">
 				<!-- --[complete]-- -->
@@ -148,7 +148,7 @@ extract((array)$this->data);	?>
 	foreach ($dto->subscribers() as $s) {
 		if ($s == currentUser::email()) continue;	?>
 
-		<div class="form-group row">
+		<div class="row g-2">
 			<div class="col">
 				<?php
 				$uid = strings::rand();
@@ -206,9 +206,9 @@ extract((array)$this->data);	?>
 	}
 	?>
 
-	<div class="form-group">
-		<label for="topic-priority">Priority</label>
+	<div class="mb-2">
 
+		<label for="topic-priority">Priority</label>
 		<select id="topic-priority" class="form-control">
 			<?php
 			$pri = config::FORUM_NORMAL_PRIORITY;
@@ -224,10 +224,9 @@ extract((array)$this->data);	?>
 			<option value="<?= config::FORUM_LOW_PRIORITY ?>" <?= $pri == config::FORUM_LOW_PRIORITY ? 'selected' : '' ?>><?= config::FORUM_LOW_PRIORITY_TEXT ?></option>
 
 		</select>
-
 	</div>
 
-	<div class="form-group">
+	<div class="mb-2">
 		<label for="forum-tag">Tag:</label>
 
 		<div class="input-group">
@@ -407,7 +406,7 @@ extract((array)$this->data);	?>
 
 				if (!!window._cms_) {
 					$('#forum-link')
-						.closest('.form-row')
+						.closest('.row')
 						.removeClass('d-none');
 
 					$('#forum-link').autofill({
