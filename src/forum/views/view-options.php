@@ -41,9 +41,12 @@ extract((array)$this->data);	?>
 		<a class="nav-link" href="#" id="clone-topic">clone</a>
 		<?php
 		if (currentUser::isAdmin()) {
+
 			if ($dto->closed) {
+
 				printf('<a class="nav-link" href="%s">re-open</a>', strings::url('forum/reopenTopic/' . $dto->id));
 			} else {
+
 				printf('<a class="nav-link" href="%s">close topic</a>', strings::url('forum/closeTopic/' . $dto->id));
 			}
 		}	?>
@@ -54,149 +57,118 @@ extract((array)$this->data);	?>
 		</li>
 	</nav>
 
-	<div class="row g-2">
+	<div class="mb-2">
 
-		<div class="col">
+		<!-- --[complete]-- -->
+		<div class="form-check">
 
-			<!-- --[complete]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="checkbox" id="topic-is-complete" <?php if ($dto->complete) print "checked"; ?> />
-				<label class="form-check-label" for="topic-is-complete">complete</label>
-			</div>
-
-			<!-- --[watch]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic" <?= ($dto->subscribed(currentUser::email()) ? 'checked=checked' : '') ?>>
-				<label class="form-check-label" for="watch">watch</label>
-			</div>
-
-			<!-- --[not resolved]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>-not" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
-				<label class="form-check-label" for="<?= $_uid ?>-not">not resolved</label>
-			</div>
-
-			<!-- --[resolved]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
-				<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
-			</div>
-
-			<!-- --[resolved - no action]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>-na" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
-				<label class="form-check-label" for="<?= $_uid ?>-na">no action</label>
-			</div>
-
-			<!-- --[resolved - feedback]-- -->
-			<div class="form-check">
-
-				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>-feedback" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
-				<label class="form-check-label" for="<?= $_uid ?>-feedback">feedback</label>
-			</div>
-			<script>
-				(_ =>
-					$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not, #<?= $_uid ?>-feedback')
-					.on('change', function(e) {
-
-						_.post(_.url('<?= $this->route ?>'), {
-							action: 'set-resolved',
-							id: <?= (int)$dto->id ?>,
-							val: this.checked ? _me.val() : 0
-						}).then(d => _.growl(d));
-					}))(_brayworth_);
-			</script>
-
-			<div class="form-check">
-				<!-- --[flag]-- -->
-				<input class="form-check-input" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>" <?= $dto->flag ? 'checked' : '' ?>>
-				<label class="form-check-label" for="<?= $_uid ?>">flag</label>
-
-			</div>
-			<script>
-				(_ => $('#<?= $_uid ?>')
-					.on('change', function(e) {
-
-						_.fetch
-							.post(_.url('<?= $this->route ?>'), {
-								action: 'set-flag',
-								id: <?= (int)$dto->id ?>,
-								val: this.checked ? 1 : 0
-							}).then(_.growl);
-					}))(_brayworth_);
-			</script>
-
+			<input class="form-check-input js-complete" type="checkbox" id="<?= $_uid = strings::rand() ?>" <?= $dto->complete ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">complete</label>
 		</div>
 
+		<!-- --[watch]-- -->
+		<div class="form-check">
+
+			<input class="form-check-input js-watch" type="checkbox" id="<?= $_uid = strings::rand() ?>" value="yes" <?= ($dto->subscribed(currentUser::email()) ? 'checked=checked' : '') ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">watch</label>
+		</div>
+
+		<!-- --[not resolved]-- -->
+		<div class="form-check">
+
+			<input class="form-check-input js-status" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">not resolved</label>
+		</div>
+
+		<!-- --[resolved]-- -->
+		<div class="form-check">
+
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
+		</div>
+
+		<!-- --[resolved - no action]-- -->
+		<div class="form-check">
+
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">no action</label>
+		</div>
+
+		<!-- --[resolved - feedback]-- -->
+		<div class="form-check">
+
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">feedback</label>
+		</div>
+
+		<div class="form-check">
+			<!-- --[flag]-- -->
+			<input class="form-check-input js-flag" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>" <?= $dto->flag ? 'checked' : '' ?>>
+			<label class="form-check-label" for="<?= $_uid ?>">flag</label>
+
+		</div>
+	</div>
+
+	<div class="mb-2 js-subscriber-list">
+		<?php
+		$uDao = new dao\users;
+		foreach ($dto->subscribers() as $s) {
+
+			if ($s == currentUser::email()) continue;
+
+			$uid = strings::rand();
+			if ($u = $uDao->getUserByEmail($s)) {
+
+				printf(
+					'<div class="form-check">
+						<input class="form-check-input js-other-watch" type="checkbox" id="%s"
+							value="yes" data-email="%s" checked %s>
+						<label class="form-check-label" for="%s">%s</label>
+					</div>',
+					$uid,
+					$s,
+					(currentUser::isAdmin() ? '' : 'disabled'),
+					$uid,
+					$u->name
+				);
+			} else {
+
+				printf(
+					'<div class="form-check">
+						<input class="form-check-input js-other-watch" type="checkbox" id="%s"
+							value="yes" data-email="%s" checked %s>
+						<label class="form-check-label" for="%s">%s</label>
+					</div>',
+					$uid,
+					$s,
+					(currentUser::isAdmin() ? '' : 'disabled'),
+					$uid,
+					$s
+				);
+			}
+		}	?>
 	</div>
 
 	<?php
-	$uDao = new dao\users;
-	foreach ($dto->subscribers() as $s) {
-		if ($s == currentUser::email()) continue;	?>
-
-		<div class="row g-2">
-			<div class="col">
-				<?php
-				$uid = strings::rand();
-				if ($u = $uDao->getUserByEmail($s)) {
-					printf(
-						'<div class="form-check">
-				<input class="form-check-input" type="checkbox" name="watch" id="%s"
-					value="yes" data-role="other-watch-topic" data-email="%s" checked %s>
-				<label class="form-check-label" for="%s">%s</label>
-
-			</div>',
-						$uid,
-						$s,
-						(currentUser::isAdmin() ? '' : 'disabled'),
-						$uid,
-						$u->name
-					);
-				} else {
-					printf(
-						'<div class="form-check">
-				<input class="form-check-input" type="checkbox" name="watch" id="%s"
-					value="yes" data-role="other-watch-topic" data-email="%s" checked %s>
-				<label class="form-check-label" for="%s">
-					%s
-
-				</label>
-
-			</div>',
-						$uid,
-						$s,
-						(currentUser::isAdmin() ? '' : 'disabled'),
-						$uid,
-						$s
-					);
-				}
-
-				?>
-			</div>
-
-		</div>
-	<?php
-
-	}	// foreach ( $dto->subscribers() as $s) {
-
 	if (currentUser::isAdmin()) {
+
 		if ($users = $uDao->getActive()) {
-			$subs = array('<option>Subscribe a User</option>');
+
+			print '<div class="mb-2">
+				<select class="form-control js-add-subscriber">
+					<option>Subscribe a User</option>
+				';
+
 			foreach ($users as $u) {
-				if (!$dto->subscribed($u->email)) {
-					$subs[] = sprintf('<option value="%s">%s</option>', $u->email, $u->name);
-				}
+
+				if ($dto->subscribed($u->email)) continue;
+				printf('<option value="%s">%s</option>', $u->email, $u->name);
 			}
-			printf('<div class="form-group"><select data-role="add-subscriber" class="form-control">%s</select></div>', implode('', $subs));
+
+			print '</select>
+				</div>';
 		}
-	}
-	?>
+	} ?>
 
 	<div class="mb-2">
 
@@ -219,45 +191,28 @@ extract((array)$this->data);	?>
 	</div>
 
 	<div class="mb-2">
-		<label for="forum-tag">Tag:</label>
 
+		<div>tag</div>
 		<div class="input-group">
 
-			<input type="text" name="tag" id="<?= $_uid = strings::rand()  ?>" class="form-control" value="<?= $dto->tag ?>" readonly />
-			<button type="button" class="btn btn-light" id="<?= $_uid ?>pencil"><i class="bi bi-pencil"></i></button>
-		</div>
-
-	</div>
-	<script>
-		(_ => {
-			$('#<?= $_uid ?>pencil').on('click', function(e) {
-				e.stopPropagation();
-
-				_.get.modal(_.url('<?= $this->route ?>/tag/<?= $dto->id ?>'))
-					.then(modal => modal.on('success', (e, data) => $('#<?= $_uid ?>').val(data.tag)));
-
-			});
-
-		})(_brayworth_);
-	</script>
-
-	<div class="row g-2 <?= ($ideas ?? false) ? '' : 'd-none' ?>">
-		<div class="col mb-2" id="<?= $_ideas = strings::rand() ?>">
-			<label for="<?= $_uid = strings::rand() ?>">idea</label>
-			<input type="text" class="form-control js-idea-idea" id="<?= $_uid ?>" value="<?= $dto->forum_idea_idea ?>">
+			<input type="text" name="tag" class="form-control" value="<?= $dto->tag ?>" readonly>
+			<button type="button" class="btn btn-light js-tag-pencil"><i class="bi bi-pencil"></i></button>
 		</div>
 	</div>
 
-	<div class="row g-2 d-none">
-		<div class="col mb-2">
-			<label for="forum-link">link</label>
-			<input type="text" name="link" id="forum-link" class="form-control">
-		</div>
+	<div class="mb-2 <?= ($ideas ?? false) ? '' : 'd-none' ?>">
+
+		<div>idea</div>
+		<input type="text" class="form-control js-idea-idea" value="<?= $dto->forum_idea_idea ?>">
 	</div>
 
-	<div class="row g-2">
-		<div class="col mb-2 js-link-display"></div>
+	<div class="mb-2 js-forum-link-cell">
+
+		<label for="<?= $_uid = strings::rand()  ?>">link</label>
+		<input class="form-control" type="text" name="link" id="<?= $_uid ?>">
 	</div>
+
+	<div class="mb-2 js-link-display"></div>
 
 	<script>
 		(_ => {
@@ -319,67 +274,152 @@ extract((array)$this->data);	?>
 					});
 			};
 
-			$(document).ready(() => {
-				$('#topic-is-complete').on('change', function() {
-					_.post({
-						url: _.url('<?= $this->route ?>'),
-						data: {
-							action: $(this).prop('checked') ? 'mark-complete' : 'mark-incomplete',
-							id: <?= $dto->id ?>
+			form.find('.js-status')
+				.on('change', function(e) {
 
-						}
-
-					}).then(_.growl)
-
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: 'set-resolved',
+							id: <?= (int)$dto->id ?>,
+							val: this.checked ? _me.val() : 0
+						})
+						.then(_.growl);
 				});
 
-				$('input[data-role="watch-topic"]').on('change', function() {
-					if (this.checked) {
-						$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>'), d => {
-							_.growl(d);
+			form.find('.js-complete')
+				.on('change', function() {
 
-						});
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: this.checked ? 'mark-complete' : 'mark-incomplete',
+							id: <?= $dto->id ?>
+						})
+						.then(_.growl)
+				});
+
+			form.find('.js-tag-pencil')
+				.on('click', e => {
+
+					e.stopPropagation();
+
+					_.get.modal(_.url('<?= $this->route ?>/tag/<?= $dto->id ?>'))
+						.then(m => m.on('success', (e, data) => form.find('input[name="tag"]').val(data.tag)));
+				});
+
+			form.find('.js-idea-idea')
+				.on('focus', function(e) {
+
+					$(this).select();
+				})
+				.autofill({
+					source: (request, response) => {
+
+						_.fetch
+							.post(_.url('<?= $this->route ?>'), {
+								action: 'idea-search',
+								term: request.term
+							})
+							.then(response);
+					},
+					select: (event, ui) => {
+
+						_.fetch
+							.post(_.url('<?= $this->route ?>'), {
+								action: 'idea-set',
+								id: <?= $dto->id ?>,
+								forum_idea_id: ui.item.id,
+							})
+							.then(_.growl);
+					}
+				});
+
+			form.find('.js-watch')
+				.on('change', function() {
+
+					if (this.checked) {
+
+						$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>'), _.growl);
 
 					} else {
-						$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>'), d => {
-							_.growl(d);
 
-						});
-
+						$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>'), _.growl);
 					}
-
 				});
 
-				$('input[data-role="other-watch-topic"]').on('change', unsubscribeOnCheck);
+			form.find('.js-flag')
+				.on('change', function(e) {
 
-				$('select[data-role="add-subscriber"]').on('change', function() {
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: 'set-flag',
+							id: <?= (int)$dto->id ?>,
+							val: this.checked ? 1 : 0
+						}).then(_.growl);
+				});
+
+			form.find$('.js-other-watch').on('change', unsubscribeOnCheck);
+
+			if (!!window._cms_) {
+
+				form.find('.js-forum-link-cell').removeClass('d-none');
+
+				form.find('[name="link"]')
+					.autofill({
+						source: _cms_.search.forum,
+						select: (event, ui) => {
+
+							_.fetch.post(_.url('<?= $this->route ?>'), {
+									action: 'add-link',
+									id: <?= $dto->id ?>,
+									link: ui.item.id,
+								})
+								.then(d => {
+
+									_.growl(d);
+									form.find('[name="link"]').val('');
+									showLinks(<?= $dto->id ?>);
+								});
+						}
+					});
+			}
+
+			form.find('select.js-add-subscriber')
+				.on('change', function() {
+
 					let _me = $(this);
 					let em = _me.val();
-					let name = _me.find('option[value="' + em + '"]').html();
+					let name = _me.find(`option[value="${em}"]`).html();
+
 					$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
 						_.growl(data);
 						if ('ack' == data.response) {
-							let randomID = 'cj_' + parseInt(Math.random() * 5000);
-							let formCheck = $('<div class="form-check"></div>');
 
-							let formCheckInput = $('<input class="form-check-input" type="checkbox" data-email="' + em + '" checked />')
-							formCheckInput.on('change', unsubscribeOnCheck);
-							formCheckInput.attr('id', randomID);
-							formCheck.append(formCheckInput).append('<label class="form-check-label" for="' + randomID + '">' + name + '</label>');
+							let uid = _.randomString();
+							let chk = $('<input class="form-check-input" type="checkbox" checked>')
+								.attr({
+									'data-email': em,
+									'id': uid
+								})
+								.on('change', unsubscribeOnCheck);
 
-							formCheck.insertBefore(_me.closest('.form-group'));
-
+							form.find('.js-subscriber-list')
+								.append(
+									$(`<div class="form-check">
+										<label class="form-check-label" for="${uid}">${_.encodeHTMLEntities(name)}</label>
+									</div>`)
+									.prepend(chk)
+								);
 						}
-
 					});
 
-					$('option', this).each(function(i, el) {
-						if ($(el).prop('value') == em)
-							$(el).remove();
+					_me.find('option').each((i, el) => {
 
+						let _el = $(el);
+						if (_el.prop('value') == em) _el.remove();
 					});
-
 				})
+
+			_.ready(() => {
 
 				$('#topic-priority').on('change', function() {
 
@@ -396,31 +436,6 @@ extract((array)$this->data);	?>
 
 				});
 
-				if (!!window._cms_) {
-					$('#forum-link')
-						.closest('.row')
-						.removeClass('d-none');
-
-					$('#forum-link').autofill({
-						source: _cms_.search.forum,
-						select: (event, ui) => {
-							_.post({
-									url: _.url('<?= $this->route ?>'),
-									data: {
-										action: 'add-link',
-										id: <?= $dto->id ?>,
-										link: ui.item.id,
-
-									}
-								})
-								.then(d => {
-									_.growl(d);
-									$('#forum-link').val('');
-									showLinks(<?= $dto->id ?>);
-								});
-						}
-					});
-				}
 
 				showLinks(<?= $dto->id ?>);
 
@@ -460,34 +475,6 @@ extract((array)$this->data);	?>
 
 				});
 
-				$('.js-idea-idea', form)
-					.on('focus', function(e) {
-						$(this).select();
-					})
-					.autofill({
-						source: (request, response) => {
-							_.post({
-								url: _.url('<?= $this->route ?>'),
-								data: {
-									action: 'idea-search',
-									term: request.term,
-								},
-							}).then(response);
-						},
-						select: (event, ui) => {
-							_.post({
-									url: _.url('<?= $this->route ?>'),
-									data: {
-										action: 'idea-set',
-										id: <?= $dto->id ?>,
-										forum_idea_id: ui.item.id,
-
-									}
-								})
-								.then(_.growl);
-						}
-
-					});
 			});
 		})(_brayworth_);
 	</script>
