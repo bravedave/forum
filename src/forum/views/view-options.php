@@ -32,87 +32,83 @@ use currentUser, dao;
 extract((array)$this->data);	?>
 
 <form id="<?= $_form = strings::rand() ?>">
-	<ul class="nav flex-column">
-		<li class="nav-item"><a class="h5" href="<?= strings::url($this->route) ?>">forums</a></li>
-		<li class="nav-item"><a class="nav-link" href="<?= strings::url($this->route . '/flagged') ?>">flagged</a></li>
-		<li class="nav-item"><a class="nav-link" href="#" id="new-topic">new</a></li>
-		<li class="nav-item"><a class="nav-link" href="#" id="clone-topic">clone</a></li>
+
+	<nav class="nav flex-column">
+
+		<a class="h5" href="<?= strings::url($this->route) ?>">forums</a>
+		<a class="nav-link" href="<?= strings::url($this->route . '/flagged') ?>">flagged</a>
+		<a class="nav-link" href="#" id="new-topic">new</a>
+		<a class="nav-link" href="#" id="clone-topic">clone</a>
 		<?php
 		if (currentUser::isAdmin()) {
 			if ($dto->closed) {
-				printf('<li class="nav-item"><a class="nav-link" href="%s">re-open</a></li>', strings::url('forum/reopenTopic/' . $dto->id));
+				printf('<a class="nav-link" href="%s">re-open</a>', strings::url('forum/reopenTopic/' . $dto->id));
 			} else {
-				printf('<li class="nav-item"><a class="nav-link" href="%s">close topic</a></li>', strings::url('forum/closeTopic/' . $dto->id));
+				printf('<a class="nav-link" href="%s">close topic</a>', strings::url('forum/closeTopic/' . $dto->id));
 			}
 		}	?>
 
 		<li class="nav-item mt-2">
+
 			<a class="h6" href="<?= strings::url('forum/view/' . $dto->id) ?>"><?= sprintf('topic : #%s', $dto->id) ?></a>
-
 		</li>
-
-	</ul>
+	</nav>
 
 	<div class="row g-2">
+
 		<div class="col">
+
+			<!-- --[complete]-- -->
 			<div class="form-check">
-				<!-- --[complete]-- -->
+
 				<input class="form-check-input" type="checkbox" id="topic-is-complete" <?php if ($dto->complete) print "checked"; ?> />
-
 				<label class="form-check-label" for="topic-is-complete">complete</label>
-
 			</div>
 
+			<!-- --[watch]-- -->
 			<div class="form-check">
-				<!-- --[watch]-- -->
+
 				<input class="form-check-input" type="checkbox" name="watch" id="watch" value="yes" data-role="watch-topic" <?= ($dto->subscribed(currentUser::email()) ? 'checked=checked' : '') ?>>
 				<label class="form-check-label" for="watch">watch</label>
-
 			</div>
 
 			<!-- --[not resolved]-- -->
 			<div class="form-check">
+
 				<input class="form-check-input" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>-not" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
 				<label class="form-check-label" for="<?= $_uid ?>-not">not resolved</label>
-
 			</div>
 
 			<!-- --[resolved]-- -->
 			<div class="form-check">
+
 				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
 				<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
-
 			</div>
 
 			<!-- --[resolved - no action]-- -->
 			<div class="form-check">
+
 				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>-na" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
 				<label class="form-check-label" for="<?= $_uid ?>-na">no action</label>
-
 			</div>
 
 			<!-- --[resolved - feedback]-- -->
 			<div class="form-check">
+
 				<input class="form-check-input" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>-feedback" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
 				<label class="form-check-label" for="<?= $_uid ?>-feedback">feedback</label>
-
 			</div>
 			<script>
 				(_ =>
 					$('#<?= $_uid ?>, #<?= $_uid ?>-na, #<?= $_uid ?>-not, #<?= $_uid ?>-feedback')
 					.on('change', function(e) {
-						let _me = $(this);
-						_.post({
-							url: _.url('<?= $this->route ?>'),
-							data: {
-								action: 'set-resolved',
-								id: <?= (int)$dto->id ?>,
-								val: _me.prop('checked') ? _me.val() : 0
 
-							},
-
+						_.post(_.url('<?= $this->route ?>'), {
+							action: 'set-resolved',
+							id: <?= (int)$dto->id ?>,
+							val: this.checked ? _me.val() : 0
 						}).then(d => _.growl(d));
-
 					}))(_brayworth_);
 			</script>
 
@@ -123,20 +119,16 @@ extract((array)$this->data);	?>
 
 			</div>
 			<script>
-				(_ => $('#<?= $_uid ?>').on('change', function(e) {
-					let _me = $(this);
-					_.post({
-						url: _.url('<?= $this->route ?>'),
-						data: {
-							action: 'set-flag',
-							id: <?= (int)$dto->id ?>,
-							val: _me.prop('checked') ? 1 : 0
+				(_ => $('#<?= $_uid ?>')
+					.on('change', function(e) {
 
-						},
-
-					}).then(d => _.growl(d));
-
-				}))(_brayworth_);
+						_.fetch
+							.post(_.url('<?= $this->route ?>'), {
+								action: 'set-flag',
+								id: <?= (int)$dto->id ?>,
+								val: this.checked ? 1 : 0
+							}).then(_.growl);
+					}))(_brayworth_);
 			</script>
 
 		</div>
