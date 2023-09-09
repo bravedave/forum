@@ -219,12 +219,14 @@ extract((array)$this->data);	?>
 			const form = $('#<?= $_form ?>');
 
 			const unsubscribeOnCheck = function() {
-				let me = this;
+
 				if (!this.checked) {
-					let em = $(this).data('email');
+
+					let em = this.dataset.email;
 					$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
+
 						_.growl('unsubscribed ' + em);
-						$(me).closest('.form-check').remove();
+						$(this).closest('.form-check').remove();
 					});
 				}
 			};
