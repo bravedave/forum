@@ -359,7 +359,7 @@ extract((array)$this->data);	?>
 						}).then(_.growl);
 				});
 
-			form.find$('.js-other-watch').on('change', unsubscribeOnCheck);
+			form.find('.js-other-watch').on('change', unsubscribeOnCheck);
 
 			if (!!window._cms_) {
 
