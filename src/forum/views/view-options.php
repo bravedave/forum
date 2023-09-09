@@ -83,21 +83,21 @@ extract((array)$this->data);	?>
 		<!-- --[resolved]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
 		</div>
 
 		<!-- --[resolved - no action]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">no action</label>
 		</div>
 
 		<!-- --[resolved - feedback]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">feedback</label>
 		</div>
 
