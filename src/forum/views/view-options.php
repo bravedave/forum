@@ -75,25 +75,25 @@ extract((array)$this->data);	?>
 
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" value="0" id="<?= $_uid = strings::rand() ?>" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">not resolved</label>
 		</div>
 
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
 		</div>
 
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_noaction ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">no action</label>
 		</div>
 
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_feedback ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">feedback</label>
 		</div>
 
