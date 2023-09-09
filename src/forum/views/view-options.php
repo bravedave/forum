@@ -73,39 +73,35 @@ extract((array)$this->data);	?>
 			<label class="form-check-label" for="<?= $_uid ?>">watch</label>
 		</div>
 
-		<!-- --[not resolved]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="0" id="<?= $_uid = strings::rand() ?>" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" value="0" id="<?= $_uid = strings::rand() ?>" <?= 0 == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">not resolved</label>
 		</div>
 
-		<!-- --[resolved]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_resolved ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_resolved == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">resolved</label>
 		</div>
 
-		<!-- --[resolved - no action]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_noaction ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_noaction ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_noaction == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">no action</label>
 		</div>
 
-		<!-- --[resolved - feedback]-- -->
 		<div class="form-check">
 
-			<input class="form-check-input js-status" type="radio" name="resolved" value="<?= config::resolved_feedback ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
+			<input class="form-check-input js-status" type="radio" value="<?= config::resolved_feedback ?>" id="<?= $_uid = strings::rand() ?>" <?= config::resolved_feedback == $dto->resolved ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">feedback</label>
 		</div>
 
 		<div class="form-check">
+
 			<!-- --[flag]-- -->
 			<input class="form-check-input js-flag" type="checkbox" name="flag" id="<?= $_uid = strings::rand() ?>" <?= $dto->flag ? 'checked' : '' ?>>
 			<label class="form-check-label" for="<?= $_uid ?>">flag</label>
-
 		</div>
 	</div>
 
@@ -278,6 +274,8 @@ extract((array)$this->data);	?>
 
 			form.find('.js-status')
 				.on('change', function(e) {
+
+					let _me = $(this);
 
 					_.fetch
 						.post(_.url('<?= $this->route ?>'), {
