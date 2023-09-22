@@ -1,14 +1,11 @@
 <?php
-/*
+/**
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
  * MIT License
  *
-*/
-
-/**
  * replace:
  * [x] data-dismiss => data-bs-dismiss
  * [x] data-toggle => data-bs-toggle
@@ -35,7 +32,7 @@ extract((array)($this->data ?? []));  ?>
     <div class="input-group">
       <?php
       if ($dataset->page > 1) {
-        printf('<a class="btn btn-light" href="%"><i class="bi bi-chevron-double-left" title="start of forum"></i></a>', strings::url('sforum'));
+        printf('<a class="btn btn-light" href="%s"><i class="bi bi-chevron-double-left" title="start of forum"></i></a>', strings::url('forum'));
         printf('<a class="btn btn-light" href="%s"><i class="bi bi-chevron-left" title="previous page"></i></a>', strings::url('forum/?page=' . $dataset->page - 1));
       }  ?>
       <div class="input-group-text">
