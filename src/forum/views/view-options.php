@@ -218,12 +218,24 @@ extract((array)$this->data);	?>
 
 				if (!this.checked) {
 
-					let em = this.dataset.email;
-					$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: 'unsubscribe',
+							id: <?= $dto->id ?>,
+							email: $(this).data('email'),
+						})
+						.then(d => {
+							_.growl(d);
+							if ('ack' == d.response) {
+								$(me).closest('.form-check').remove();
+							}
+						});
+					// let em = this.dataset.email;
+					// $.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
 
-						_.growl('unsubscribed ' + em);
-						$(this).closest('.form-check').remove();
-					});
+					// 	_.growl('unsubscribed ' + em);
+					// 	$(this).closest('.form-check').remove();
+					// });
 				}
 			};
 
@@ -336,14 +348,18 @@ extract((array)$this->data);	?>
 			form.find('.js-watch')
 				.on('change', function() {
 
-					if (this.checked) {
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: this.checked ? 'subscribe' : 'unsubscribe',
+							id: <?= (int)$dto->id ?>
+						})
+						.then(_.growl);
 
-						$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>'), _.growl);
-
-					} else {
-
-						$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>'), _.growl);
-					}
+					// if (this.checked) {
+					// 	$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>'), _.growl);
+					// } else {
+					// 	$.getJSON(_.url('<?= $this->route ?>/unsubscribe/<?= $dto->id ?>'), _.growl);
+					// }
 				});
 
 			form.find('.js-flag')
@@ -390,27 +406,50 @@ extract((array)$this->data);	?>
 					let em = _me.val();
 					let name = _me.find(`option[value="${em}"]`).html();
 
-					$.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
-						_.growl(data);
-						if ('ack' == data.response) {
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: 'subscribe',
+							id: <?= (int)$dto->id ?>,
+							email: em,
+						})
+						.then(d => {
 
-							let uid = _.randomString();
-							let chk = $('<input class="form-check-input" type="checkbox" checked>')
-								.attr({
-									'data-email': em,
-									'id': uid
-								})
-								.on('change', unsubscribeOnCheck);
+							_.growl(d);
+							if ('ack' == d.response) {
 
-							form.find('.js-subscriber-list')
-								.append(
-									$(`<div class="form-check">
-										<label class="form-check-label" for="${uid}">${_.encodeHTMLEntities(name)}</label>
-									</div>`)
-									.prepend(chk)
-								);
-						}
-					});
+								let uid = _.randomString();
+								form.find('.js-subscriber-list')
+									.append(
+										`<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="${uid}" data-email="${_.encodeHTMLEntities(em)}" checked>
+											<label class="form-check-label" for="${uid}">${_.encodeHTMLEntities(name)}</label>
+										</div>`);
+
+								$(`#${uid}`).on('change', unsubscribeOnCheck);
+							}
+						});
+
+					// $.getJSON(_.url('<?= $this->route ?>/subscribe/<?= $dto->id ?>?email=' + encodeURIComponent(em)), data => {
+					// 	_.growl(data);
+					// 	if ('ack' == data.response) {
+
+					// 		let uid = _.randomString();
+					// 		let chk = $('<input class="form-check-input" type="checkbox" checked>')
+					// 			.attr({
+					// 				'data-email': em,
+					// 				'id': uid
+					// 			})
+					// 			.on('change', unsubscribeOnCheck);
+
+					// 		form.find('.js-subscriber-list')
+					// 			.append(
+					// 				$(`<div class="form-check">
+					// 					<label class="form-check-label" for="${uid}">${_.encodeHTMLEntities(name)}</label>
+					// 				</div>`)
+					// 				.prepend(chk)
+					// 			);
+					// 	}
+					// });
 
 					_me.find('option').each((i, el) => {
 

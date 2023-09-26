@@ -10,11 +10,11 @@
 
 namespace dvc\forum;
 
-use dvc\{
-	Response,
-	Exceptions\GeneralException
+use bravedave\dvc\{
+	json,
+	Response
 };
-use currentUser, green, Json, dvc\idea;
+use currentUser, green, dvc\idea, RuntimeException;
 
 class controller extends \Controller {
 	var $ItemsPerPage = 20;
@@ -92,9 +92,9 @@ class controller extends \Controller {
 				$dao = new dao\forum;
 				$dao->UpdateByID($a, $id);
 
-				Json::ack(sprintf('%s : %s', $action, $a['tag']));
+				json::ack(sprintf('%s : %s', $action, $a['tag']));
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('add-link' == $action || 'remove-link' == $action) {
 			if ($id = (int)$this->getPost('id')) {
@@ -102,24 +102,24 @@ class controller extends \Controller {
 					$dao = new dao\forum;
 					if ('add-link' == $action) {
 						if ($dao->link($id, $linkID)) {
-							Json::ack($action);
+							json::ack($action);
 						} else {
-							Json::nak($action);
+							json::nak($action);
 						}
 					} elseif ('remove-link' == $action) {
 						if ($dao->linkRemove($id, $linkID)) {
-							Json::ack($action);
+							json::ack($action);
 						} else {
-							Json::nak($action);
+							json::nak($action);
 						}
 					} else {
-						Json::nak($action);
+						json::nak($action);
 					}
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('get-links' == $action) {
 			if ($id = (int)$this->getPost('id')) {
@@ -127,20 +127,20 @@ class controller extends \Controller {
 				if ($dto = $dao->getByID($id)) {
 					if ($dto->link) {
 						if ($res = $this->db->Result(sprintf('SELECT id, description FROM forum WHERE id IN (%s)', $dto->link))) {
-							Json::ack($action)->add('data', $res->dtoSet());
+							json::ack($action)->add('data', $res->dtoSet());
 						}
 					} else {
-						Json::ack($action)->add('data', []);
+						json::ack($action)->add('data', []);
 					}
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('get-active-users' == $action) {
 			$dao = new green\users\dao\users;
-			Json::ack($action)
+			json::ack($action)
 				->add('data', $dao->getActive());
 		} elseif ('idea-search' == $action) {
 			$ret = [];
@@ -174,12 +174,12 @@ class controller extends \Controller {
 						'forum_idea_id' => $forum_idea_id
 					], $id);
 
-					Json::ack($action);
+					json::ack($action);
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('mark-complete' == $action || 'mark-incomplete' == $action) {
 			if ($id = (int)$this->getPost('id')) {
@@ -198,11 +198,11 @@ class controller extends \Controller {
 						}
 						/*--------------------------------------------------------------------------------------------*/
 
-						Json::ack($action)
+						json::ack($action)
 							->add('complete', 'yes')
 							->add('status', $status);
 					} else {
-						Json::nak(sprintf('%s - failed to mark', $action));
+						json::nak(sprintf('%s - failed to mark', $action));
 					}
 				} elseif ('mark-incomplete' == $action) {
 					if ($dto = $dao->markInComplete($id)) {
@@ -218,17 +218,17 @@ class controller extends \Controller {
 						}
 						/*--------------------------------------------------------------------------------------------*/
 
-						Json::ack($action)
+						json::ack($action)
 							->add('complete', 'no')
 							->add('status', $status);
 					} else {
-						Json::nak(sprintf('%s - failed to mark', $action));
+						json::nak(sprintf('%s - failed to mark', $action));
 					}
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('notify' == $action) {
 			/*
@@ -252,12 +252,12 @@ class controller extends \Controller {
 						($dto->parent > 0 ? $dto->parent : $id)
 					);
 
-					Json::ack($action);
+					json::ack($action);
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('post' == $action) {
 			$dto = new dao\dto\forum;
@@ -270,7 +270,7 @@ class controller extends \Controller {
 				if ($dao->InsertDTO($dto)) {
 					Response::redirect($this->route, 'added new topic');
 				} else {
-					throw new GeneralException('failed to add new topic');
+					throw new RuntimeException('failed to add new topic');
 				}
 			}
 		} elseif ('post-new' == $action) {
@@ -292,9 +292,9 @@ class controller extends \Controller {
 					$dao->link($id, $link);
 				}
 
-				Json::ack($action);
+				json::ack($action);
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('post-update' == $action) {
 			if ($id = $this->getPost('id')) {
@@ -304,9 +304,9 @@ class controller extends \Controller {
 				];
 				$dao = new dao\forum;
 				$dao->UpdateByID($a, $id);
-				Json::ack($action);
+				json::ack($action);
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('prioritise' == $action) {
 
@@ -329,17 +329,17 @@ class controller extends \Controller {
 						elseif ($priority == config::FORUM_BROKEN_PRIORITY)
 							$text = config::FORUM_BROKEN_PRIORITY_TEXT;
 
-						Json::ack('prioritised')
+						json::ack('prioritised')
 							->add('priority', $priority)
 							->add('text', $text);
 					} else {
-						Json::nak($action);
+						json::nak($action);
 					}
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('priority' == $action) {
 			$data = [
@@ -350,7 +350,7 @@ class controller extends \Controller {
 				'normal' => config::FORUM_NORMAL_PRIORITY,
 				'low' => config::FORUM_LOW_PRIORITY,
 			];
-			Json::ack($action)
+			json::ack($action)
 				->add('data', $data);
 		} elseif ('priority-reset' == $action) {
 			$this->db->Q(
@@ -361,42 +361,79 @@ class controller extends \Controller {
 				)
 
 			);
-			Json::ack($action);
+			json::ack($action);
 		} elseif ('set-ipp' == $action) {
 			if ($i = (int)$this->getPost('value')) {
 				currentUser::option('forum-items-per-page', $i);
 			} else {
 				currentUser::option('forum-items-per-page', '');
 			}
-			Json::ack($action);
+			json::ack($action);
 		} elseif ('set-flag' == $action) {
 			if ($id = (int)$this->getPost('id')) {
 				$dao = new dao\forum;
 				$dao->UpdateByID(['flag' => (int)$this->getPost('val')], $id);
-				Json::ack($action);
+				json::ack($action);
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('set-resolved' == $action) {
 			if ($id = (int)$this->getPost('id')) {
 				$dao = new dao\forum;
 				$dao->UpdateByID(['resolved' => (int)$this->getPost('val')], $id);
-				Json::ack($action);
+				json::ack($action);
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} elseif ('show-closed' == $action) {
 			currentUser::option('forum-closed', $this->getPost('state'));
-			Json::ack($action);
+			json::ack($action);
 		} elseif ('show-complete' == $action) {
 			currentUser::option('forum-complete', $this->getPost('state'));
-			Json::ack($action);
+			json::ack($action);
 		} elseif ('show-dead' == $action) {
 			currentUser::option('forum-hidedead', $this->getPost('state'));
-			Json::ack($action);
+			json::ack($action);
 		} elseif ('show-mine' == $action) {
+
 			currentUser::option('forum-showOnlyMine', $this->getPost('state'));
-			Json::ack($action);
+			json::ack($action);
+		} elseif ('subscribe' == $action) {
+
+			$id = (int)$this->getPost('id');
+			if ($id > 0) {
+
+				$email = $this->getPost('email', currentUser::email());
+
+				$dao = new dao\forum;
+				if ($dao->subscribe($id, $email)) {
+
+					json::ack('subscribe');
+				} else {
+
+					json::nak('subscribe');
+				}
+			} else {
+
+				json::nak('subscribe');
+			}
+		} elseif ('unsubscribe' == $action) {
+
+			$id = (int)$this->getPost('id');
+			if ($id > 0) {
+
+				$email = $this->getPost('email', currentUser::email());
+				if ((new dao\forum)->unsubscribe($id, $email)) {
+
+					json::ack('unsubscribe');
+				} else {
+
+					json::nak('unsubscribe');
+				}
+			} else {
+
+				json::nak('unsubscribe');
+			}
 		} elseif ('update-subject' == $action) {
 			$id = (int)$this->getPost('id');
 			if ($id > 0) {
@@ -405,15 +442,15 @@ class controller extends \Controller {
 					if ($subject = $this->getPost('subject')) {
 
 						$dao->UpdateByID(['description' => $subject], $id);
-						Json::ack($action);
+						json::ack($action);
 					} else {
-						Json::nak($action);
+						json::nak($action);
 					}
 				} else {
-					Json::nak($action);
+					json::nak($action);
 				}
 			} else {
-				Json::nak($action);
+				json::nak($action);
 			}
 		} else {
 			$action = $this->getPost('form_action');
@@ -433,14 +470,17 @@ class controller extends \Controller {
 							if ($dao->InsertDTO($dto)) {
 								Response::redirect($this->route . '/view/' . $dtoP->id, 'added comment');
 							} else {
-								throw new GeneralException('failed to add comment');
+
+								throw new RuntimeException('failed to add comment');
 							}
 						}
 					} else {
-						throw new GeneralException('Could not find Forum to comment on');
+
+						throw new RuntimeException('Could not find Forum to comment on');
 					}
 				} else {
-					throw new GeneralException('Forum not identified to comment on');
+
+					throw new RuntimeException('Forum not identified to comment on');
 				}
 			} else {
 				parent::postHandler();
@@ -456,27 +496,6 @@ class controller extends \Controller {
 
 		$this->load('new-post');
 	}
-
-	// public function edit($id = 0) {
-	// 	if ($id = (int)$id) {
-	// 		$dao = new dao\forum;
-	// 		if ($dto = $dao->getById($id)) {
-
-	// 			$this->data = (object)[
-	// 				'title' => $this->title = config::label_edit,
-	// 				'tags' => $dao->getRecentTags(),
-	// 				'dto' => $dto
-	// 			];
-	// 			$this->load('edit');
-	// 		} else {
-	// 			$this->data = (object)[
-	// 				'title' => $this->title = config::label_not_found,
-	// 				'message' => config::label_not_found,
-	// 			];
-	// 			$this->load('modal-error');
-	// 		}
-	// 	}
-	// }
 
 	public function flagged() {
 		$dao = new dao\forum;
@@ -503,13 +522,13 @@ class controller extends \Controller {
 			if ($id > 0) {
 				$dao = new dao\forum;
 				if ($dto = $dao->closeTopic($id))
-					Json::ack(__METHOD__);
+					json::ack(__METHOD__);
 
 				else {
-					Json::nak(__METHOD__);
+					json::nak(__METHOD__);
 				}
 			} else {
-				Json::nak(__METHOD__);
+				json::nak(__METHOD__);
 			}
 		} else {
 			if ($id > 0) {
@@ -590,53 +609,33 @@ class controller extends \Controller {
 		Response::redirect($this->route);
 	}
 
-	public function subscribe($id = 0) {
-		if ($id > 0) {
-			$email = $this->getParam('email', currentUser::email());
-
-			$dao = new dao\forum;
-			if ($dao->subscribe($id, $email)) {
-				Json::ack('subscribe');
-			} else {
-				Json::nak('subscribe');
-			}
-		} else {
-			Json::nak('subscribe');
-		}
-	}
-
-	public function unsubscribe($id = 0) {
-		if ($id > 0) {
-			$email = $this->getParam('email', currentUser::email());
-
-			$dao = new dao\forum;
-			if ($dao->unsubscribe($id, $email)) {
-				Json::ack('unsubscribe');
-			} else {
-				Json::nak('unsubscribe');
-			}
-		} else {
-			Json::nak('unsubscribe');
-		}
-	}
-
-	// public function viewdlg($id = 0) {
-	// 	$this->comments = FALSE;
-
+	// public function subscribe($id = 0) {
 	// 	if ($id > 0) {
-	// 		$dao = new dao\forum;
-	// 		if ($dto = $dao->getById($id)) {
-	// 			$this->data = (object)array(
-	// 				'dto' => $dto,
-	// 				'tags' => $dao->getTags()
-	// 			);
+	// 		$email = $this->getParam('email', currentUser::email());
 
-	// 			$this->load('view');
+	// 		$dao = new dao\forum;
+	// 		if ($dao->subscribe($id, $email)) {
+	// 			json::ack('subscribe');
 	// 		} else {
-	// 			print 'not found';
+	// 			json::nak('subscribe');
 	// 		}
 	// 	} else {
-	// 		print 'invalid';
+	// 		json::nak('subscribe');
+	// 	}
+	// }
+
+	// public function unsubscribe($id = 0) {
+	// 	if ($id > 0) {
+	// 		$email = $this->getParam('email', currentUser::email());
+
+	// 		$dao = new dao\forum;
+	// 		if ($dao->unsubscribe($id, $email)) {
+	// 			json::ack('unsubscribe');
+	// 		} else {
+	// 			json::nak('unsubscribe');
+	// 		}
+	// 	} else {
+	// 		json::nak('unsubscribe');
 	// 	}
 	// }
 
@@ -657,7 +656,7 @@ class controller extends \Controller {
 					'dto' => $dto,
 					'tags' => $dao->getTags($asJson = true),
 					'ideas' => $ideas,
-					'title' => sprintf('forum :: %s', $dto->description),
+					'title' => $this->title = sprintf('forum :: %s', $dto->description),
 					'pageUrl' => strings::url($this->route . '/view/' . $id),
 					'searchFocus' => true,
 					'aside' => ['view-options']
