@@ -225,9 +225,11 @@ extract((array)$this->data);	?>
 							email: $(this).data('email'),
 						})
 						.then(d => {
+
 							_.growl(d);
 							if ('ack' == d.response) {
-								$(me).closest('.form-check').remove();
+
+								$(this).closest('.form-check').remove();
 							}
 						});
 					// let em = this.dataset.email;
