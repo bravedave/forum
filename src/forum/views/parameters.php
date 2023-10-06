@@ -272,6 +272,13 @@ extract((array)($this->data ?? []));
     searchForum.on('input', function(e) {
 
       searchForumIDX++;
+
+      if ('' == this.value.trim()) {
+
+        searchForumResults.html('');
+        return;
+      }
+
       let idx = searchForumIDX;
       setTimeout(() => {
 
