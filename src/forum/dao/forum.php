@@ -665,7 +665,7 @@ class forum extends _dao {
 
 		$results = [];
 
-		$sql = 'SELECT `id`, `date`, `parent`, `description`, `comment` FROM `forum`';
+		$sql = 'SELECT `id`, `updated`, `parent`, `description`, `comment` FROM `forum`';
 		if ($res = $this->Result($sql)) {
 
 			while ($dto = $res->dto()) {
