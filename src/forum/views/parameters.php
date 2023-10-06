@@ -295,7 +295,7 @@ extract((array)($this->data ?? []));
                 $.each(d.data, (i, dto) => {
 
                   let col = $(`<div class="col">
-                    <a href="${_.url('<?= $this->route ?>/' + dto.id)}">${_.encodeHTMLEntities(dto.description)}</a>
+                    <a target="_blank" href="${_.url('<?= $this->route ?>/view/' + dto.id)}">${_.encodeHTMLEntities(dto.description)}</a>
                   </div>`);
 
                   if (dto.description != dto.instance) {
