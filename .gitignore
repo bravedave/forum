@@ -1,4 +1,7 @@
 .bak
+.tmp
 vendor/
 *.lock
 src/data/
+run-alpine.sh
+forum.code-workspace

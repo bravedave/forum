@@ -26,6 +26,7 @@ class forum extends dto {
 	public $tag = '';
 	public $flag = 0;
 	public $resolved = 0;
+	public $complete = 0;
 
 	public $property_id = 0;
 
@@ -35,6 +36,7 @@ class forum extends dto {
 
 	public $forum_idea_idea = '';
 
+	public $link = '';
 	public $notify = '';
 
 	public function subscribed($email) {

@@ -12,15 +12,22 @@ namespace dvc\forum;
 
 use bravedave\dvc\{
 	json,
-	Response
+    logger,
+    Response
 };
 use currentUser, green, dvc\idea, RuntimeException;
 
 class controller extends \Controller {
-	var $ItemsPerPage = 20;
-	protected $viewPath = __DIR__ . '/views/';
+
+	protected $ItemsPerPage = 20;
+	protected $showOnlyMine = false;
+	protected $hideDead = false;
+	protected $includeComplete = false;
+	protected $showClosed = false;
+	protected $comments = false;
 
 	protected function _index() {
+
 		$this->showOnlyMine = currentUser::option('forum-showOnlyMine') == 'yes';
 		$this->hideDead = currentUser::option('forum-hidedead') == 'yes';
 		$this->includeComplete = currentUser::option('forum-complete') == 'yes';
@@ -80,7 +87,8 @@ class controller extends \Controller {
 			$this->ItemsPerPage = $ipp;
 		}
 
-		return parent::before();
+		parent::before();
+		$this->viewPath[] = __DIR__ . '/views/';
 	}
 
 	protected function postHandler() {
@@ -384,6 +392,19 @@ class controller extends \Controller {
 				json::ack($action);
 			} else {
 				json::nak($action);
+			}
+		} elseif ('search-forums' == $action) {
+
+			// logger::info(sprintf('<%s> %s', $action, logger::caller()));
+
+			if ($term = $this->getPost('term')) {
+
+				json::ack($action)
+					->add('data', (new dao\forum)->search($term));
+			} else {
+
+				json::ack($action)
+					->add('data', [$term]);
 			}
 		} elseif ('show-closed' == $action) {
 			currentUser::option('forum-closed', $this->getPost('state'));

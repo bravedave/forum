@@ -10,6 +10,7 @@
 
 namespace dvc\forum\dao;
 
+use bravedave\dvc\logger;
 use dvc\emailutility;
 use dvc\forum\{
 	forumUtility,
@@ -658,5 +659,47 @@ class forum extends _dao {
 		}
 
 		return false;
+	}
+
+	public function search(string $term): array {
+
+		$results = [];
+
+		$sql = 'SELECT `id`, `parent`, `description`, `comment` FROM `forum`';
+		if ($res = $this->Result($sql)) {
+
+			while ($dto = $res->dto()) {
+
+				if (false !== stripos($dto->description, $term) || false !== stripos($dto->comment, $term)) {
+
+					$result = (object)[
+						'id' => $dto->parent ? $dto->parent : $dto->id,
+						'description' => $dto->description,
+						'instance' => $dto->description
+					];
+
+					if (false === stripos($dto->description, $term)) {
+
+						// the instance must be in the description
+						$comment = strings::html2text($dto->comment);
+						if ($pos = stripos($comment, $term)) {
+
+							// logger::info(sprintf('<%s> %s', $pos, logger::caller()));
+
+							if ($pos > 0) $pos = max(0, ($pos - 30));
+							$result->instance = sprintf(
+								'%s%s...',
+								$pos > 0 ? '...' : '',
+								substr($comment, $pos, 120)
+							);
+						}
+					}
+
+					$results[] = $result;
+				}
+			}
+		}
+
+		return $results;
 	}
 }
