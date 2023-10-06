@@ -295,7 +295,7 @@ extract((array)($this->data ?? []));
                 $.each(d.data, (i, dto) => {
 
                   let col = $(`<div class="col">
-                    <a href="${dto.url}">${_.encodeHTMLEntities(dto.description)}</a>
+                    <a href="${_.url('<?= $this->route ?>/' + dto.id)}">${_.encodeHTMLEntities(dto.description)}</a>
                   </div>`);
 
                   if (dto.description != dto.instance) {
@@ -303,7 +303,7 @@ extract((array)($this->data ?? []));
                     col.append(`<p class="small text-muted">${_.encodeHTMLEntities(dto.instance)}</p>`);
                   }
 
-                  $(`<div class="row g-2"></div>`)
+                  $(`<div class="row g-2"><div class="col-md-2">${_.asLocaleDate(dto.date)}</div></div>`)
                     .append(col)
                     .appendTo(searchForumResults);
                 });

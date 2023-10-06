@@ -665,7 +665,7 @@ class forum extends _dao {
 
 		$results = [];
 
-		$sql = 'SELECT `id`, `parent`, `description`, `comment` FROM `forum`';
+		$sql = 'SELECT `id`, `date`, `parent`, `description`, `comment` FROM `forum`';
 		if ($res = $this->Result($sql)) {
 
 			while ($dto = $res->dto()) {
@@ -674,6 +674,7 @@ class forum extends _dao {
 
 					$result = (object)[
 						'id' => $dto->parent ? $dto->parent : $dto->id,
+						'date' => $dto->updated,
 						'description' => $dto->description,
 						'instance' => $dto->description
 					];
