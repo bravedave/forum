@@ -554,7 +554,7 @@ class forum extends _dao {
 				} else {
 
 					$this->notify(
-						sprintf('%s : %s', ($dto->parent > 0 ? 'Follow Up' : 'New Topic'), $dto->description),
+						sprintf('%s: %s', ($dto->parent > 0 ? 'Update' : 'New'), $dto->description),
 						$email,
 						($dto->parent > 0 ? $dto->parent : $id)
 					);
