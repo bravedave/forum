@@ -14,7 +14,8 @@ use bravedave\dvc\logger;
 use dvc\emailutility;
 use dvc\forum\{
 	forumUtility,
-	strings
+	strings,
+	config
 };
 use dvc\dao\_dao;
 use dvc\{
@@ -446,7 +447,7 @@ class forum extends _dao {
 
 			// create instance
 			$cssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles();
-			if (file_exists($path = sprintf('%s/minimum.css', \config::$TEMPLATES_DIR_CSS))) {
+			if (file_exists($path = sprintf('%s/minimum.css', config::$TEMPLATES_DIR_CSS))) {
 				$css = file_get_contents($path);
 			} else {
 				$css = file_get_contents(template::pdf_css);
@@ -462,7 +463,7 @@ class forum extends _dao {
 			if ($symfony) {
 
 				$mail = sendmail::email([
-					'from' => sendmail::address(\config::$FORUM_EMAIL, \config::$FORUM_NAME)
+					'from' => sendmail::address(config::$FORUM_EMAIL, config::$FORUM_NAME)
 				]);
 
 				$mail
@@ -480,7 +481,7 @@ class forum extends _dao {
 			} else {
 
 				$msg = emailutility::image2cid($html);
-				if (file_exists($_htmlOut = sprintf('%s/html.html', \config::dataPath()))) {
+				if (file_exists($_htmlOut = sprintf('%s/html.html', config::dataPath()))) {
 					unlink($_htmlOut);
 				}
 				// file_put_contents($_htmlOut, $html);
@@ -533,8 +534,8 @@ class forum extends _dao {
 				if ($o->check()) $_notifyList[] = $o->email;
 			}
 
-			if (!in_array(\config::$SUPPORT_EMAIL, $_notifyList))
-				$_notifyList[] = \config::$SUPPORT_EMAIL;
+			if (!in_array(config::$SUPPORT_EMAIL, $_notifyList))
+				$_notifyList[] = config::$SUPPORT_EMAIL;
 
 			/* this has to be consistent with dto\forum->subscribe() */
 			$a['notify'] = implode('|', $_notifyList);
@@ -549,7 +550,7 @@ class forum extends _dao {
 		$z = explode('|', $dto->notify);
 		foreach ($z as $email) {
 			if ($email != '' && $email != \currentUser::email()) {
-				if (\config::$SUPPORT_EMAIL == $email && \currentUser::isDavid()) {
+				if (config::$SUPPORT_EMAIL == $email && \currentUser::isDavid()) {
 					if ($this->debug) \sys::logger('InsertDTO // not self notifing : ' . $email);
 				} else {
 
@@ -703,5 +704,16 @@ class forum extends _dao {
 		}
 
 		return $results;
+	}
+
+	public function store(int $id): string {
+
+		$path = implode(DIRECTORY_SEPARATOR, [
+			config::forum_store(),
+			$id
+		]);
+
+		if (!is_dir($path)) mkdir($path);
+		return $path;
 	}
 }

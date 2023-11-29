@@ -11,9 +11,10 @@
 namespace dvc\forum;
 
 use bravedave\dvc\{
+	fileUploader,
 	json,
-    logger,
-    Response
+	logger,
+	Response
 };
 use currentUser, green, dvc\idea, RuntimeException;
 
@@ -150,6 +151,41 @@ class controller extends \Controller {
 			$dao = new green\users\dao\users;
 			json::ack($action)
 				->add('data', $dao->getActive());
+		} elseif ('get-attachments' == $action) {
+
+			$id = (int)$this->getPost('id');
+			if ($id > 0) {
+
+				$dao = new dao\forum;
+				if ($dto = $dao->getById($id)) {
+
+					if ($store = $dao->store($dto->id)) {
+
+						// use filesystemiterator to get the files
+						$files = [];
+						$fi = new \FilesystemIterator($store, \FilesystemIterator::SKIP_DOTS);
+						foreach ($fi as $file) {
+							$files[] = [
+								'file' => $file->getFilename(),
+								'size' => $file->getSize(),
+								'updated' => $file->getMTime()
+							];
+						}
+
+						json::ack($action)
+							->add('data', $files);
+					} else {
+
+						json::nak('store not found - ' . $action);
+					}
+				} else {
+
+					json::nak('forum topic not found - ' . $action);
+				}
+			} else {
+
+				json::nak('missing id - ' . $action);
+			}
 		} elseif ('idea-search' == $action) {
 			$ret = [];
 			if ($qry = $this->getParam('term')) {
@@ -456,6 +492,7 @@ class controller extends \Controller {
 				json::nak('unsubscribe');
 			}
 		} elseif ('update-subject' == $action) {
+
 			$id = (int)$this->getPost('id');
 			if ($id > 0) {
 				$dao = new dao\forum;
@@ -465,13 +502,91 @@ class controller extends \Controller {
 						$dao->UpdateByID(['description' => $subject], $id);
 						json::ack($action);
 					} else {
+
 						json::nak($action);
 					}
 				} else {
+
 					json::nak($action);
 				}
 			} else {
 				json::nak($action);
+			}
+		} elseif ('forum-attachment-remove' == $action) {
+
+			$id = (int)$this->getPost('id');
+			if ($id > 0) {
+
+				if ($file = $this->getPost('file')) {
+
+					$file = strings::safe_file_name(strtolower((string)$file));
+					$dao = new dao\forum;
+					if ($dto = $dao->getById($id)) {
+
+						if ($store = $dao->store($dto->id)) {
+
+							$path = $store . DIRECTORY_SEPARATOR . $file;
+							if (file_exists($path)) unlink($path);
+							json::ack($action);
+						} else {
+
+							json::nak('store not found - ' . $action);
+						}
+					} else {
+
+						json::nak('forum topic not found - ' . $action);
+					}
+				} else {
+
+					json::nak($action);
+				}
+			} else {
+
+				json::nak('missing id - ' . $action);
+			}
+		} elseif ('forum-attachment-upload' == $action) {
+
+			if ($_FILES) {
+
+				$file = array_shift($_FILES); // 1 file
+				$id = (int)$this->getPost('id');
+				if ($id > 0) {
+
+					$dao = new dao\forum;
+					if ($dto = $dao->getById($id)) {
+
+						if ($store = $dao->store($dto->id)) {
+
+							$uploader = new fileUploader([
+								'path' => $store,
+								'accept' => [
+									'image/png',
+									'image/x-png',
+									'image/jpeg',
+									'image/pjpeg',
+									'application/pdf',
+									'text/csv',
+									'text/plain'
+								]
+							]);
+
+							$uploader->save($file)
+								? json::ack($action) : json::nak($action);
+						} else {
+
+							json::nak('store not found - ' . $action);
+						}
+					} else {
+
+						json::nak('forum topic not found - ' . $action);
+					}
+				} else {
+
+					json::nak('missing id - ' . $action);
+				}
+			} else {
+
+				json::nak('no files - ' . $action);
 			}
 		} else {
 			$action = $this->getPost('form_action');
@@ -516,6 +631,47 @@ class controller extends \Controller {
 		];
 
 		$this->load('new-post');
+	}
+
+	public function download($id = 0) {
+
+		$id = (int)$id;
+		if ($id > 0) {
+
+			if ($file = $this->getParam('f')) {
+
+				if ($file = strings::safe_file_name(strtolower((string)$file))) {
+
+					$dao = new dao\forum;
+					if ($dto = $dao->getById($id)) {
+
+						if ($store = $dao->store($dto->id)) {
+
+							$path = $store . DIRECTORY_SEPARATOR . $file;
+							if (file_exists($path)) {
+
+								Response::serve($path);
+							} else {
+
+								print 'not found';
+							}
+						} else {
+
+							print 'store not found';
+						}
+					} else {
+
+						print 'topic not found';
+					}
+				} else {
+
+					print 'invalid file';
+				}
+			} else {
+
+				print 'missing file';
+			}
+		}
 	}
 
 	public function flagged() {
@@ -629,36 +785,6 @@ class controller extends \Controller {
 
 		Response::redirect($this->route);
 	}
-
-	// public function subscribe($id = 0) {
-	// 	if ($id > 0) {
-	// 		$email = $this->getParam('email', currentUser::email());
-
-	// 		$dao = new dao\forum;
-	// 		if ($dao->subscribe($id, $email)) {
-	// 			json::ack('subscribe');
-	// 		} else {
-	// 			json::nak('subscribe');
-	// 		}
-	// 	} else {
-	// 		json::nak('subscribe');
-	// 	}
-	// }
-
-	// public function unsubscribe($id = 0) {
-	// 	if ($id > 0) {
-	// 		$email = $this->getParam('email', currentUser::email());
-
-	// 		$dao = new dao\forum;
-	// 		if ($dao->unsubscribe($id, $email)) {
-	// 			json::ack('unsubscribe');
-	// 		} else {
-	// 			json::nak('unsubscribe');
-	// 		}
-	// 	} else {
-	// 		json::nak('unsubscribe');
-	// 	}
-	// }
 
 	public function view($id = 0) {
 

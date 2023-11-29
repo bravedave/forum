@@ -41,7 +41,7 @@ abstract class config extends \config {
 	const resolved_noaction = 2;
 	const resolved_feedback = 3;
 
-	static function forum_checkdatabase() {
+	public static function forum_checkdatabase() {
 		$dao = new dao\dbinfo(null, method_exists(__CLASS__, 'cmsStore') ? self::cmsStore() : self::dataPath());
 		// // $dao->debug = true;
 		$dao->checkVersion('forum', self::forum_db_version);
@@ -52,11 +52,23 @@ abstract class config extends \config {
 		}
 	}
 
-	static function forum_config() {
+	public static function forum_config() {
 		return implode(DIRECTORY_SEPARATOR, [
 			rtrim(self::dataPath(), '/ '),
 			'forum.json'
 
 		]);
 	}
+
+	public static function forum_store(): string {
+
+    $_path = method_exists(__CLASS__, 'cmsStore') ? self::cmsStore() : self::dataPath();
+    $path = implode(DIRECTORY_SEPARATOR, [
+      rtrim($_path, " \n\r\t\v\0/"),
+      'forum'
+    ]);
+
+    if (!is_dir($path)) mkdir($path);
+    return $path;
+  }
 }

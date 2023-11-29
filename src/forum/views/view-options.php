@@ -6,9 +6,6 @@
  *
  * MIT License
  *
-*/
-
-/**
  * replace:
  * [x] data-dismiss => data-bs-dismiss
  * [x] data-toggle => data-bs-toggle
@@ -210,6 +207,10 @@ extract((array)$this->data);	?>
 
 	<div class="mb-2 js-link-display"></div>
 
+	<div class="mb-2 js-file-upload"></div>
+
+	<div class="mb-2 js-file-list"></div>
+
 	<script>
 		(_ => {
 			const form = $('#<?= $_form ?>');
@@ -251,10 +252,10 @@ extract((array)$this->data);	?>
 					})
 					.then(d => {
 						if ('ack' == d.response) {
-							$('.js-link-display', form).html('');
+							form.find('.js-link-display').html('');
 							if (d.data.length > 0) {
 								let ul = $('<ul class="list-unstyled"></ul>');
-								$('.js-link-display', form).append(ul);
+								form.find('.js-link-display').append(ul);
 								$.each(d.data, (i, el) => {
 
 									$(`<li class="d-flex"></li>`)
@@ -460,6 +461,99 @@ extract((array)$this->data);	?>
 					});
 				})
 
+			let c = _.fileDragDropContainer({
+				fileControl: true,
+				accept: '.csv,text/csv,application/vnd.ms-excel,image/jpeg,image/png,application/pdf'
+			});
+
+			form.find('.js-file-upload').append(c);
+
+			_.fileDragDropHandler.call(c, {
+				url: _.url('<?= $this->route ?>'),
+				queue: false,
+				multiple: false,
+				postData: {
+					action: 'forum-attachment-upload',
+					id: <?= (int)$dto->id ?>
+				},
+				onError: d => form.find('.js-file-upload').html(`<div class="alert alert-danger m-1">${d.description}</div>`),
+				onReject: d => _.growl,
+				onUpload: d => {
+
+					_.growl(d)
+					if ('ack' == d.response) form.find('.js-file-list').trigger('update');
+				}
+			});
+
+			form.find('.js-file-list')
+				.on('update', function(e) {
+
+					e.stopPropagation();
+
+					let _me = $(this);
+
+					// add a spinner
+					_me
+						.addClass('text-center p-2')
+						.html('<i class="bi bi-arrow-clockwise"></i>');
+
+					_.fetch
+						.post(_.url('<?= $this->route ?>'), {
+							action: 'get-attachments',
+							id: <?= (int)$dto->id ?>
+						})
+						.then(d => {
+
+							_me
+								.removeClass('text-center p-2')
+								.html('');
+
+							let ul = $('<ul class="list-unstyled"></ul>');
+							if ('ack' == d.response) {
+
+								$.each(d.data, (i, file) => {
+
+									let li = $('<li class="d-flex"></li>');
+									li.append(
+										$(`<a href="${_.url('<?= $this->route ?>/download/<?= $dto->id ?>?f=' + file.file)}" target="_blank" class="me-auto">${file.file}</a>`)
+									);
+
+									<?php if (currentUser::isAdmin()) {	?>
+
+										li.append(
+											$('<a href="#" class="ms-auto"><i class="bi bi-trash"></i></a>')
+											.on('click', function(e) {
+												e.stopPropagation();
+												e.preventDefault();
+
+												let _me = $(this);
+
+												_.fetch.post(_.url('<?= $this->route ?>'), {
+														action: 'forum-attachment-remove',
+														id: <?= $dto->id ?>,
+														file: file.file,
+
+													})
+													.then(d => {
+														_.growl(d);
+														_me.closest('li').remove();
+													});
+											})
+										);
+									<?php }	?>
+
+									ul.append(li);
+								});
+
+								_me.append(ul);
+							} else {
+
+								_.growl(d);
+							}
+						});
+				})
+				.trigger('update');
+
 			_.ready(() => {
 
 				$('#topic-priority').on('change', function() {
@@ -471,12 +565,9 @@ extract((array)$this->data);	?>
 								id: <?= (int)$dto->id ?>,
 								priority: $(this).val(),
 							}
-
 						})
 						.done(_.growl);
-
 				});
-
 
 				showLinks(<?= $dto->id ?>);
 
