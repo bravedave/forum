@@ -6,9 +6,6 @@
  *
  * MIT License
  *
-*/
-
-/**
  * replace:
  * [x] data-dismiss => data-bs-dismiss
  * [x] data-toggle => data-bs-toggle
@@ -24,6 +21,8 @@
  * [x] btn input-group-text => btn btn-light
  * [x] form-row => row g-2
  */
+
+extract((array)$this->data);
 ?>
 
 <input type="hidden" name="form_action" value="post comment">
@@ -39,8 +38,8 @@
 
 		<div class="col ps-md-0">
 
-			<input type="hidden" name="parent" value="<?= $this->data->dto->id ?>" />
-			<input type="hidden" id="commentThread" name="thread" data-default="<?= $this->data->dto->id ?>" value="<?= $this->data->dto->id ?>" />
+			<input type="hidden" name="parent" value="<?= $dto->id ?>" />
+			<input type="hidden" id="commentThread" name="thread" data-default="<?= $dto->id ?>" value="<?= $dto->id ?>" />
 
 			<div class="mb-2">
 
@@ -48,6 +47,8 @@
 			</div>
 
 			<button type="submit" class="btn btn-primary" id="<?= $uid ?>form_button">post comment</button>
+
+			use <span class="user-select-all fw-bold">{topic:&lt;id&gt;}</span> to reference a topic
 		</div>
 	</div>
 </div>
