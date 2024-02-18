@@ -147,9 +147,9 @@ extract((array)($this->data ?? []));  ?>
         else if ('<?= config::board_priority_medium ?>' == dto.priority) bgPriority = 'badge rounded-pill text-bg-info';
 
         let bgStatus = '';
-        if ('<?= config::board_status_done ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-success';
-        else if ('<?= config::board_status_review ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-info';
-        else if ('<?= config::board_status_inprogress ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-primary';
+        if ('<?= config::board_status_done ?>' == dto.status) bgStatus = 'badge rounded-pill text-bg-success';
+        else if ('<?= config::board_status_review ?>' == dto.status) bgStatus = 'badge rounded-pill text-bg-info';
+        else if ('<?= config::board_status_inprogress ?>' == dto.status) bgStatus = 'badge rounded-pill text-bg-primary';
 
         let tm = '';
         if ('1' == dto.archived) tm = 'table-light';
