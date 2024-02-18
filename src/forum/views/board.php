@@ -199,6 +199,7 @@ extract((array)($this->data ?? []));  ?>
     });
 
     _.table.search(search, table);
+    table.on('update-line-numbers', _.table._line_numbers_);
 
     _.ready(() => getMatrix().then(matrix));
 
