@@ -10,20 +10,18 @@
 
 namespace dvc\forum\dao;
 
-use bravedave\dvc\logger;
-use dvc\emailutility;
+use bravedave\dvc\{dao, email,logger};
 use dvc\forum\{
 	forumUtility,
 	strings,
 	config
 };
-use dvc\dao\_dao;
 use dvc\{
 	sendmail,
 	template
 };
 
-class forum extends _dao {
+class forum extends dao {
 	protected $_db_name = 'forum';
 	protected $template = __NAMESPACE__ . '\dto\forum';
 
@@ -480,7 +478,7 @@ class forum extends _dao {
 				}
 			} else {
 
-				$msg = emailutility::image2cid($html);
+				$msg = email::image2cid($html);
 				if (file_exists($_htmlOut = sprintf('%s/html.html', config::dataPath()))) {
 					unlink($_htmlOut);
 				}

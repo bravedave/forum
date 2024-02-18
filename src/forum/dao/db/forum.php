@@ -8,7 +8,7 @@
  *
 */
 
-namespace dao;
+namespace dvc\forum\dao;
 
 use sys;
 

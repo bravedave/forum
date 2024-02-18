@@ -18,4 +18,8 @@ class config extends bravedave\dvc\config {
     self::$FORUM_NAME = self::$SUPPORT_NAME;
     self::$FORUM_EMAIL = self::$SUPPORT_EMAIL;
   }
+
+  static function cmsStore(): string {
+    return parent::dataPath();
+  }
 }

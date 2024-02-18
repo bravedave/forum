@@ -65,7 +65,13 @@ extract((array)($this->data ?? []));
 
     <div class="row g-2">
 
-      <div class="col text-end small">
+      <div class="col small">&nbsp;</div>
+
+      <div class="col-auto small">
+        [<a href="<?= strings::url($this->route . '/board') ?>">board</a>]
+      </div>
+
+      <div class="col-auto small">
         [<a href="<?= strings::url($this->route . '/flagged') ?>">Flagged</a>]
       </div>
     </div>
