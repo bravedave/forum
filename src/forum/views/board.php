@@ -148,7 +148,8 @@ extract((array)($this->data ?? []));  ?>
 
         let bgStatus = '';
         if ('<?= config::board_status_done ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-success';
-        else if ('<?= config::board_status_inprogress ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-info';
+        else if ('<?= config::board_status_review ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-info';
+        else if ('<?= config::board_status_inprogress ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-primary';
 
         let tm = '';
         if ('1' == dto.archived) tm = 'table-light';
@@ -158,7 +159,7 @@ extract((array)($this->data ?? []));  ?>
             <td>${dto.name}</td>
             <td class="text-center">${'1' == dto.idea ? '<i class="bi bi-check"></i>' : '&nbsp;'}</td>
             <td class="text-center">${'' == dto.link ? '' : '<i class="bi bi-link"></i>'}</td>
-            <td class="text-center">${status_text[dto.status]}</td>
+            <td class="text-center"><div class="${bgStatus}">${status_text[dto.status]}</div></td>
             <td class="text-center"><div class="${bgPriority}">${priority_text[dto.priority]}</div></td>
           </tr>`)
           .on('click', function(e) {
