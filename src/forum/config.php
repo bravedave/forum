@@ -34,6 +34,7 @@ abstract class config extends \config {
 	const FORUM_URGENT_PRIORITY_TEXT = 'urgent';
 	const FORUM_BROKEN_PRIORITY_TEXT = 'broken';
 
+	const label_board = 'Forum Board';
 	const label_board_item_add = 'add board item';
 	const label_board_item_edit = 'edit board item';
 	const label_edit = 'forum edit';

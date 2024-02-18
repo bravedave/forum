@@ -609,9 +609,9 @@ class controller extends \Controller {
 
 		$this->data = (object)[
 			'aside' => config::index_set,
-			'pageUrl' => strings::url($this->route),
+			'pageUrl' => strings::url($this->route . '/board'),
 			'searchFocus' => true,
-			'title' => $this->title = config::$WEBNAME,
+			'title' => $this->title = config::label_board,
 		];
 
 		$this->renderBS5([
