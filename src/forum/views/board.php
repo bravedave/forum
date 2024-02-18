@@ -146,6 +146,10 @@ extract((array)($this->data ?? []));  ?>
         else if ('<?= config::board_priority_high ?>' == dto.priority) bgPriority = 'badge rounded-pill text-bg-warning';
         else if ('<?= config::board_priority_medium ?>' == dto.priority) bgPriority = 'badge rounded-pill text-bg-info';
 
+        let bgStatus = '';
+        if ('<?= config::board_status_done ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-success';
+        else if ('<?= config::board_status_inprogress ?>' == dto.priority) bgStatus = 'badge rounded-pill text-bg-info';
+
         let tm = '';
         if ('1' == dto.archived) tm = 'table-light';
 

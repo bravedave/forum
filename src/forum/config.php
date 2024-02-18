@@ -66,7 +66,7 @@ abstract class config extends \config {
 		self::board_status_none => 'none',
 		self::board_status_draft => 'draft',
 		self::board_status_todo => 'todo',
-		self::board_status_inprogress => 'inprogress',
+		self::board_status_inprogress => 'in progress',
 		self::board_status_review => 'review',
 		self::board_status_done => 'done'
 	];
