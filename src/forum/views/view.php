@@ -33,29 +33,29 @@ extract((array)$this->data);
 if ($this->comments)	?>
 <form method="post" action="<?= strings::url($this->route) ?>">
 
-	<div class="row g-2" data-role="controls">
+  <div class="row g-2" data-role="controls">
 
-		<div class="col mb-2">
+    <div class="col mb-2">
 
-			<div id="forum-subject" class="h4"><?= $dto->description ?></div>
-			<?php if (!$dto->closed) $this->load('view-comment-form'); ?>
-		</div>
-	</div>
+      <div id="forum-subject" class="h4"><?= $dto->description ?></div>
+      <?php if (!$dto->closed) $this->load('view-comment-form'); ?>
+    </div>
+  </div>
 
-	<div class="row g-2">
+  <div class="row g-2">
 
-		<div class="col">
-			<?php
+    <div class="col">
+      <?php
 			if (count($dto->children)) {
 				for ($i = count($dto->children); $i > 0; $i--)
 					print forumUtility::printThread($dto->children[$i - 1], $reversed = true);
 			}
 			?></div>
-	</div>
+  </div>
 </form>
 
 <div class="row g-2 border-top">
-	<?php
+  <?php
 	printf(
 		'<div class="col-lg-1 col-md-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
 		html::icon($dto->name),
@@ -70,14 +70,18 @@ if ($this->comments)	?>
 </div>
 
 <div>
-	<?php
+  <?php
 	if ($this->comments) {
+
 		if ($dto->closed) {
+
 			if (currentUser::isDavid()) {	?>
-				<div class="mt-1 text-end">
-					<a class="button button-raised" href="<?= URL ?>forum/reopenTopic/<?= $dto->id ?>">re-open topic</a>
-				</div>
-	<?php
+
+        <div class="mt-1 text-end">
+          <a class="button button-raised" href="<?= string::url('forum/reopenTopic/' . $dto->id) ?>">
+            re-open topic</a>
+        </div>
+  <?php
 			}
 		}
 	}
@@ -85,41 +89,37 @@ if ($this->comments)	?>
 </div>
 
 <script>
-	(_ => {
+  (_ => {
 
-		<?php if (currentUser::isAdmin()) {	?>
+    <?php if (currentUser::isAdmin()) {	?>
 
-			let fs = $('<input type="text" class="form-control" value="<?= addslashes($dto->description) ?>">');
-			fs
-				.on('focus', function() {
-					$(this).closest('form').on('submit', function(e) {
-						return false;
-					});
-				})
-				.on('blur', function() {
-					$(this).closest('form').off('submit');
-				})
-				.on('change', function() {
-					_.post({
-							url: _.url('<?= $this->route ?>'),
-							data: {
-								action: 'update-subject',
-								id: <?= (int)$dto->id ?>,
-								subject: $(this).val()
-							}
-						})
-						.done(d => _.growl(d))
+      let fs = $('<input type="text" class="form-control" value="<?= htmlentities($dto->description) ?>">');
+      fs
+        .on('focus', function() {
 
-				})
+          $(this).closest('form').on('submit', e => false);
+        })
+        .on('blur', function() {
 
-			var fsD = $('<div class="input-group"></div>').append(fs);
+          $(this).closest('form').off('submit');
+        })
+        .on('change', function() {
 
-			$('#forum-subject')
-				.html('')
-				.append(fsD);
+          _.fetch.post(_.url('<?= $this->route ?>'), {
+              action: 'update-subject',
+              id: <?= (int)$dto->id ?>,
+              subject: $(this).val()
+            })
+            .then(_.growl)
+        })
 
-		<?php	}	// if ( currentUser::isAdmin())
-		?>
-		$(document).ready(() => $('img').addClass('img-fluid'))
-	})(_brayworth_);
+      let fsD = $('<div class="input-group"></div>').append(fs);
+
+      $('#forum-subject')
+        .html('')
+        .append(fsD);
+
+    <?php	} ?>
+    _.ready(() => $('img').addClass('img-fluid'))
+  })(_brayworth_);
 </script>
