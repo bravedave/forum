@@ -78,7 +78,7 @@ if ($this->comments)	?>
 			if (currentUser::isDavid()) {	?>
 
         <div class="mt-1 text-end">
-          <a class="button button-raised" href="<?= string::url('forum/reopenTopic/' . $dto->id) ?>">
+          <a class="button button-raised" href="<?= strings::url('forum/reopenTopic/' . $dto->id) ?>">
             re-open topic</a>
         </div>
   <?php
