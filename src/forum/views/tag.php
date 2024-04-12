@@ -35,7 +35,8 @@ extract((array)$this->data); ?>
   <input type="hidden" name="id" value="<?= $dto->id ?>">
   <input type="hidden" name="action" value="save-tag">
 
-  <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
+  <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered" role="document">
 
@@ -44,7 +45,8 @@ extract((array)$this->data); ?>
         <div class="modal-header <?= theme::modalHeader() ?> py-2">
 
           <h5 class="modal-title" id="<?= $_modal ?>Label">Add Tag</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
@@ -98,36 +100,39 @@ extract((array)$this->data); ?>
 
         });
 
-        form
-          .on('submit', function(e) {
-            let _form = $(this);
-            let _data = _form.serializeFormJSON();
+        form.on('submit', function(e) {
+          let _form = $(this);
+          let _data = _form.serializeFormJSON();
 
-            $('button[type="submit"]', this).html('<div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden">Saving...</span></div>')
+          $('button[type="submit"]', this).html(
+            '<div class="spinner-grow spinner-grow-sm" role="status"><span class="visually-hidden">Saving...</span></div>')
 
-            _.post({
-                url: _.url('<?= $this->route ?>'),
-                data: _data
+          _.post({
+              url: _.url('<?= $this->route ?>'),
+              data: _data
 
-              })
-              .done(d => {
-                if ('ack' == d.response) {
-                  $('#<?= $_modal ?>').trigger('success', _data);
+            })
+            .done(d => {
+              if ('ack' == d.response) {
+                $('#<?= $_modal ?>').trigger('success', _data);
 
-                } else {
-                  _.growl(d);
+              } else {
+                _.growl(d);
 
-                }
+              }
 
-                $('#<?= $_modal ?>').modal('hide');
+              $('#<?= $_modal ?>').modal('hide');
 
-              });
+            });
 
 
-            // console.table( _data);
+          // console.table( _data);
 
-            return false;
-          });
+          return false;
+        });
+
+        // set focus
+        $('#<?= $_uidTag ?>').focus();
       });
     })(_brayworth_);
   </script>
