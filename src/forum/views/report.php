@@ -36,22 +36,6 @@ extract((array)($this->data ?? [])); ?>
     }
   }
 
-  .status-danger {
-    background-color: #f8d7da
-  }
-
-  .status-success {
-    background-color: #d4edda
-  }
-
-  .status-warning {
-    background-color: #fff3cd
-  }
-
-  .status-feedback {
-    background-color: #d4a8d4
-  }
-
   .line-clamp {
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -133,17 +117,17 @@ extract((array)($this->data ?? [])); ?>
     $popover = '';
     $resolvedStatus = 'no';
     if (config::resolved_resolved == $dto->resolved) {
-      $statusClass = 'status-success';
+      $statusClass = 'bg-success';
       $resolvedStatus = 'yes';
     } elseif (config::resolved_noaction == $dto->resolved) {
-      $statusClass = 'status-warning';
+      $statusClass = 'bg-warning';
       $resolvedStatus = 'noaction';
     } elseif (config::resolved_feedback == $dto->resolved) {
       $popover = 'title="Feedback Requested" data-bs-content="Please provide feedback" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="auto"';
-      $statusClass = 'status-feedback';
+      $statusClass = 'bg-feedback';
       $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
-      $statusClass = 'status-danger';
+      $statusClass = 'bg-danger';
     }
 
     printf(
@@ -272,10 +256,10 @@ extract((array)($this->data ?? [])); ?>
             $('div[role="priority"]', _row).html(d.text);
 
             if ('<?= config::FORUM_BROKEN_PRIORITY ?>' == d.priority) {
-              _row.addClass('status-danger');
+              _row.addClass('bg-danger');
 
             } else {
-              _row.removeClass('status-danger');
+              _row.removeClass('bg-danger');
 
             }
 
@@ -539,7 +523,7 @@ extract((array)($this->data ?? [])); ?>
 
             if ('ack' == d.response) {
 
-              _me.removeClass('status-danger').addClass('status-success');
+              _me.removeClass('bg-danger').addClass('bg-success');
               _me.data('resolved', 'yes');
             } else {
 
@@ -562,7 +546,7 @@ extract((array)($this->data ?? [])); ?>
 
             if ('ack' == d.response) {
 
-              _me.removeClass('status-danger').addClass('status-success');
+              _me.removeClass('bg-danger').addClass('bg-info');
               _me.data('resolved', 'yes');
             } else {
 
@@ -585,12 +569,12 @@ extract((array)($this->data ?? [])); ?>
 
             if ('ack' == d.response) {
 
-              _me.removeClass('status-success status-warning status-feedback');
+              _me.removeClass('bg-success bg-warning bg-info');
               _me.popover('destroy');
               _me.data('resolved', 'no');
               if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
 
-                _me.addClass('status-danger');
+                _me.addClass('bg-danger');
               }
             } else {
               _.growl(d)
