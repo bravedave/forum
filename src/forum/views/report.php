@@ -124,7 +124,7 @@ extract((array)($this->data ?? [])); ?>
       $resolvedStatus = 'noaction';
     } elseif (config::resolved_feedback == $dto->resolved) {
       $popover = 'title="Feedback Requested" data-bs-content="Please provide feedback" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="auto"';
-      $statusClass = 'bg-feedback';
+      $statusClass = 'bg-info';
       $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
       $statusClass = 'bg-danger';
