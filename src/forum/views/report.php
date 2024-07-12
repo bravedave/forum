@@ -72,7 +72,7 @@ extract((array)($this->data ?? [])); ?>
 
 <div class="row mb-2 d-print-none" id="<?= $_tagBox = strings::rand() ?>"></div>
 
-<div class="row g-2 text-muted small border-top border-bottom mb-1">
+<div class="row text-muted small border-top border-bottom">
   <div class="col-2 col-xl-4">
     <div class="row g-2">
       <div class="col-xl-5 d-none d-xl-block">
@@ -150,7 +150,7 @@ extract((array)($this->data ?? [])); ?>
 
     printf(
       '<div
-        class="row g-2 border-bottom %s"
+        class="row border-bottom %s"
         data-role="item"
         data-created="%s"
         data-complete="%s"
