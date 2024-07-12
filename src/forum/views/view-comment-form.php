@@ -90,10 +90,10 @@ extract((array)$this->data);
 								menubar: false,
 								paste_data_images: true,
 								deprecation_warnings: false,
-								plugins: 'paste imagetools table autolink lists',
+								plugins: 'paste imagetools table autolink lists link',
 								selector: '#<?= $uid ?>',
 								statusbar: false,
-								toolbar: 'undo redo | done | bold italic | bullist numlist outdent indent blockquote',
+								toolbar: 'undo redo | done | bold italic | bullist numlist outdent indent blockquote link',
 							};
 
 							j.setup = ed => {
