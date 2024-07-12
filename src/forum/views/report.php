@@ -1,4 +1,5 @@
 <?php
+
 /**
  * David Bray
  * BrayWorth Pty Ltd
@@ -24,8 +25,21 @@
 
 namespace dvc\forum;
 
+const status_class_danger = 'bg-danger-subtle';
+const status_class_info = 'bg-info-subtle';
+const status_class_success = 'bg-success-subtle';
+const status_class_warning = 'bg-warning-subtle';
+
+const status_class = [
+  status_class_danger,
+  status_class_info,
+  status_class_success,
+  status_class_warning
+];
+
 use currentUser;
 use html;
+
 extract((array)($this->data ?? [])); ?>
 
 <style>
@@ -117,17 +131,21 @@ extract((array)($this->data ?? [])); ?>
     $popover = '';
     $resolvedStatus = 'no';
     if (config::resolved_resolved == $dto->resolved) {
-      $statusClass = 'bg-success';
+
+      $statusClass = status_class_success;
       $resolvedStatus = 'yes';
     } elseif (config::resolved_noaction == $dto->resolved) {
-      $statusClass = 'bg-warning';
+
+      $statusClass = status_class_warning;
       $resolvedStatus = 'noaction';
     } elseif (config::resolved_feedback == $dto->resolved) {
+
       $popover = 'title="Feedback Requested" data-bs-content="Please provide feedback" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="auto"';
-      $statusClass = 'bg-info';
+      $statusClass = status_class_info;
       $resolvedStatus = 'feedback';
     } elseif (config::FORUM_BROKEN_PRIORITY == $dto->priority) {
-      $statusClass = 'bg-danger';
+
+      $statusClass = status_class_danger;
     }
 
     printf(
@@ -236,38 +254,34 @@ extract((array)($this->data ?? [])); ?>
 
 <script>
   (_ => {
-    let prioritise = function(priority) {
+    const prioritise = function(priority) {
+
       let _row = this; // jQuery object
       let _data = _row.data();
 
-      _.post({
-          url: _.url('<?= $this->route ?>'),
-          data: {
-            id: _data.id,
-            action: 'prioritise',
-            priority: priority,
-          }
-
+      _.fetch.post(_.url('<?= $this->route ?>'), {
+          id: _data.id,
+          action: 'prioritise',
+          priority: priority,
         })
-        .done(d => {
+        .then(d => {
+
           _.growl(d);
           if ('ack' == d.response) {
+
             _row.data('priority', String(d.priority)); // has to be text
             $('div[role="priority"]', _row).html(d.text);
 
             if ('<?= config::FORUM_BROKEN_PRIORITY ?>' == d.priority) {
-              _row.addClass('bg-danger');
 
+              _row.addClass('<?= status_class_danger ?>');
             } else {
-              _row.removeClass('bg-danger');
 
+              _row.removeClass('<?= status_class_danger ?>');
             }
-
           }
-
         });
-
-    }
+    };
 
     let mark = function(action) {
       let _row = this; // jQuery object
@@ -347,14 +361,14 @@ extract((array)($this->data ?? [])); ?>
           let _context = _.context(e);
 
           _context.append.a({
-            html : '<strong>view</strong>',
+            html: '<strong>view</strong>',
             click: e => $(this).trigger('view')
           });
 
           _context.append('<hr>');
 
           _context.append.a({
-            html : 'tag',
+            html: 'tag',
             click: e => {
 
               let url = _.url('<?= $this->route ?>/tag/' + _data.id);
@@ -375,7 +389,7 @@ extract((array)($this->data ?? [])); ?>
           _context.append('<hr>');
 
           _context.append.a({
-            html : `${<?= config::FORUM_LOW_PRIORITY ?> == _data.priority ? '<i class="bi bi-check"></i>' : ''}<?= config::FORUM_LOW_PRIORITY_TEXT ?>`,
+            html: `${<?= config::FORUM_LOW_PRIORITY ?> == _data.priority ? '<i class="bi bi-check"></i>' : ''}<?= config::FORUM_LOW_PRIORITY_TEXT ?>`,
             click: e => prioritise.call(_row, '<?= config::FORUM_LOW_PRIORITY ?>')
           });
 
@@ -509,21 +523,20 @@ extract((array)($this->data ?? [])); ?>
           _context.open(e);
         })
         .on('resolved', function(e) {
+
           let _me = $(this);
           let _data = _me.data();
 
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: {
-              action: 'set-resolved',
-              id: _data.id,
-              val: <?= config::resolved_resolved ?>
-            },
+          _.fetch.post(_.url('<?= $this->route ?>'), {
+            action: 'set-resolved',
+            id: _data.id,
+            val: <?= config::resolved_resolved ?>
           }).then(d => {
 
             if ('ack' == d.response) {
 
-              _me.removeClass('bg-danger').addClass('bg-success');
+              _me.removeClass('<?= implode(' ', status_class) ?>')
+                .addClass('<?= status_class_success ?>');
               _me.data('resolved', 'yes');
             } else {
 
@@ -546,7 +559,7 @@ extract((array)($this->data ?? [])); ?>
 
             if ('ack' == d.response) {
 
-              _me.removeClass('bg-danger').addClass('bg-info');
+              _me.removeClass('<?= implode(' ', status_class) ?>').addClass('<?= status_class_info ?>');
               _me.data('resolved', 'yes');
             } else {
 
@@ -569,12 +582,12 @@ extract((array)($this->data ?? [])); ?>
 
             if ('ack' == d.response) {
 
-              _me.removeClass('bg-success bg-warning bg-info');
+              _me.removeClass('<?= implode(' ', status_class) ?>');
               _me.popover('destroy');
               _me.data('resolved', 'no');
               if (<?= config::FORUM_BROKEN_PRIORITY ?> == _data.priority) {
 
-                _me.addClass('bg-danger');
+                _me.addClass('<?= status_class_danger ?>');
               }
             } else {
               _.growl(d)
@@ -590,7 +603,7 @@ extract((array)($this->data ?? [])); ?>
           let _data = _row.data();
           window.location.href = _.url(`forum/view/${_data.id}`);
         });
-      });
+    });
 
     $('#<?= $_env ?>')
       .on('filter-apply', function(e) {
