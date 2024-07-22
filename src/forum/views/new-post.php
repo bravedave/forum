@@ -291,7 +291,7 @@ extract((array)($this->data ?? []));
               title: 'the text is',
               text: $('[name="comment"]').val()
             }).find('.modal-dialog').addClass('modal-lg');
-            return;
+            return false;
           <?php } ?>
 
           msg('saving ...');
