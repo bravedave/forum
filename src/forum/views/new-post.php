@@ -27,6 +27,7 @@
 
 namespace dvc\forum;
 
+use currentUser;
 use theme;
 
 extract((array)($this->data ?? []));
@@ -37,8 +38,10 @@ extract((array)($this->data ?? []));
   <input type="hidden" name="forum_idea_id" value="0">
   <input type="hidden" name="action" value="post-new">
 
-  <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered" role="document">
+  <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label"
+    aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered"
+      role="document">
 
       <div class="modal-content">
 
@@ -50,15 +53,18 @@ extract((array)($this->data ?? []));
 
             <div class="col mb-2">
 
-              <input type="text" class="form-control" name="description" placeholder="topic" required>
+              <input type="text" class="form-control" name="description" placeholder="topic"
+                required>
             </div>
 
             <div class="col-md-3 mb-2">
 
               <div class="input-group">
 
-                <input type="text" class="form-control" name="tag" id="<?= $_tag = strings::rand() ?>" placeholder="tag" required>
-                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                <input type="text" class="form-control" name="tag" id="<?= $_tag = strings::rand() ?>" placeholder="tag"
+                  required>
+                <button class="btn btn-light dropdown-toggle" type="button"
+                  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end" id="<?= $_tags = strings::rand() ?>">
                   <?php
                   array_walk($tags, fn ($tag) => printf(
@@ -279,6 +285,14 @@ extract((array)($this->data ?? []));
             alert('please enter description');
             return false;
           }
+
+          <?php if (currentUser::isDavid()) { ?>
+            _.ask.alert({
+              title: 'the text is',
+              text: $('[name="comment"]').val()
+            }).find('.modal-dialog').addClass('modal-lg')
+          <?php } ?>
+
           msg('saving ...');
 
           // console.log( _data);
