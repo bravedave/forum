@@ -290,7 +290,8 @@ extract((array)($this->data ?? []));
             _.ask.alert({
               title: 'the text is',
               text: $('[name="comment"]').val()
-            }).find('.modal-dialog').addClass('modal-lg')
+            }).find('.modal-dialog').addClass('modal-lg');
+            return;
           <?php } ?>
 
           msg('saving ...');
