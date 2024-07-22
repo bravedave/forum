@@ -202,20 +202,27 @@ extract((array)($this->data ?? []));
             }
           };
 
-          options = _.extend(options, {
-            plugins: [
-              'paste',
-              'imagetools',
-              'table',
-              'autolink',
-              'lists',
-              'link',
+          if (_brayworth_.browser.isMobileDevice) {
 
-            ],
-            statusbar: false,
-            toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote table link mybutton | styleselect fontselect fontsizeselect | forecolor backcolor',
-            contextmenu: 'paste | inserttable | cell row column deletetable',
-          });
+            // https://cmss.darcy.com.au/forum/view/11879
+            options.plugins = 'lists autolink';
+          } else {
+
+            options = _.extend(options, {
+              plugins: [
+                'paste',
+                'imagetools',
+                'table',
+                'autolink',
+                'lists',
+                'link',
+
+              ],
+              statusbar: false,
+              toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote table link mybutton | styleselect fontselect fontsizeselect | forecolor backcolor',
+              contextmenu: 'paste | inserttable | cell row column deletetable',
+            });
+          }
 
           tinymce.init(options);
         })
@@ -285,14 +292,6 @@ extract((array)($this->data ?? []));
             alert('please enter description');
             return false;
           }
-
-          <?php if (currentUser::isDavid()) { ?>
-            _.ask.alert({
-              title: 'the text is',
-              text: $('[name="comment"]').val()
-            }).find('.modal-dialog').addClass('modal-lg');
-            return false;
-          <?php } ?>
 
           msg('saving ...');
 
