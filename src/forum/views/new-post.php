@@ -38,7 +38,7 @@ extract((array)($this->data ?? []));
   <input type="hidden" name="action" value="post-new">
 
   <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered" role="document">
 
       <div class="modal-content">
 
@@ -86,7 +86,7 @@ extract((array)($this->data ?? []));
           <div class="row g-2">
             <div class="col mb-2">
               <textarea class="form-control" name="comment" rows="20" id="<?= $_uidComment = strings::rand() ?>">
-              <em>use this <strong>example</strong> template to describe your issue, 
+              <em>use this <strong>example</strong> template to describe your issue,
                 <span style="color: red;">delete text as required</span></em>
 
               <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
