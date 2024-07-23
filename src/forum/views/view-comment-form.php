@@ -90,6 +90,7 @@ extract((array)$this->data);
                 browser_spellcheck: true,
                 deprecation_warnings: false,
                 document_base_url: _.url('', true),
+                contextmenu: false,
                 menubar: false,
                 paste_data_images: true,
                 plugins: 'paste imagetools table autolink lists link',
