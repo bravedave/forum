@@ -10,7 +10,9 @@
 
 namespace dvc\forum;
 
-class strings extends \strings {
+use cms;
+
+class strings extends cms\strings {
 	static function AutoTextAsHTML( $text, $maxrows = -1 ) {
 		$debug = false;
 		//~ $debug = true;

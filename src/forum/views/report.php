@@ -37,8 +37,8 @@ const status_class = [
   status_class_warning
 ];
 
-use currentUser;
-use html;
+use cms\{currentUser};
+use dvc\html;
 
 extract((array)($this->data ?? [])); ?>
 

@@ -8,7 +8,12 @@
  *
 */
 
+namespace cms;
+
+use bravedave;
+
 class currentUser extends bravedave\dvc\currentUser {
+
 	static public function id() {
 		return self::user()->id;
 	}

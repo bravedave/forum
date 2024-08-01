@@ -10,9 +10,9 @@
 
 namespace dvc\forum;
 
-use Json;
+use cms;
 
-abstract class config extends \config {
+abstract class config extends cms\config {
 	const forum_db_version = 0.4;
 
 	const forum_filterKey = 'forum-filter';

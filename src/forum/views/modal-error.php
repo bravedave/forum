@@ -10,8 +10,6 @@
 
 namespace dvc\forum;
 
-use strings;
-
 extract((array)$this->data); ?>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">

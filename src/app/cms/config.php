@@ -8,6 +8,10 @@
  *
 */
 
+namespace cms;
+
+use bravedave;
+
 class config extends bravedave\dvc\config {
   static $FORUM_NAME = 'Example Forum';
   static $FORUM_EMAIL = 'webmaster@example.dom';

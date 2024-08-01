@@ -11,6 +11,7 @@
 namespace dvc\forum\dao;
 
 use bravedave\dvc\{dao, email,logger};
+use cms\currentUser;
 use dvc\forum\{
 	forumUtility,
 	strings,
@@ -125,9 +126,9 @@ class forum extends dao {
 			$dKeys = array();
 			if ($data = $this->result('SELECT id, reporter, user_id, notify FROM T')) {
 				while ($dto = $data->dto()) {
-					if ($dto->reporter == \currentUser::id()) continue;
-					if ($dto->user_id == \currentUser::id()) continue;
-					if (strpos($dto->notify, \currentUser::email()) !== false) continue;
+					if ($dto->reporter == currentUser::id()) continue;
+					if ($dto->user_id == currentUser::id()) continue;
+					if (strpos($dto->notify, currentUser::email()) !== false) continue;
 
 					$dKeys[] = $dto->id;
 				}
@@ -206,7 +207,7 @@ class forum extends dao {
 	public function subscribe($id, $email = null) {
 		if ($dto = $this->getByID($id)) {
 			if (is_null($email))
-				$email = \currentUser::email();
+				$email = currentUser::email();
 
 			$emails = explode(',', $email);
 
@@ -226,7 +227,7 @@ class forum extends dao {
 	public function unsubscribe($id, $email = null) {
 		if ($dto = $this->getByID($id)) {
 			if (is_null($email))
-				$email = \currentUser::email();
+				$email = currentUser::email();
 
 			if ($dto->subscribed($email)) {
 				$dto->unsubscribe($email);
@@ -547,8 +548,8 @@ class forum extends dao {
 
 		$z = explode('|', $dto->notify);
 		foreach ($z as $email) {
-			if ($email != '' && $email != \currentUser::email()) {
-				if (config::$SUPPORT_EMAIL == $email && \currentUser::isDavid()) {
+			if ($email != '' && $email != currentUser::email()) {
+				if (config::$SUPPORT_EMAIL == $email && currentUser::isDavid()) {
 					if ($this->debug) \sys::logger('InsertDTO // not self notifing : ' . $email);
 				} else {
 

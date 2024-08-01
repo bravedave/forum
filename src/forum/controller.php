@@ -17,7 +17,8 @@ use bravedave\dvc\{
 	logger,
 	Response
 };
-use currentUser, green, dvc\idea, RuntimeException;
+use cms\{currentUser};
+use green, dvc\idea, RuntimeException;
 
 class controller extends \Controller {
 

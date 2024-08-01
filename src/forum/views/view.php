@@ -25,12 +25,12 @@
 
 namespace dvc\forum;
 
-use currentUser;
-use html;
+use cms\{currentUser};
+use dvc\html;
 
 extract((array)$this->data);
 
-if ($this->comments)	?>
+if ($this->comments)  ?>
 <form method="post" action="<?= strings::url($this->route) ?>">
 
   <div class="row g-2" data-role="controls">
@@ -46,52 +46,52 @@ if ($this->comments)	?>
 
     <div class="col">
       <?php
-			if (count($dto->children)) {
-				for ($i = count($dto->children); $i > 0; $i--)
-					print forumUtility::printThread($dto->children[$i - 1], $reversed = true);
-			}
-			?></div>
+      if (count($dto->children)) {
+        for ($i = count($dto->children); $i > 0; $i--)
+          print forumUtility::printThread($dto->children[$i - 1], $reversed = true);
+      }
+      ?></div>
   </div>
 </form>
 
 <div class="row g-2 border-top">
   <?php
-	printf(
-		'<div class="col-lg-1 col-md-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
-		html::icon($dto->name),
-		strings::asShortDate($dto->updated, true)
-	);
+  printf(
+    '<div class="col-lg-1 col-md-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
+    html::icon($dto->name),
+    strings::asShortDate($dto->updated, true)
+  );
 
-	printf(
-		'<div class="col border-left" id="initial-forum-comment">%s</div>',
-		strings::AutoTextAsHTML($dto->comment)
-	);
-	?>
+  printf(
+    '<div class="col border-left" id="initial-forum-comment">%s</div>',
+    strings::AutoTextAsHTML($dto->comment)
+  );
+  ?>
 </div>
 
 <div>
   <?php
-	if ($this->comments) {
+  if ($this->comments) {
 
-		if ($dto->closed) {
+    if ($dto->closed) {
 
-			if (currentUser::isDavid()) {	?>
+      if (currentUser::isDavid()) {  ?>
 
         <div class="mt-1 text-end">
           <a class="button button-raised" href="<?= strings::url('forum/reopenTopic/' . $dto->id) ?>">
             re-open topic</a>
         </div>
   <?php
-			}
-		}
-	}
-	?>
+      }
+    }
+  }
+  ?>
 </div>
 
 <script>
   (_ => {
 
-    <?php if (currentUser::isAdmin()) {	?>
+    <?php if (currentUser::isAdmin()) {  ?>
 
       let fs = $('<input type="text" class="form-control" value="<?= htmlentities($dto->description) ?>">');
       fs
@@ -119,7 +119,7 @@ if ($this->comments)	?>
         .html('')
         .append(fsD);
 
-    <?php	} ?>
+    <?php  } ?>
     _.ready(() => $('img').addClass('img-fluid'))
   })(_brayworth_);
 </script>

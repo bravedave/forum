@@ -10,7 +10,7 @@
 
 namespace dvc\forum;
 
-use theme;
+use cms\theme;
 
 /** @var dao\dto\forum_board $dto */
 extract((array)($this->data ?? []));  ?>

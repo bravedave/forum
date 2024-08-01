@@ -27,11 +27,9 @@
 
 namespace dvc\forum;
 
-use currentUser;
-use theme;
+use cms\{currentUser, theme};
 
-extract((array)($this->data ?? []));
-?>
+extract((array)($this->data ?? [])); ?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="link">

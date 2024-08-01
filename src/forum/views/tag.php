@@ -27,7 +27,7 @@
 
 namespace dvc\forum;
 
-use theme;
+use cms\theme;
 
 extract((array)$this->data); ?>
 

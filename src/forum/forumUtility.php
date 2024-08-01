@@ -10,7 +10,7 @@
 
 namespace dvc\forum;
 
-use html;
+use dvc\html;
 
 abstract class forumUtility {
 	static function referLinks($text) {
