@@ -188,7 +188,7 @@ extract((array)($this->data ?? []));
         </script>
       </div>
 
-      <div class="col-auto">
+      <div class="col-auto d-none">
 
         <div class="input-group input-group-sm">
 
@@ -209,6 +209,45 @@ extract((array)($this->data ?? []));
                 .post(_.url('<?= $this->route ?>'), {
                   action: 'show-dead',
                   state: _me.prop('checked') ? 'yes' : ''
+                })
+                .then(d => {
+
+                  if ('ack' == d.response) {
+
+                    window.location.reload();
+                  } else {
+
+                    _.growl(d);
+                    _.hourglass.on();
+                  }
+                });
+            });
+          })(_brayworth_);
+        </script>
+      </div>
+
+      <!-- ---[resolved]--- -->
+      <div class="col-auto">
+
+        <div class="input-group input-group-sm">
+
+          <div class="input-group-text">
+            <input type="checkbox" id="<?= $_uid = strings::rand() ?>" <?= ($this->resolved ?? false) ? 'checked' : '' ?>>
+          </div>
+          <label class="input-group-text" for="<?= $_uid ?>">resolved</label>
+        </div>
+        <script>
+          (_ => {
+
+            $('#<?= $_uid ?>').on('change', function() {
+
+              let _me = $(this);
+              _.hourglass.on();
+
+              _.fetch
+                .post(_.url('<?= $this->route ?>'), {
+                  action: 'show-resolved',
+                  state: _me.prop('checked') ? 'yes' : 'no'
                 })
                 .then(d => {
 

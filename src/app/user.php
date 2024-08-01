@@ -8,7 +8,7 @@
  *
 */
 
-class user extends dvc\user {
+class user extends bravedave\dvc\user {
 	public $id = 0;
 
 	public $mobile = '';

@@ -25,6 +25,7 @@ class controller extends \Controller {
 	protected $ItemsPerPage = 20;
 	protected $showOnlyMine = false;
 	protected $hideDead = false;
+	protected $resolved = true;
 	protected $includeComplete = false;
 	protected $showClosed = false;
 	protected $comments = false;
@@ -35,13 +36,15 @@ class controller extends \Controller {
 		$this->hideDead = currentUser::option('forum-hidedead') == 'yes';
 		$this->includeComplete = currentUser::option('forum-complete') == 'yes';
 		$this->showClosed = currentUser::option('forum-closed') == 'yes';
+		$this->resolved = currentUser::option('forum-resolved') != 'no';
 
 		$about = sprintf(
 			'%s complete%s%s%s',
 			($this->includeComplete ? 'including' : 'excluding'),
 			($this->showClosed ? ', showing closed items' : ''),
 			($this->hideDead ? ', hiding dead items' : ''),
-			($this->showOnlyMine ? ', only my topics' : '')
+			($this->showOnlyMine ? ', only my topics' : ''),
+			($this->resolved ? '' : ', not resolved')
 		);
 
 		$dao = new dao\forum;
@@ -49,7 +52,7 @@ class controller extends \Controller {
 		$page = (int)$this->getParam('page');
 		if ($page < 1) $page = 1;
 		$offset = ((int)$page - 1) * $this->ItemsPerPage;
-		if ($dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $this->showOnlyMine, $offset, $this->ItemsPerPage)) {
+		if ($dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $this->showOnlyMine, $this->resolved, $offset, $this->ItemsPerPage)) {
 
 			$content = [
 				'parameters',
@@ -472,6 +475,10 @@ class controller extends \Controller {
 		} elseif ('show-mine' == $action) {
 
 			currentUser::option('forum-showOnlyMine', $this->getPost('state'));
+			json::ack($action);
+		} elseif ('show-resolved' == $action) {
+
+			currentUser::option('forum-resolved', $this->getPost('state'));
 			json::ack($action);
 		} elseif ('subscribe' == $action) {
 

@@ -10,8 +10,8 @@
 
 namespace dvc\forum\dao;
 
-use bravedave\dvc\{dao, email,logger};
-use cms\currentUser;
+use bravedave\dvc\{dao, email, logger};
+use cms\{currentUser};
 use dvc\forum\{
 	forumUtility,
 	strings,
@@ -28,7 +28,7 @@ class forum extends dao {
 
 	public $debug = false;
 
-	public function getTopLevel($closed = false, $complete = false, $hidedead = false, $showOnlyMine = false, $offset = 0, $limit = 20) {
+	public function getTopLevel($closed = false, $complete = false, $hidedead = false, $showOnlyMine = false, $resolved = true, $offset = 0, $limit = 20) {
 
 		$debug = false;
 		// $debug = true;
@@ -37,11 +37,11 @@ class forum extends dao {
 		if ($limit < 1)
 			$limit = 20;
 
-		if (!$closed)
-			$condition[] = 'f.closed = 0';
-		if (!$complete)
-			$condition[] = 'f.complete = 0';
-		if ($hidedead)
+		if (!$closed) $condition[] = 'f.closed = 0';
+		if (!$complete) $condition[] = 'f.complete = 0';
+		if (!$resolved) $condition[] = sprintf('f.resolved != %d', config::resolved_resolved);
+		if ($hidedead) {
+
 			$condition[] = sprintf('(
 				CASE
 				WHEN u.user_id IS NULL THEN f.user_id <> %d
@@ -51,7 +51,8 @@ class forum extends dao {
 				CASE
 				WHEN u.updated IS NULL THEN f.updated > "%s"
 				ELSE u.updated > "%s"
-			END)', \currentUser::id(), \currentUser::id(), date('Y-m-d', strtotime('-3 days')), date('Y-m-d', strtotime('-3 days')));
+			END)', currentUser::id(), currentUser::id(), date('Y-m-d', strtotime('-3 days')), date('Y-m-d', strtotime('-3 days')));
+		}
 
 		$sql = sprintf(
 			'CREATE TEMPORARY TABLE T AS
@@ -512,7 +513,7 @@ class forum extends dao {
 			'tag' => $dto->tag,
 			'forum_idea_id' => $dto->forum_idea_id,
 			'updated' => \db::dbTimeStamp(),
-			'user_id' => \currentUser::id()
+			'user_id' => currentUser::id()
 		];
 
 		//~ \sys::logger( sprintf( 'message length: %s (%s)', strlen( $a['comment'] ), strlen( $dto->comment )));

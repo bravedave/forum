@@ -8,14 +8,14 @@
  *
 **/
 
-use dvc\theme;
+use cms\{strings, theme};
 
 use dvc\bs;
 ?>
 
-<nav class="<?= theme::navbar() ?> py-0" role="navigation" >
-	<div class="container-fluid">
-    <div class="navbar-brand" ><?= $this->data->title	?></div>
+<nav class="<?= theme::navbar() ?> py-0" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-brand"><?= $this->data->title  ?></div>
 
     <ul class="ml-auto navbar-nav">
       <li class="nav-item">
@@ -31,8 +31,8 @@ use dvc\bs;
       </li>
 
       <li class="nav-item dropdown">
-        <a class="nav-link pb-0 dropdown-toggle" href="#" id="navbarDropdown" role="button" aria-label="dropdown"
-          <?= bs::data('toggle', 'dropdown') ?> aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link pb-0 dropdown-toggle" href="#" id="navbarDropdown" role="button"
+          aria-label="dropdown" <?= bs::data('toggle', 'dropdown') ?> aria-haspopup="true" aria-expanded="false">
           <i class="bi bi-gear"></i>
 
         </a>
