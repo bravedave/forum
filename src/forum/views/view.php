@@ -54,10 +54,10 @@ if ($this->comments)  ?>
   </div>
 </form>
 
-<div class="row g-2 border-top">
+<div class="row g-2 mb-2 border-top">
   <?php
   printf(
-    '<div class="col-lg-1 col-md-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
+    '<div class="col-lg-1 col-md-2 col-print-2 text-center px-0 pt-2">%s<div class="small">%s</div></div>',
     html::icon($dto->name),
     strings::asShortDate($dto->updated, true)
   );

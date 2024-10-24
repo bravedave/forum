@@ -80,8 +80,8 @@ abstract class forumUtility {
 		} else {
 
 			$ret[] = sprintf(
-				'<div class="row g-2" data-thread="%s">
-					<div class="col-lg-1 col-md-2 border-top text-center px-0 pt-2"><small>%s%s</small></div>
+				'<div class="row g-2 mb-2" data-thread="%s">
+					<div class="col-lg-1 col-md-2 col-print-2 border-top text-center px-0 pt-2"><small>%s%s</small></div>
 					<div class="col border-top border-left" style="%s">%s
 						<div data-role="comment-container"></div>
 					</div>
