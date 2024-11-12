@@ -90,7 +90,7 @@ extract((array)($this->data ?? [])); ?>
           <div class="row g-2">
             <div class="col mb-2">
               <textarea class="form-control" name="comment" rows="20" id="<?= $_uidComment = strings::rand() ?>">
-              <em>use this <strong>example</strong> template to describe your issue,
+              <em class="js-example">use this <strong>example</strong> template to describe your issue,
                 <span style="color: red;">delete text as required</span></em>
 
               <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
@@ -291,6 +291,12 @@ extract((array)($this->data ?? [])); ?>
             return false;
           }
 
+          /**
+           * _data.comment contains html with the 
+           * <em class=".js-example">blah blah</em> text,
+           * remove the tag and the containg text
+           */
+          _data.comment = _data.comment.replace(/<em class="js-example">(.+?)<\/em>/, '$1');
           msg('saving ...');
 
           // console.log( _data);
