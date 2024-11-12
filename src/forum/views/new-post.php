@@ -304,7 +304,7 @@ $template =
            * <em class=".js-example">blah blah</em> text,
            * remove the tag and the containg text
            */
-          _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '$1');
+          _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '');
           msg('saving ...');
 
           // console.log( _data);
