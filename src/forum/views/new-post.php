@@ -29,7 +29,32 @@ namespace dvc\forum;
 
 use cms\{currentUser, theme};
 
-extract((array)($this->data ?? [])); ?>
+extract((array)($this->data ?? []));
+
+$template =
+  '<h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
+  <ol style="margin-top: 5px;">
+    <li>Sales &gt; PO6 Authority (example)</li>
+    <li>Click an Authority</li>
+  </ol>
+
+  <h5 style="margin-bottom: 0;">Expected Result</h5>
+  <ol style="margin-top: 5px;">
+    <li>authority would open (example)</li>
+  </ol>
+
+  <h5 style="margin-bottom: 0;">Actual Result</h5>
+  <ol style="margin-top: 5px;">
+    <li>authority does not open (example)</li>
+  </ol>
+
+  <h5>Notes</h5>
+
+  <div class="js-example">
+  <em>use this <strong>example</strong> template to describe your issue,
+    <span style="color: red;">delete text as required</span></em>
+  </div>';
+?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="link">
@@ -65,7 +90,7 @@ extract((array)($this->data ?? [])); ?>
                   data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end" id="<?= $_tags = strings::rand() ?>">
                   <?php
-                  array_walk($tags, fn ($tag) => printf(
+                  array_walk($tags, fn($tag) => printf(
                     '<a class="dropdown-item js-tags-suggestion" href="#">%s</a>',
                     $tag->tag
                   ));
@@ -89,29 +114,12 @@ extract((array)($this->data ?? [])); ?>
 
           <div class="row g-2">
             <div class="col mb-2">
-              <textarea class="form-control" name="comment" rows="20" id="<?= $_uidComment = strings::rand() ?>">
-              <em class="js-example">use this <strong>example</strong> template to describe your issue,
-                <span style="color: red;">delete text as required</span></em>
-
-              <h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
-              <ol style="margin-top: 5px;">
-                <li>Sales &gt; PO6 Authority (example)</li>
-                <li>Click an Authority</li>
-              </ol>
-
-              <h5 style="margin-bottom: 0;">Expected Result</h5>
-              <ol style="margin-top: 5px;">
-                <li>authority would open (example)</li>
-              </ol>
-
-              <h5 style="margin-bottom: 0;">Actual Result</h5>
-              <ol style="margin-top: 5px;">
-                <li>authority does not open (example)</li>
-              </ol>
-
-              <h5>Notes</h5>
-
-            </textarea>
+              <?php
+              printf(
+                '<textarea class="form-control" name="comment" id="%s" rows="20">%s</textarea>',
+                $_uidComment = strings::rand(),
+                $template
+              ); ?>
             </div>
           </div>
 
@@ -296,7 +304,7 @@ extract((array)($this->data ?? [])); ?>
            * <em class=".js-example">blah blah</em> text,
            * remove the tag and the containg text
            */
-          _data.comment = _data.comment.replace(/<em class="js-example">(.+?)<\/em>/, '$1');
+          _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '$1');
           msg('saving ...');
 
           // console.log( _data);
