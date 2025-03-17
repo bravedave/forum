@@ -12,6 +12,7 @@ namespace dvc\forum\dao;
 
 use bravedave\dvc\{dao, email, logger};
 use cms\{currentUser};
+use DOMDocument;
 use dvc\forum\{
 	forumUtility,
 	strings,
@@ -406,8 +407,8 @@ class forum extends dao {
 			$url
 		);
 
-		$DOM = new \DOMDocument;
-		$DOM->loadHTML($prelude);
+		$DOM = new DOMDocument;
+		$DOM->loadHTML(mb_convert_encoding($prelude, 'HTML-ENTITIES', 'UTF-8'));
 
 		$body = $DOM->getElementsByTagName('body');
 		if ($body && 0 < $body->length) {
@@ -440,7 +441,15 @@ class forum extends dao {
 
 				$ftext[] = '</tbody></table>';
 
-				\html::appendHTML($body, implode('', $ftext));
+				$tmpDoc = new DOMDocument;
+				$tmpDoc->loadHTML(mb_convert_encoding(implode('', $ftext), 'HTML-ENTITIES', 'UTF-8'));
+
+				foreach ($tmpDoc->getElementsByTagName('body')->item(0)->childNodes as $node) {
+					$node = $body->ownerDocument->importNode($node, true);
+					$body->appendChild($node);
+				}
+
+				// \html::appendHTML($body, implode('', $ftext));
 			}
 
 			$html =  $DOM->saveHTML();
