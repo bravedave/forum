@@ -465,7 +465,8 @@ class forum extends dao {
 			// output
 			$html = $cssToInlineStyles->convert($html, $css);
 			// $html = utf8_decode($html);	// without this you get a double encoding to UTF-8
-			$html = mb_convert_encoding($html, 'ISO-8859-1', 'UTF-8');	// without this you get a double encoding to UTF-8
+			// $html = mb_convert_encoding($html, 'ISO-8859-1', 'UTF-8');	// without this you get a double encoding to UTF-8
+			$html = mb_convert_encoding($html, 'UTF-8', 'UTF-8');	// without this you get a double encoding to UTF-8
 
 			$symfony = true;
 			// $symfony = false;
