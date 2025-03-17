@@ -152,7 +152,12 @@ $template =
 
       const msg = txt => {
 
-        let ctl = $('.js-message').html(txt);
+        /**
+         * https://cmss.darcy.com.au/forum/view/14817
+         */
+        let ctl = modal.find('.js-message');
+
+        ctl.html(txt);
         ctl[0].className = 'me-auto js-message small p-2';
         return ctl;
       };
@@ -300,7 +305,7 @@ $template =
           }
 
           /**
-           * _data.comment contains html with the 
+           * _data.comment contains html with the
            * <em class=".js-example">blah blah</em> text,
            * remove the tag and the containg text
            */
