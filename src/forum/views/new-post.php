@@ -258,7 +258,7 @@ $template =
 
               if (this.selectedIndex > 0) {
 
-                const col = $(`<div class="col">
+                const col = $(`<div class="col-auto">
                     <input type="hidden" name="notify[]" value="${this.value}">
                     <div class="input-group">
                       <div class="input-group-text">${this.value}</div>
@@ -303,7 +303,7 @@ $template =
            * <em class=".js-example">blah blah</em> text,
            * remove the tag and the containg text
            */
-          
+
           // https://cmss.darcy.com.au/forum/view/15494
           // Notes not coming through on Forum posts
           // _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '');
