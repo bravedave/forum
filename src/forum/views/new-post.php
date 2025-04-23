@@ -227,7 +227,6 @@ $template =
                 'autolink',
                 'lists',
                 'link',
-
               ],
               statusbar: false,
               toolbar: 'undo redo | bold italic | bullist numlist outdent indent blockquote table link mybutton | styleselect fontselect fontsizeselect | forecolor backcolor',
@@ -250,35 +249,30 @@ $template =
         .then(d => {
 
           if ('ack' == d.response) {
-            let sel = form.find('.js-users');
-            $.each(d.data, (i, u) => sel.append(`<option value="${u.email}">${u.name} &lt;${u.email}&gt;</option>`));
+
+            const sel = form.find('.js-users');
+            $.each(d.data, (i, u) => sel
+              .append(`<option value="${u.email}">${u.name} &lt;${u.email}&gt;</option>`));
 
             sel.on('change', function(e) {
 
               if (this.selectedIndex > 0) {
 
-                let _me = $(this);
+                const col = $(`<div class="col">
+                    <input type="hidden" name="notify[]" value="${this.value}">
+                    <div class="input-group">
+                      <div class="input-group-text">${this.value}</div>
+                      <button type="button" class="btn btn-light">&times;</button>
+                    </div>
+                  </div>`);
 
-                let col = $('<div class="col"></div>')
-                  .prependTo(_me.closest('.row'));
-                $('<input type="hidden" name="notify[]">')
-                  .val($(this).val())
-                  .appendTo(col);
+                $(this).closest('.row').prepend(col);
 
-                let ig = $('<div class="input-group"></div>')
-                  .appendTo(col);
+                col.find('button').on('click', e => {
 
-                $('<input type="text" class="form-control">')
-                  .val($(this).val())
-                  .appendTo(ig);
-
-                $('<button type="button" class="btn btn-light">&times;</button>')
-                  .appendTo(ig)
-                  .on('click', e => {
-
-                    e.stopPropagation();;
-                    col.remove();
-                  });
+                  e.stopPropagation();;
+                  col.remove();
+                });
               }
             });
           } else {
@@ -309,29 +303,28 @@ $template =
            * <em class=".js-example">blah blah</em> text,
            * remove the tag and the containg text
            */
-          _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '');
+          
+          // https://cmss.darcy.com.au/forum/view/15494
+          // Notes not coming through on Forum posts
+          // _data.comment = _data.comment.replace(/<div class="js-example">(.+?)<\/div>/, '');
           msg('saving ...');
 
           // console.log( _data);
-          _.post({
-            url: _.url('<?= $this->route ?>'),
-            data: _data,
+          _.fetch.post.form(_.url('<?= $this->route ?>'), this)
+            .then(d => {
 
-          }).then(d => {
-            if ('ack' == d.response) {
-              $('#<?= $_modal ?>').trigger('success', _data);
+              if ('ack' == d.response) {
 
-            } else {
-              _.growl(d);
+                $('#<?= $_modal ?>').trigger('success', _data);
+              } else {
 
-            }
+                _.growl(d);
+              }
 
-            $('#<?= $_modal ?>').modal('hide');
-
-          });
+              $('#<?= $_modal ?>').modal('hide');
+            });
 
           return false;
-
         });
     })(_brayworth_);
   </script>
