@@ -14,7 +14,8 @@
   ],
   "require": {
     "bravedave/dvc": "*",
-    "bravedave/green": "*"
+    "bravedave/green": "*",
+    "tinymce/tinymce": "<6"
   },
   "require-dev": {
     "matthiasmullie/scrapbook": "*"
@@ -33,7 +34,6 @@
   "scripts": {
     "post-update-cmd": [
       "dvc\\forum\\postUpdate::upgrade"
-    ],
-    "start": "bash ./run.sh"
+    ]
   }
 }
