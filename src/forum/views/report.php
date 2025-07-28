@@ -1,26 +1,10 @@
 <?php
-
-/**
+/*
  * David Bray
  * BrayWorth Pty Ltd
  * e. david@brayworth.com.au
  *
  * MIT License
- *
- * replace:
- * [x] data-dismiss => data-bs-dismiss
- * [x] data-toggle => data-bs-toggle
- * [x] data-parent => data-bs-parent
- * [x] text-right => text-end
- * [x] custom-select - form-select
- * [x] mr-* => me-*
- * [x] ml-* => ms-*
- * [x] pr-* => pe-*
- * [x] pl-* => ps-*
- * [x] input-group-prepend - remove
- * [x] input-group-append - remove
- * [x] btn input-group-text => btn btn-light
- * [x] form-row => row
  */
 
 namespace dvc\forum;
@@ -38,9 +22,7 @@ const status_class = [
 ];
 
 use cms\{currentUser};
-use dvc\html;
-
-extract((array)($this->data ?? [])); ?>
+use dvc\html; ?>
 
 <style>
   @media print {
@@ -86,21 +68,18 @@ extract((array)($this->data ?? [])); ?>
       <div class="col-md-5 col-lg-6 col-xl-3 text-center text-truncate">created</div>
       <div class="col text-center d-none d-lg-block text-truncate" id="<?= $_uidWho = strings::rand() ?>">who</div>
       <div class="col text-center d-none d-lg-block text-truncate">priority</div>
-
     </div>
-
   </div>
 
   <div class="col-8 col-md-7 col-lg-8 col-xl-6">description</div>
+
   <div class="col-2 col-md-3 col-lg-2">
+
     <div class="row">
       <div class="col text-center">updated</div>
       <div class="col d-none d-md-block text-center">last</div>
-
     </div>
-
   </div>
-
 </div>
 
 <div class="d-none" id="<?= $_env = strings::rand() ?>">

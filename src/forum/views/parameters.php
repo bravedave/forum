@@ -6,31 +6,13 @@
  * e. david@brayworth.com.au
  *
  * MIT License
- *
- * replace:
- * [x] data-dismiss => data-bs-dismiss
- * [x] data-toggle => data-bs-toggle
- * [x] data-parent => data-bs-parent
- * [x] text-right => text-end
- * [x] custom-select - form-select
- * [x] mr-* => me-*
- * [x] ml-* => ms-*
- * [x] pr-* => pe-*
- * [x] pl-* => ps-*
- * [x] input-group-prepend - remove
- * [x] input-group-append - remove
- * [x] btn input-group-text => btn btn-light
- * [x] form-row => row
  */
 
-namespace dvc\forum;
+namespace dvc\forum; ?>
 
-extract((array)($this->data ?? []));
-?>
+<div class="row g-2 d-print-none mt-1 mb-2" id="<?= $_uidParamaters = strings::rand() ?>">
 
-<div class="row g-2 d-print-none">
-
-  <div class="col-lg-auto pt-lg-3 mb-2">
+  <div class="col-lg-auto pt-lg-3">
     <div class="input-group">
       <?php
       if ($dataset->page > 1) {
@@ -46,7 +28,8 @@ extract((array)($this->data ?? []));
         ); ?></div>
 
 
-      <input type="text" class="form-control text-center" role="forum-items-per-page" value="<?= $this->ItemsPerPage ?>">
+      <input type="text" class="form-control text-center" role="forum-items-per-page"
+        value="<?= $this->ItemsPerPage ?>">
       <div class="input-group-text">/page</div>
 
       <?php
@@ -57,17 +40,17 @@ extract((array)($this->data ?? []));
     </div>
   </div>
 
-  <div class="col-lg pt-lg-3 mb-2">
+  <div class="col-lg pt-lg-3">
     <input type="search" class="form-control" id="<?= $_searchForum = strings::rand() ?>" placeholder="search forums">
   </div>
 
-  <div class="col-auto mb-2">
+  <div class="col">
 
     <div class="row g-2">
 
       <div class="col small">&nbsp;</div>
 
-      <div class="col-auto small">
+      <div class="col-auto small d-none">
         [<a href="<?= strings::url($this->route . '/board') ?>">board</a>]
       </div>
 
@@ -76,42 +59,19 @@ extract((array)($this->data ?? []));
       </div>
     </div>
 
-    <div class="row g-2">
+    <div class="row g-2 justify-content-end">
 
-      <div class="col-auto">
+      <div class="col-auto d-none d-sm-block">
 
         <div class="input-group input-group-sm">
 
           <div class="input-group-text">
-            <input type="checkbox" id="<?= $_uid = strings::rand() ?>" <?= $this->showOnlyMine ? 'checked' : '' ?>>
+            <input type="checkbox" id="<?= $_uid = strings::rand() ?>"
+              class="js-show-only-mine"
+              <?= $showOnlyMine ? 'checked' : '' ?>>
           </div>
           <label class="input-group-text" for="<?= $_uid ?>">only mine</label>
         </div>
-        <script>
-          (_ => {
-            $('#<?= $_uid ?>').on('change', function() {
-
-              let _me = $(this);
-              _.hourglass.on();
-
-              _.fetch
-                .post(_.url('<?= $this->route ?>'), {
-                  action: 'show-mine',
-                  state: _me.prop('checked') ? 'yes' : ''
-                })
-                .then(d => {
-                  if ('ack' == d.response) {
-
-                    window.location.reload();
-                  } else {
-
-                    _.growl(d);
-                    _.hourglass.on();
-                  }
-                });
-            });
-          })(_brayworth_);
-        </script>
       </div>
 
       <div class="col-auto">
@@ -280,8 +240,31 @@ extract((array)($this->data ?? []));
 
 <script>
   (_ => {
+    const parameters = $('#<?= $_uidParamaters ?>');
     const searchForum = $('#<?= $_searchForum ?>');
     const searchForumResults = $('#<?= $_searchForum ?>-results');
+
+    parameters.find('.js-show-only-mine').on('change', function() {
+
+      let _me = $(this);
+      _.hourglass.on();
+
+      _.fetch
+        .post(_.url('<?= $this->route ?>'), {
+          action: 'show-mine',
+          state: _me.prop('checked') ? 'yes' : ''
+        })
+        .then(d => {
+          if ('ack' == d.response) {
+
+            window.location.reload();
+          } else {
+
+            _.growl(d);
+            _.hourglass.on();
+          }
+        });
+    });
 
     $('button[data-role="new-forum-item"]').on('click', e => {
 

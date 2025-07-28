@@ -15,7 +15,8 @@ use bravedave\dvc\{
 	fileUploader,
 	json,
 	logger,
-	Response
+	Response,
+	ServerRequest
 };
 use cms\{currentUser};
 use green, dvc\idea, RuntimeException;
@@ -23,7 +24,6 @@ use green, dvc\idea, RuntimeException;
 class controller extends \Controller {
 
 	protected $ItemsPerPage = 20;
-	protected $showOnlyMine = false;
 	protected $hideDead = false;
 	protected $resolved = true;
 	protected $includeComplete = false;
@@ -32,7 +32,7 @@ class controller extends \Controller {
 
 	protected function _index() {
 
-		$this->showOnlyMine = currentUser::option('forum-showOnlyMine') == 'yes';
+		$showOnlyMine = currentUser::option('forum-showOnlyMine') == 'yes';
 		$this->hideDead = currentUser::option('forum-hidedead') == 'yes';
 		$this->includeComplete = currentUser::option('forum-complete') == 'yes';
 		$this->showClosed = currentUser::option('forum-closed') == 'yes';
@@ -43,7 +43,7 @@ class controller extends \Controller {
 			($this->includeComplete ? 'including' : 'excluding'),
 			($this->showClosed ? ', showing closed items' : ''),
 			($this->hideDead ? ', hiding dead items' : ''),
-			($this->showOnlyMine ? ', only my topics' : ''),
+			($showOnlyMine ? ', only my topics' : ''),
 			($this->resolved ? '' : ', not resolved')
 		);
 
@@ -52,7 +52,7 @@ class controller extends \Controller {
 		$page = (int)$this->getParam('page');
 		if ($page < 1) $page = 1;
 		$offset = ((int)$page - 1) * $this->ItemsPerPage;
-		if ($dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $this->showOnlyMine, $this->resolved, $offset, $this->ItemsPerPage)) {
+		if ($dataset = $dao->getTopLevel($this->showClosed, $this->includeComplete, $this->hideDead, $showOnlyMine, $this->resolved, $offset, $this->ItemsPerPage)) {
 
 			$content = [
 				'parameters',
@@ -61,6 +61,7 @@ class controller extends \Controller {
 
 			$this->data = (object)[
 				'dataset' => $dataset,
+				'showOnlyMine' => $showOnlyMine,
 				'pageUrl' => strings::url($this->route),
 				'searchFocus' => true,
 				'title' => $this->title = sprintf('forum - %s', $about),
@@ -68,7 +69,7 @@ class controller extends \Controller {
 
 			$this->renderBS5([
 				'aside' => [],
-				'main' => fn () => array_walk($content, fn ($p) => $this->load($p))
+				'main' => fn() => array_walk($content, fn($p) => $this->load($p))
 			]);
 		} else {
 
@@ -80,7 +81,7 @@ class controller extends \Controller {
 
 			$this->renderBS5([
 				'aside' => [],
-				'main' => fn () => $this->load('blank')
+				'main' => fn() => $this->load('blank')
 			]);
 		}
 	}
@@ -472,10 +473,6 @@ class controller extends \Controller {
 
 			currentUser::option('forum-hidedead', $this->getPost('state'));
 			json::ack($action);
-		} elseif ('show-mine' == $action) {
-
-			currentUser::option('forum-showOnlyMine', $this->getPost('state'));
-			json::ack($action);
 		} elseif ('show-resolved' == $action) {
 
 			currentUser::option('forum-resolved', $this->getPost('state'));
@@ -537,69 +534,26 @@ class controller extends \Controller {
 					} else json::nak('forum topic not found - ' . $action);
 				} else json::nak($action);
 			} else json::nak('missing id - ' . $action);
-		} elseif ('forum-attachment-upload' == $action) {
-
-			if ($_FILES) {
-
-				$file = array_shift($_FILES); // 1 file
-				$id = (int)$this->getPost('id');
-				if ($id > 0) {
-
-					$dao = new dao\forum;
-					if ($dto = $dao->getById($id)) {
-
-						if ($store = $dao->store($dto->id)) {
-
-							$uploader = new fileUploader([
-								'path' => $store,
-								'accept' => [
-									'image/png',
-									'image/x-png',
-									'image/jpeg',
-									'image/pjpeg',
-									'application/pdf',
-									'text/csv',
-									'text/plain'
-								]
-							]);
-
-							$uploader->save($file)
-								? json::ack($action) : json::nak($action);
-						} else json::nak('store not found - ' . $action);
-					} else json::nak('forum topic not found - ' . $action);
-				} else json::nak('missing id - ' . $action);
-			} else json::nak('no files - ' . $action);
 		} else {
 
-			$action = $this->getPost('form_action');
+			$request = new ServerRequest;
+			$action = $request('form_action');
 			if ($action == 'post comment') {
 
-				if ($parent = (int)$this->getPost('parent')) {
+				if ($o = handler::postComment($request)) {
 
-					$dao = new dao\forum;
-					if ($dtoP = $dao->getById($parent)) {
+					Response::redirect($this->route . '/view/' . $o->id, $o->message);
+				}
 
-						$dto = new dao\dto\forum;
-						$dto->comment = $this->getPost('comment');
-						if (empty($dto->comment)) {
-
-							Response::redirect($this->route . '/view/' . $dtoP->id, 'not adding post with empty comment');
-						} else {
-
-							$dto->description = $dtoP->description;
-							$dto->parent = $dtoP->id;
-							$dto->thread = $this->getPost('thread');
-							$dto->notify = $dtoP->notify;
-							if ($dao->InsertDTO($dto)) {
-
-								Response::redirect($this->route . '/view/' . $dtoP->id, 'added comment');
-							} else throw new RuntimeException('failed to add comment');
-						}
-					} else throw new RuntimeException('Could not find Forum to comment on');
-				} else throw new RuntimeException('Forum not identified to comment on');
+				// it would have thrown an exception
 			} else {
 
-				parent::postHandler();
+				$action = $request('action');
+				return match ($action) {
+					'forum-attachment-upload' => handler::forumAttachmentUpload($request),
+					'show-mine' => handler::showMine($request),
+					default => parent::postHandler()
+				};
 			}
 		}
 	}
@@ -623,7 +577,7 @@ class controller extends \Controller {
 		];
 
 		$this->renderBS5([
-			'main' => fn () => $this->load('board')
+			'main' => fn() => $this->load('board')
 		]);
 	}
 
@@ -684,7 +638,7 @@ class controller extends \Controller {
 		];
 
 		$this->renderBS5([
-			'main' => fn () => $this->load('flagged')
+			'main' => fn() => $this->load('flagged')
 		]);
 	}
 
@@ -796,7 +750,7 @@ class controller extends \Controller {
 				];
 
 				$this->renderBS5([
-					'main' => fn () => $this->load('view')
+					'main' => fn() => $this->load('view')
 				]);
 			} else {
 

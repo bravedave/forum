@@ -5,31 +5,11 @@
  * e. david@brayworth.com.au
  *
  * MIT License
- *
-*/
-
-/**
- * replace:
- * [x] data-dismiss => data-bs-dismiss
- * [x] data-toggle => data-bs-toggle
- * [x] data-parent => data-bs-parent
- * [x] text-right => text-end
- * [x] custom-select - form-select
- * [x] mr-* => me-*
- * [x] ml-* => ms-*
- * [x] pr-* => pe-*
- * [x] pl-* => ps-*
- * [x] input-group-prepend - remove
- * [x] input-group-append - remove
- * [x] btn input-group-text => btn btn-light
- * [x] form-row => row g-2
  */
 
 namespace dvc\forum;
 
 use cms\{currentUser, theme};
-
-extract((array)($this->data ?? []));
 
 $template =
   '<h5 style="margin-bottom: 0;">Steps to Reproduce</h5>
@@ -234,7 +214,7 @@ $template =
             });
           }
 
-          tinymce.init(options);
+          _.tiny().then(() => tinymce.init(options));
         })
         .on('shown.bs.modal', e => {
 

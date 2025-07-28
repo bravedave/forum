@@ -22,8 +22,6 @@ class dbinfo extends dao\_dbinfo {
 	 */
 	protected function check() {
 		parent::check();
-		parent::checkDIR( __DIR__);
-
+		parent::checkDIR(__DIR__);
 	}
-
 }
