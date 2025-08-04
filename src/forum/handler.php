@@ -141,7 +141,7 @@ final class handler {
    */
   public static function showMine(ServerRequest $request): json {
 
-    $action = $request('form_action');
+    $action = (string)$request('action');
     $state = $request('state') ?? '';
 
     currentUser::option('forum-showOnlyMine', $state);
