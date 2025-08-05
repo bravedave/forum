@@ -442,7 +442,9 @@ class forum extends dao {
 				$ftext[] = '</tbody></table>';
 
 				$tmpDoc = new DOMDocument;
+				libxml_use_internal_errors(true);
 				$tmpDoc->loadHTML(mb_convert_encoding(implode('', $ftext), 'HTML-ENTITIES', 'UTF-8'));
+				libxml_clear_errors();
 
 				foreach ($tmpDoc->getElementsByTagName('body')->item(0)->childNodes as $node) {
 					$node = $body->ownerDocument->importNode($node, true);
