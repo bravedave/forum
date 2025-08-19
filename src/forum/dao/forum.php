@@ -119,7 +119,8 @@ class forum extends dao {
 			implode(' AND ', $condition)
 		);
 
-		if ($debug) \sys::logSQL($sql);
+		if ($debug) logger::sql($sql, logger::caller());
+
 		//~ return ( $this->db->result( $sql));
 
 		$this->Q($sql);
