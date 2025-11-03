@@ -10,7 +10,7 @@
 
 namespace dvc\forum\dao;
 
-use bravedave\dvc\{dao, email, logger};
+use bravedave\dvc\{dao, dtoSet, email, logger};
 use cms\{currentUser};
 use DOMDocument;
 use dvc\forum\{
@@ -25,7 +25,7 @@ use dvc\{
 
 class forum extends dao {
 	protected $_db_name = 'forum';
-	protected $template = __NAMESPACE__ . '\dto\forum';
+	protected $template = dto\forum::class;
 
 	public $debug = false;
 
@@ -208,39 +208,46 @@ class forum extends dao {
 	}
 
 	public function subscribe($id, $email = null) {
-		if ($dto = $this->getByID($id)) {
-			if (is_null($email))
-				$email = currentUser::email();
 
+		if ($dto = $this->getByID($id)) {
+
+			/** @var dt\forum $dto */
+
+			if (is_null($email)) $email = currentUser::email();
 			$emails = explode(',', $email);
 
 			foreach ($emails as $em) {
+
 				if (!($dto->subscribed($em))) {
+
 					$dto->subscribe($em);
 					$this->UpdateByID(['notify' => $dto->notify], $dto->id);
 
-					return (true);
+					return true;
 				}
 			}
 		}
 
-		return (false);
+		return false;
 	}
 
 	public function unsubscribe($id, $email = null) {
+
 		if ($dto = $this->getByID($id)) {
-			if (is_null($email))
-				$email = currentUser::email();
+
+			/** @var dt\forum $dto */
+			if (is_null($email)) $email = currentUser::email();
 
 			if ($dto->subscribed($email)) {
+
 				$dto->unsubscribe($email);
 				$this->UpdateByID(['notify' => $dto->notify], $dto->id);
 
-				return (true);
+				return true;
 			}
 		}
 
-		return (false);
+		return false;
 	}
 
 	public function reopenTopic($id) {
@@ -323,6 +330,7 @@ class forum extends dao {
 	}
 
 	public function getById($id) {
+
 		$sql = sprintf(
 			'SELECT
 				f.*,
@@ -330,63 +338,56 @@ class forum extends dao {
 				idea.idea forum_idea_idea,
 				users.name
 			FROM forum f
-				LEFT JOIN
-					users ON users.id = f.user_id
-				LEFT JOIN
-					properties p on p.id = f.property_id
-				LEFT JOIN
-					forum_idea idea on idea.id = f.forum_idea_id
-			WHERE
-				f.id = %d',
+				LEFT JOIN users ON users.id = f.user_id
+				LEFT JOIN properties p on p.id = f.property_id
+				LEFT JOIN forum_idea idea on idea.id = f.forum_idea_id
+			WHERE f.id = %d',
 			$id
 		);
-		//~ \sys::logSQL( $sql);
 
-		if ($res = $this->Result($sql)) {
+		if ($dto = (new dto\forum)($sql)) {
 
-			if ($row = $res->fetch()) {
-				$dto = new dto\forum($row);
-				$dto->comments = [];
-				$dto->children = [];
+			$dto->comments = [];
+			$dto->children = [];
 
-				if ($res = $this->Result(
-					sprintf('SELECT
-						f.id,
-						f.comment,
-						f.thread,
-						f.updated,
-						f.user_id,
-						users.name
-					FROM forum f
-						LEFT JOIN
-							users on users.id = f.user_id
-					WHERE
-						f.parent = %d
-					ORDER BY
-						f.id ASC', $id)
-				)) {
+			$sql = sprintf(
+				'SELECT
+					f.id,
+					f.comment,
+					f.thread,
+					f.updated,
+					f.user_id,
+					users.name
+				FROM forum f
+					LEFT JOIN users on users.id = f.user_id
+				WHERE f.parent = %d
+				ORDER BY f.id ASC',
+				$id
+			);
 
-					while ($row = $res->fetch()) {
-						$c = new dto\forum($row);
-						$c->children = [];
-						if ($c->thread == '') {
-							$dto->children[] = $c;
-						} else {
-							$a = explode(':', $c->thread);
-							$pid = array_pop($a);
-							if ($pid == $id) {
-								$dto->children[] = $c;
-							} else {
-								$dto->comments[$pid]->children[] = $c;
-							}
-						}
+			(new dtoSet)($sql, function ($c) use ($dto) {
 
-						$dto->comments[$row['id']] = $c;
+				$c->children = [];
+				if ($c->thread == '') {
+
+					$dto->children[] = $c;
+				} else {
+
+					$a = explode(':', $c->thread);
+					$pid = array_pop($a);
+					if ($pid == $dto->id) {
+
+						$dto->children[] = $c;
+					} else {
+
+						$dto->comments[$pid]->children[] = $c;
 					}
 				}
 
-				return $dto;
-			}
+				$dto->comments[$c->id] = $c;
+			}, dto\forum::class);
+
+			return $dto;
 		}
 
 		return null;
@@ -515,7 +516,13 @@ class forum extends dao {
 		}
 	}
 
+	public function Insert($a) {
+		$a['created'] = $a['updated'] = self::dbTimeStamp();
+		return parent::Insert($a);
+	}
+
 	public function InsertDTO(dto\forum $dto, $notifyList = null) {
+
 		$a = [
 			'comment' => $dto->comment,
 			'description' => $dto->description,
@@ -525,17 +532,15 @@ class forum extends dao {
 			'by_email' => $dto->by_email,
 			'tag' => $dto->tag,
 			'forum_idea_id' => $dto->forum_idea_id,
-			'updated' => \db::dbTimeStamp(),
 			'user_id' => currentUser::id()
 		];
 
-		//~ \sys::logger( sprintf( 'message length: %s (%s)', strlen( $a['comment'] ), strlen( $dto->comment )));
-
 		if ($dto->parent > 0) {
+
 			$id = $this->Insert($a);
 		} else {
-			if (is_null($notifyList))
-				$notifyList = [];
+
+			if (is_null($notifyList)) $notifyList = [];
 
 			/*
 			 * ensure the emails are correct and
@@ -558,13 +563,14 @@ class forum extends dao {
 			$dto = $this->getById($id);
 		}
 
-		//~ \sys::logger( sprintf( 'message legnth: %s ', strlen( $dto->comment )));
-
 		$z = explode('|', $dto->notify);
 		foreach ($z as $email) {
+
 			if ($email != '' && $email != currentUser::email()) {
+
 				if (config::$SUPPORT_EMAIL == $email && currentUser::isDavid()) {
-					if ($this->debug) \sys::logger('InsertDTO // not self notifing : ' . $email);
+
+					if ($this->debug) logger::debug(sprintf('<InsertDTO // not self notifing : %s> %s', $email, logger::caller()));
 				} else {
 
 					$this->notify(
@@ -573,14 +579,15 @@ class forum extends dao {
 						($dto->parent > 0 ? $dto->parent : $id)
 					);
 
-					if ($this->debug) \sys::logger('notify:' . $email);
+					if ($this->debug) logger::debug(sprintf('<notify : %s> %s', $email, logger::caller()));
 				}
 			} else {
-				if ($this->debug) \sys::logger('NOT notify:' . $email);
+
+				if ($this->debug) logger::debug(sprintf('<NOT notify : %s> %s', $email, logger::caller()));
 			}
 		}
 
-		return ($id);
+		return $id;
 	}
 
 	public function last_updated(dto\forum $dto) {
@@ -728,5 +735,10 @@ class forum extends dao {
 
 		if (!is_dir($path)) mkdir($path);
 		return $path;
+	}
+
+	public function UpdateByID($a, $id) {
+		$a['updated'] = self::dbTimeStamp();
+		return parent::UpdateByID($a, $id);
 	}
 }
