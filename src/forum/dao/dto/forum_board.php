@@ -24,6 +24,7 @@ class forum_board extends dto {
   public $link = '';
   public $user_id = 0;
   public $archived = 0;
+
   public $created = '';
   public $updated = '';
 }

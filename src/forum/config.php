@@ -13,7 +13,7 @@ namespace dvc\forum;
 use cms;
 
 abstract class config extends cms\config {
-	const forum_db_version = 0.4;
+	const forum_db_version = 1;
 
 	const forum_filterKey = 'forum-filter';
 	const forum_filterWho = 'forum-filter-who';
