@@ -8,9 +8,7 @@
  *
 */
 
-namespace dvc\forum;
-
-extract((array)$this->data); ?>
+namespace dvc\forum; ?>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="<?= $_modal = strings::rand() ?>" aria-labelledby="<?= $_modal ?>Label" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">

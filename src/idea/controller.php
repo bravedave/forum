@@ -10,89 +10,60 @@
 
 namespace dvc\idea;
 
-use Json;
-use strings;
+use bravedave\dvc\ServerRequest;
+use cms\strings;
 
 class controller extends \Controller {
 
   protected function _index() {
+
+    $aside = array_merge(['index'], config::index_set);
     $this->data = (object)[
+      'aside' => $aside,
+      'pageUrl' => strings::url($this->route),
+      'searchFocus' => false,
       'title' => $this->title = config::label,
     ];
 
-    $this->render([
-      'title' => $this->title = config::label,
-      'primary' => ['matrix'],
-      'secondary' => ['index'],
-      'data' => (object)[
-        'searchFocus' => false,
-        'pageUrl' => strings::url($this->route)
-      ]
+    $this->renderBS5([
+      'main' => fn() => $this->load('matrix')
     ]);
   }
 
   protected function before() {
-    config::idea_checkdatabase();
 
-    parent::before();
+    config::idea_checkdatabase();
     $this->viewPath[] = __DIR__ . '/views/';
+    parent::before();
   }
 
   protected function postHandler() {
-    $action = $this->getPost('action');
 
-    switch ($action) {
-      case 'get-by-id':
-        if ($id = (int)$this->getPost('id')) {
-          $dao = new dao\forum_idea;
-          Json::ack($action)
-            ->add('dto', $dao->getByID($id));
-        } else {
-          Json::nak($action);
-        }
-        break;
+    $request = new ServerRequest;
+    $action = $request('action');
 
-      case 'get-forum-ideas':
-        $dao = new dao\forum_idea;
-        Json::ack($action)
-          ->add('data', $dao->getMatrix());
-        break;
-
-      case 'idea-save':
-        $a = [
-          'idea' => (string)$this->getPost('idea'),
-          'data' => (string)$this->getPost('data'),
-          'tag' => (string)$this->getPost('tag')
-        ];
-
-        $dao = new dao\forum_idea;
-        if ($id = (int)$this->getPost('id')) {
-          $dao->UpdateByID($a, $id);
-        } else {
-          $id = $dao->Insert($a);
-        }
-
-        Json::ack($action)
-          ->add('id', $id);
-
-        break;
-
-      default:
-        parent::postHandler();
-        break;
-    }
+    return match ($action) {
+      'get-by-id' => handler::getByID($request),
+      'get-forum-ideas' => handler::getForumIdeas($request),
+      'idea-save' => handler::ideaSave($request),
+      default => parent::postHandler()
+    };
   }
 
   public function edit(int $id = 0) {
+
     if ($id) {
+
       $dao = new dao\forum_idea;
       if ($dto = $dao->getByID($id)) {
+
         $this->data = (object)[
           'title' => $this->title = config::label_edit,
           'dto' => $dto,
         ];
         $this->load('edit');
       } else {
+
         $this->data = (object)[
           'title' => $this->title = config::label_not_found,
           'message' => config::label_not_found,
@@ -100,6 +71,7 @@ class controller extends \Controller {
         $this->load('modal-error');
       }
     } else {
+
       $this->data = (object)[
         'title' => $this->title = config::label_edit,
         'dto' => new dao\dto\forum_idea
@@ -109,11 +81,10 @@ class controller extends \Controller {
   }
 
   public function view(int $id = 0) {
-    if ($id) {
-      $dao = new dao\forum_idea;
-      if ($dto = $dao->getByID($id)) {
 
-        $dto = $dao->getRichData($dto);
+    if ($id) {
+
+      if ($dto = (new dao\forum_idea)($id)) {
 
         $this->data = (object)[
           'title' => $this->title = config::label_view,
@@ -121,9 +92,11 @@ class controller extends \Controller {
         ];
         $this->load('idea');
       } else {
+
         print 'not found';
       }
     } else {
+
       print 'invalid id';
     }
   }

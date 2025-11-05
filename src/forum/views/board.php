@@ -10,9 +10,7 @@
 
 namespace dvc\forum;
 
-use dvc\forum\strings;
-
-extract((array)($this->data ?? []));  ?>
+use dvc\forum\strings;  ?>
 
 <div class="row g-2">
   <div class="col mb-2">

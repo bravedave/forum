@@ -8,9 +8,7 @@
  *
 */
 
-namespace dvc\forum;
-
-extract((array)$this->data); ?>
+namespace dvc\forum; ?>
 
 <div class="table-responsive">
 

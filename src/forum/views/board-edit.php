@@ -12,8 +12,7 @@ namespace dvc\forum;
 
 use cms\theme;
 
-/** @var dao\dto\forum_board $dto */
-extract((array)($this->data ?? []));  ?>
+/** @var dao\dto\forum_board $dto */  ?>
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="action" value="board-save">
   <input type="hidden" name="id" value="<?= $dto->id ?>">
@@ -106,7 +105,8 @@ extract((array)($this->data ?? []));  ?>
             <div class="offset-2 col pt-2 mb-2">
               <div class="form-check">
 
-                <input type="checkbox" class="form-check-input" name="idea" id="<?= $_uid = strings::rand() ?>" value="1" <?= $dto->idea ? 'checked' : '' ?>>
+                <input type="checkbox" class="form-check-input" name="idea" id="<?= $_uid = strings::rand() ?>" value="1"
+                  <?= $dto->idea ? 'checked' : '' ?>>
                 <label class="form-check-label" for="<?= $_uid ?>">
                   idea created
                 </label>
@@ -137,7 +137,8 @@ extract((array)($this->data ?? []));  ?>
 
           <div class="form-check form-check-inline">
 
-            <input type="checkbox" class="form-check-input" name="archived" id="<?= $_uid = strings::rand() ?>" value="1" <?= $dto->archived ? 'checked' : '' ?>>
+            <input type="checkbox" class="form-check-input" name="archived" id="<?= $_uid = strings::rand() ?>" value="1"
+              <?= $dto->archived ? 'checked' : '' ?>>
             <label class="form-check-label" for="<?= $_uid ?>">
               archived
             </label>

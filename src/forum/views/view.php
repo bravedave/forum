@@ -28,8 +28,6 @@ namespace dvc\forum;
 use cms\{currentUser};
 use dvc\html;
 
-extract((array)$this->data);
-
 if ($this->comments)  ?>
 <form method="post" action="<?= strings::url($this->route) ?>">
 

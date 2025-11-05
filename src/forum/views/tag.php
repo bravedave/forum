@@ -27,9 +27,7 @@
 
 namespace dvc\forum;
 
-use cms\theme;
-
-extract((array)$this->data); ?>
+use cms\theme; ?>
 
 <form id="<?= $_form = strings::rand() ?>" autocomplete="off">
   <input type="hidden" name="id" value="<?= $dto->id ?>">

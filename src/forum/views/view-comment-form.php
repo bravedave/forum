@@ -22,7 +22,6 @@
  * [x] form-row => row g-2
  */
 
-extract((array)$this->data);
 ?>
 
 <input type="hidden" name="form_action" value="post comment">

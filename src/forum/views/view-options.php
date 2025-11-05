@@ -25,9 +25,7 @@
 namespace dvc\forum;
 
 use cms\{currentUser};
-use dao;
-
-extract((array)$this->data);	?>
+use dao;	?>
 
 <form id="<?= $_form = strings::rand() ?>">
 

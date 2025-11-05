@@ -8,9 +8,7 @@
  *
 */
 
-namespace cms\forum;
-
-extract((array)($this->data ?? []));  ?>
+namespace cms\forum;  ?>
 <nav class="nav flex-column">
   <h5><?= $title ?></h5>
 </nav>
