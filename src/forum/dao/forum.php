@@ -10,17 +10,19 @@
 
 namespace dvc\forum\dao;
 
-use bravedave\dvc\{dao, dtoSet, email, logger};
-use cms\{currentUser};
+use bravedave\dvc\dao;
+use bravedave\dvc\dto as dvcDTO;
+use bravedave\dvc\dtoSet;
+use bravedave\dvc\email;
+use bravedave\dvc\logger;
+use bravedave\dvc\sendmail;
+use bravedave\dvc\template;
+use cms\currentUser;
 use DOMDocument;
 use dvc\forum\{
 	forumUtility,
 	strings,
 	config
-};
-use dvc\{
-	sendmail,
-	template
 };
 
 class forum extends dao {
@@ -172,7 +174,7 @@ class forum extends dao {
 		}
 
 		$count = 0;
-		if ($data = $this->Result(sprintf('SELECT
+		if ($dto = (new dvcDTO)(sprintf('SELECT
 				count(*) `count`
 			FROM
 				T
@@ -181,7 +183,7 @@ class forum extends dao {
 				last_updated DESC
 			LIMIT %d,%d', $offset, $limit))) {
 
-			if ($dto = $data->dto()) $rows = $dto->count;
+			$count = $dto->count;
 		};
 
 		$data = $this->Result(sprintf('SELECT
