@@ -31,21 +31,29 @@ class forum extends dao {
 
 	public $debug = false;
 
-	public function getTopLevel($closed = false, $complete = false, $hidedead = false, $showOnlyMine = false, $resolved = true, $offset = 0, $limit = 20) {
+	public function getTopLevel(
+		$closed = false,
+		$complete = false,
+		$hidedead = false,
+		$showOnlyMine = false,
+		$resolved = true,
+		$offset = 0,
+		$limit = 20
+	): object {
 
 		$debug = false;
-		// $debug = true;
+		$debug = true;
 
 		$condition = array('f.parent = 0');
-		if ($limit < 1)
-			$limit = 20;
+		if ($limit < 1) $limit = 20;
 
 		if (!$closed) $condition[] = 'f.closed = 0';
 		if (!$complete) $condition[] = 'f.complete = 0';
 		if (!$resolved) $condition[] = sprintf('f.resolved != %d', config::resolved_resolved);
 		if ($hidedead) {
 
-			$condition[] = sprintf('(
+			$condition[] = sprintf(
+				'(
 				CASE
 				WHEN u.user_id IS NULL THEN f.user_id <> %d
 				ELSE u.user_id <> %d
@@ -54,12 +62,34 @@ class forum extends dao {
 				CASE
 				WHEN u.updated IS NULL THEN f.updated > "%s"
 				ELSE u.updated > "%s"
-			END)', currentUser::id(), currentUser::id(), date('Y-m-d', strtotime('-3 days')), date('Y-m-d', strtotime('-3 days')));
+			END)',
+				currentUser::id(),
+				currentUser::id(),
+				date('Y-m-d', strtotime('-3 days')),
+				date('Y-m-d', strtotime('-3 days'))
+			);
 		}
 
+		$this->Q('DROP TABLE IF EXISTS tmp');
+		$this->Q('CREATE TEMPORARY TABLE tmp as
+			SELECT src.parent,
+				src.updated,
+				fx.comment,
+				fx.user_id
+			FROM (
+					SELECT parent,
+						MAX(updated) updated
+					FROM forum
+					WHERE parent IN (SELECT DISTINCT parent FROM forum WHERE parent <> 0)
+					GROUP BY parent
+				) src
+				LEFT JOIN forum fx ON 
+					fx.parent = src.parent
+					AND fx.updated = src.updated');
+		$this->Q('CREATE INDEX idx_tmp_parent ON tmp(parent);');
+
 		$sql = sprintf(
-			'CREATE TEMPORARY TABLE T AS
-			SELECT
+			'SELECT
 				f.id,
 				f.tag,
 				f.description,
@@ -87,114 +117,71 @@ class forum extends dao {
 				f.resolved
 			FROM
 				forum f
-					LEFT JOIN
-						(SELECT
-							src.parent, src.updated, fx.comment, fx.user_id
-						FROM
-							(SELECT
-								parent, MAX(updated) updated
-							FROM
-								forum
-							WHERE
-								parent IN (SELECT DISTINCT parent FROM forum WHERE parent <> 0)
-							GROUP BY parent) src
-								LEFT JOIN
-									forum fx
-									ON
-										fx.parent = src.parent AND fx.updated = src.updated ) u
-						ON
-							u.parent = f.id
-					LEFT JOIN
-						users ON
+					LEFT JOIN tmp u ON u.parent = f.id
+					LEFT JOIN users ON
 							CASE
 								WHEN u.user_id IS NULL THEN users.id = f.user_id
 								ELSE users.id = u.user_id
 							END
-					LEFT JOIN
-						users reporter ON reporter.id = f.user_id
-					LEFT JOIN
-						properties ON properties.id = f.property_id
-			WHERE
-				%s
-			ORDER BY
-				last_updated DESC',
+					LEFT JOIN users reporter ON reporter.id = f.user_id
+					LEFT JOIN properties ON properties.id = f.property_id
+			WHERE %s
+			ORDER BY last_updated DESC',
 			implode(' AND ', $condition)
 		);
 
 		if ($debug) logger::sql($sql, logger::caller());
+		/**/
 
-		//~ return ( $this->db->result( $sql));
+		$dtoSet = [];
+		$dtoSet = (new dtoSet)($sql, function ($dto) {
 
-		$this->Q($sql);
-
-		if ($showOnlyMine) {
-			$dKeys = array();
-			if ($data = $this->result('SELECT id, reporter, user_id, notify FROM T')) {
-				while ($dto = $data->dto()) {
-					if ($dto->reporter == currentUser::id()) continue;
-					if ($dto->user_id == currentUser::id()) continue;
-					if (strpos($dto->notify, currentUser::email()) !== false) continue;
-
-					$dKeys[] = $dto->id;
-				}
+			if (!$dto->priority) {
+				$dto->priority = 5;
+			} elseif ($dto->closed == 1) {
+				$dto->priority = 1;
+			} elseif ($dto->complete == 1) {
+				$dto->priority = 2;
 			}
 
-			if (count($dKeys))
-				$this->Q(sprintf('DELETE FROM T WHERE id IN (%s)', implode(',', $dKeys)));
+			return $dto;
+		});
+
+		if ($showOnlyMine) {
+
+			$dtoSet = array_filter($dtoSet, function ($dto) {
+				/** @var dt\forum $dto */
+				if ($dto->reporter == currentUser::id()) return true;
+				if ($dto->user_id == currentUser::id()) return true;
+				$notify = explode('|', $dto->notify);
+				foreach ($notify as $email) {
+					if ($email == currentUser::email()) return true;
+				}
+				return false;
+			});
 		}
 
-		//~ $this->Q( 'DROP TABLE IF EXISTS _t');
-		//~ $this->Q( 'CREATE TABLE _t AS ( SELECT * FROM T)');
-		/*
-			set 5 as the default priority
-			they may be low (4) to urgent (8),
-			unprioritised records become normal
-			*/
-		$this->Q('UPDATE
-				T
-			SET
-				priority = CASE
-					WHEN complete = 1 THEN "2"
-					WHEN closed = 1 THEN "1"
-					ELSE "5"
-					END
-			WHERE
-				priority IS NULL
-				OR priority = ""
-				OR priority = "0"
-				OR closed = 1
-				OR complete = 1
-				');
+		// sort dtoSet by `resolved` DESC, `priority` DESC, `last_updated` DESC
+		usort($dtoSet, function ($a, $b) {
 
-		$tot = 0;
-		//~ if ( $res = $this->db->Result( sprintf( 'SELECT count(*) count FROM forum f WHERE %s', implode( ' AND ', $condition )))) {
-		if ($res = $this->Result('SELECT count(*) count FROM T')) {
-			if ($row = $res->dto())
-				$tot = (int)$row->count;
-		}
+			/** @var dt\forum $a */
+			/** @var dt\forum $b */
+			if ($a->resolved != $b->resolved) {
+				return ($b->resolved <=> $a->resolved);
+			}
+			if ($a->priority != $b->priority) {
+				return ($b->priority <=> $a->priority);
+			}
+			return (strtotime($b->last_updated) <=> strtotime($a->last_updated));
+		});
 
-		$count = 0;
-		if ($dto = (new dvcDTO)(sprintf('SELECT
-				count(*) `count`
-			FROM
-				T
-			ORDER BY
-				priority DESC,
-				last_updated DESC
-			LIMIT %d,%d', $offset, $limit))) {
+		$tot = count($dtoSet);
+		if ($offset) $dtoSet = array_slice($dtoSet, $offset);
 
-			$count = $dto->count;
-		};
+		// if there is a limit, we need to slice the dtoSet
+		if ($limit) $dtoSet = array_slice($dtoSet, 0, $limit);
 
-		$data = $this->Result(sprintf('SELECT
-				*
-			FROM
-				T
-			ORDER BY
-				`resolved` DESC,
-				`priority` DESC,
-				`last_updated` DESC
-			LIMIT %d,%d', $offset, $limit));
+		$count = count($dtoSet);
 
 		$res = (object)[
 			'start' => (int)$offset + 1,
@@ -203,7 +190,7 @@ class forum extends dao {
 			'nextpage' => ((int)$offset / (int)$limit) + 2,
 			'totalpages' => (int)((int)$tot / (int)$limit) + 1,
 			'total' => (int)$tot,
-			'data' => $data
+			'dtoSet' => $dtoSet
 		];
 
 		return $res;
@@ -265,7 +252,7 @@ class forum extends dao {
 		if ($dto = $this->getByID($id)) {
 			$this->UpdateByID([
 				'closed' => 1,
-				'closed_date' => \db::dbTimeStamp()
+				'closed_date' => self::dbTimeStamp()
 			], $dto->id);
 			return true;
 		}

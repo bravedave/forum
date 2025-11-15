@@ -35,6 +35,7 @@ use dvc\html; ?>
   .line-clamp {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 
@@ -83,7 +84,7 @@ use dvc\html; ?>
 </div>
 
 <div class="d-none" id="<?= $_env = strings::rand() ?>">
-  <?php while ($dto = $dataset->data->dto()) {
+  <?php array_walk($dataset->dtoSet, function ($dto) {
     $status = 0;  // open
     if ($dto->closed || $dto->complete) {
       if ($dto->complete) {
@@ -188,7 +189,7 @@ use dvc\html; ?>
         </div>
         <div class="col-md-5 col-lg-6 col-xl-3 mb-2 text-center small pt-1"><?= strings::asShortDate($dto->created, true); ?></div>
         <div class="col mb-2 text-center"><?= html::icon($dto->reporter_name); ?></div>
-        <div class="col mb-2 text-center small pt-1 text-truncate" role="priority"><?= $priority ?></div>
+        <div class="col mb-2 text-center small pt-1 text-truncate js-priority"><?= $priority ?></div>
       </div>
     </div>
 
@@ -227,7 +228,7 @@ use dvc\html; ?>
 
   <?php
     print '</div>';
-  }
+  });
   ?>
 </div>
 
@@ -249,7 +250,7 @@ use dvc\html; ?>
           if ('ack' == d.response) {
 
             _row.data('priority', String(d.priority)); // has to be text
-            $('div[role="priority"]', _row).html(d.text);
+            _row.find('.js-priority').html(d.text);
 
             if ('<?= config::FORUM_BROKEN_PRIORITY ?>' == d.priority) {
 
@@ -262,40 +263,37 @@ use dvc\html; ?>
         });
     };
 
-    let mark = function(action) {
-      let _row = this; // jQuery object
-      let _data = _row.data();
+    const mark = function(action) {
+      const _row = this; // jQuery object
+      const _data = _row.data();
 
-      _.post({
-        url: _.url('<?= $this->route ?>'),
-        data: {
-          action: action,
-          id: _data.id
-
-        }
-
+      _.fetch.post(_.url('<?= $this->route ?>'), {
+        action: action,
+        id: _data.id
       }).then(d => {
+
         _.growl(d);
 
         _row.data('complete', d.complete);
 
-        $('i[role="status-icon"]', _row).removeClass('bi-hand-thumbs-up bi-folder bi-hand-thumbs-down bi-check');
+        $('i[role="status-icon"]', _row)
+          .removeClass('bi-hand-thumbs-up bi-folder bi-hand-thumbs-down bi-check');
 
         //~ console.log( d );
-        if (1 == d.status)
+        if (1 == d.status) {
+
           $('i[role="status-icon"]', _row).addClass('bi-hand-thumbs-up').attr('title', 'topic is open - responded');
+        } else if (2 == d.status) {
 
-        else if (2 == d.status)
           $('i[role="status-icon"]', _row).addClass('bi-check').attr('title', 'topic is complete');
+        } else if (3 == d.status) {
 
-        else if (3 == d.status)
           $('i[role="status-icon"]', _row).addClass('bi-folder').attr('title', 'topic is closed');
+        } else {
 
-        else
           $('i[role="status-icon"]', _row).addClass('bi-hand-thumbs-down').attr('title', 'topic is open');
-
+        }
       });
-
     };
 
     let tags = [];
